@@ -12,6 +12,7 @@ import {
   Megaphone,
   UserCircle,
   Users,
+  Link2,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { NotificationsBell } from "@/components/notifications-bell";
@@ -22,6 +23,7 @@ const negociateurNav = [
   { href: "/negociateur/tableau-de-bord", label: "Tableau de bord", icon: LayoutDashboard },
   { href: "/negociateur/mes-recommandations", label: "Recommandations", icon: ClipboardList },
   { href: "/negociateur/mes-ambassadeurs", label: "Mes ambassadeurs", icon: Users },
+  { href: "/negociateur/parrainage", label: "Recrutement", icon: Link2 },
   { href: "/negociateur/mes-contrats", label: "Contrats", icon: FileText },
   { href: "/negociateur/actualites", label: "Actualités", icon: Megaphone },
   { href: "/negociateur/profil", label: "Mon profil", icon: UserCircle },
