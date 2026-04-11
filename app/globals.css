@@ -1,6 +1,8 @@
 @import "tailwindcss";
 @import url('https://fonts.googleapis.com/css2?family=Fira+Sans:wght@300;400;500;600;700&family=Montserrat:wght@300;400;500;600;700&display=swap');
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 :root {
   --background: #ffffff;
   --foreground: #000000;
@@ -10,6 +12,31 @@
   --brand-gold-dark: #bca073;
   --brand-white: #ffffff;
 }
+
+.dark {
+  --background: #0f172a;
+  --foreground: #e2e8f0;
+}
+
+/* Dark mode base overrides */
+.dark body { background: #0f172a; color: #e2e8f0; }
+.dark .bg-white { background: #1e293b !important; }
+.dark .bg-gray-50 { background: #0f172a !important; }
+.dark .bg-gray-100 { background: #1e293b !important; }
+.dark .text-gray-900 { color: #f1f5f9 !important; }
+.dark .text-gray-700 { color: #cbd5e1 !important; }
+.dark .text-gray-600 { color: #94a3b8 !important; }
+.dark .text-gray-500 { color: #64748b !important; }
+.dark .text-gray-400 { color: #475569 !important; }
+.dark .border-gray-100 { border-color: #334155 !important; }
+.dark .border-gray-200 { border-color: #334155 !important; }
+.dark .border-gray-300 { border-color: #475569 !important; }
+.dark .divide-gray-50 > :not(:last-child) { border-color: #1e293b !important; }
+.dark .divide-gray-100 > :not(:last-child) { border-color: #334155 !important; }
+.dark .hover\:bg-gray-50:hover { background: #334155 !important; }
+.dark .shadow-sm { box-shadow: 0 1px 2px rgba(0,0,0,0.4) !important; }
+.dark input, .dark textarea, .dark select { background: #1e293b !important; color: #e2e8f0 !important; border-color: #475569 !important; }
+.dark .bg-brand-cream { background: #1e293b !important; }
 
 @theme inline {
   --color-background: var(--background);

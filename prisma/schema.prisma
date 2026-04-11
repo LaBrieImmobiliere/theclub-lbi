@@ -28,6 +28,7 @@ model User {
   notifications     Notification[]
   broadcasts        Broadcast[]
   pushSubscriptions PushSubscription[]
+  badges            Badge[]
 }
 
 model Account {
@@ -138,6 +139,39 @@ model Lead {
   agency      Agency?     @relation(fields: [agencyId], references: [id])
   negotiator  Negotiator? @relation("negotiatorLeads", fields: [negotiatorId], references: [id])
   contract    Contract?
+  statusHistory LeadStatusHistory[]
+}
+
+model LeadStatusHistory {
+  id        String   @id @default(cuid())
+  leadId    String
+  fromStatus String?
+  toStatus   String
+  changedBy  String?
+  note       String?
+  createdAt  DateTime @default(now())
+
+  lead Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
+}
+
+model Badge {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String
+  label     String
+  earnedAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  action    String
+  entity    String
+  entityId  String?
+  details   String?
+  createdAt DateTime @default(now())
 }
 
 model Contract {

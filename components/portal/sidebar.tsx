@@ -16,10 +16,12 @@ import {
   UserCircle,
   Users,
   Coins,
+  HelpCircle,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { NotificationsBell } from "@/components/notifications-bell";
 import { PwaInstallButton } from "@/components/pwa-install-button";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { SidebarDrawer, MobileOverlay, MobileHeader, useSidebar } from "@/components/mobile-sidebar";
 
 const ambassadorNav = [
@@ -33,6 +35,7 @@ const ambassadorNav = [
   { href: "/portail/actualites", label: "Actualités", icon: Megaphone },
   { href: "/portail/profil", label: "Mon profil", icon: UserCircle },
   { href: "/portail/messagerie", label: "Messagerie", icon: MessageSquare },
+  { href: "/portail/aide", label: "Aide & FAQ", icon: HelpCircle },
 ];
 
 const negotiatorNav = [
@@ -58,6 +61,7 @@ function SidebarContent({ role }: { role: string }) {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo.png" alt="La Brie Immobilière" style={{ height: 60, width: "auto", objectFit: "contain" }} />
         <div className="flex-1" />
+        <ThemeToggle />
         <div className="hidden lg:block">
           <NotificationsBell />
         </div>
