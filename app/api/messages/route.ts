@@ -26,7 +26,7 @@ export async function GET() {
     string,
     {
       user: { id: string; name: string | null; email: string; role: string };
-      lastMessage: { id: string; content: string; createdAt: Date; senderId: string };
+      lastMessage: { id: string; content: string; createdAt: Date; senderId: string } | null;
       unreadCount: number;
     }
   >();
@@ -55,11 +55,74 @@ export async function GET() {
     }
   }
 
-  const conversations = Array.from(conversationMap.values()).sort(
-    (a, b) =>
-      new Date(b.lastMessage.createdAt).getTime() -
-      new Date(a.lastMessage.createdAt).getTime()
-  );
+  // Add linked contacts who have no existing conversation
+  // Ambassador → show their negotiator
+  // Negotiator → show their ambassadors
+  if (user.role === "AMBASSADOR") {
+    const ambassador = await prisma.ambassador.findUnique({
+      where: { userId },
+      include: {
+        negotiator: {
+          include: { user: { select: { id: true, name: true, email: true, role: true } } },
+        },
+      },
+    });
+    if (ambassador?.negotiator && !conversationMap.has(ambassador.negotiator.userId)) {
+      conversationMap.set(ambassador.negotiator.userId, {
+        user: ambassador.negotiator.user,
+        lastMessage: null,
+        unreadCount: 0,
+      });
+    }
+  } else if (user.role === "NEGOTIATOR") {
+    const negotiator = await prisma.negotiator.findUnique({
+      where: { userId },
+      include: {
+        ambassadors: {
+          where: { status: "ACTIVE" },
+          include: { user: { select: { id: true, name: true, email: true, role: true } } },
+        },
+      },
+    });
+    if (negotiator?.ambassadors) {
+      for (const amb of negotiator.ambassadors) {
+        if (!conversationMap.has(amb.userId)) {
+          conversationMap.set(amb.userId, {
+            user: amb.user,
+            lastMessage: null,
+            unreadCount: 0,
+          });
+        }
+      }
+    }
+  }
+
+  // Also add admins for everyone if no admin conversation exists
+  const admins = await prisma.user.findMany({
+    where: { role: "ADMIN", id: { not: userId } },
+    select: { id: true, name: true, email: true, role: true },
+    take: 3,
+  });
+  for (const admin of admins) {
+    if (!conversationMap.has(admin.id)) {
+      conversationMap.set(admin.id, {
+        user: admin,
+        lastMessage: null,
+        unreadCount: 0,
+      });
+    }
+  }
+
+  const conversations = Array.from(conversationMap.values()).sort((a, b) => {
+    // Conversations with messages first, sorted by date
+    if (a.lastMessage && b.lastMessage) {
+      return new Date(b.lastMessage.createdAt).getTime() - new Date(a.lastMessage.createdAt).getTime();
+    }
+    if (a.lastMessage) return -1;
+    if (b.lastMessage) return 1;
+    // Contacts without messages: sort by name
+    return (a.user.name ?? a.user.email).localeCompare(b.user.name ?? b.user.email);
+  });
 
   return NextResponse.json({ conversations });
 }

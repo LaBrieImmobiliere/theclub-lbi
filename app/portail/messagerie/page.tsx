@@ -18,7 +18,7 @@ interface Conversation {
     content: string;
     createdAt: string;
     senderId: string;
-  };
+  } | null;
   unreadCount: number;
 }
 
@@ -190,14 +190,18 @@ export default function MessageriePage() {
                     <p className="text-sm font-semibold text-gray-900 truncate">
                       {conv.user.name || conv.user.email}
                     </p>
-                    <span className="text-xs text-gray-400 flex-shrink-0 ml-2">
-                      {formatTime(conv.lastMessage.createdAt)}
-                    </span>
+                    {conv.lastMessage && (
+                      <span className="text-xs text-gray-400 flex-shrink-0 ml-2">
+                        {formatTime(conv.lastMessage.createdAt)}
+                      </span>
+                    )}
                   </div>
                   <div className="flex items-center justify-between mt-0.5">
                     <p className="text-xs text-gray-500 truncate">
-                      {conv.lastMessage.senderId === currentUser?.id ? "Vous: " : ""}
-                      {conv.lastMessage.content}
+                      {conv.lastMessage
+                        ? `${conv.lastMessage.senderId === currentUser?.id ? "Vous: " : ""}${conv.lastMessage.content}`
+                        : "Démarrer la conversation"
+                      }
                     </p>
                     {conv.unreadCount > 0 && (
                       <span className="ml-2 flex-shrink-0 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-brand-gold">

@@ -19,7 +19,7 @@ export default async function ParrainagePage() {
     include: {
       negotiator: {
         include: {
-          user: { select: { name: true, email: true, phone: true } },
+          user: { select: { name: true, email: true, phone: true, image: true } },
           agency: true,
         },
       },
@@ -54,7 +54,9 @@ export default async function ParrainagePage() {
     negotiatorName: negotiator?.user?.name ?? null,
     negotiatorEmail: negotiator?.user?.email ?? null,
     negotiatorPhone: negotiator?.user?.phone ?? null,
+    negotiatorImage: negotiator?.user?.image ?? null,
     agencyName: agency?.name ?? "La Brie Immobilière",
+    agencyCity: agency?.city ?? "Villecresnes",
     agencyAddress: agency ? `${agency.address}, ${agency.postalCode} ${agency.city}` : "41, av. du Maréchal de Lattre de Tassigny, 94440 Villecresnes",
     agencyPhone: agency?.phone ?? null,
     agencyEmail: agency?.email ?? null,

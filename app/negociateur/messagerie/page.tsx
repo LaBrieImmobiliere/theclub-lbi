@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { MessageSquare, Send } from "lucide-react";
 
 interface UserInfo { id: string; name: string | null; email: string; role: string; }
-interface Conversation { user: UserInfo; lastMessage: { id: string; content: string; createdAt: string; senderId: string; }; unreadCount: number; }
+interface Conversation { user: UserInfo; lastMessage: { id: string; content: string; createdAt: string; senderId: string; } | null; unreadCount: number; }
 interface Message { id: string; senderId: string; receiverId: string; content: string; read: boolean; createdAt: string; sender: UserInfo; receiver: UserInfo; }
 
 export default function NegociateurMessageriePage() {
@@ -80,10 +80,10 @@ export default function NegociateurMessageriePage() {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between">
                   <p className="text-sm font-semibold text-gray-900 truncate">{conv.user.name || conv.user.email}</p>
-                  <span className="text-xs text-gray-400 flex-shrink-0 ml-2">{formatTime(conv.lastMessage.createdAt)}</span>
+                  {conv.lastMessage && <span className="text-xs text-gray-400 flex-shrink-0 ml-2">{formatTime(conv.lastMessage.createdAt)}</span>}
                 </div>
                 <div className="flex items-center justify-between mt-0.5">
-                  <p className="text-xs text-gray-500 truncate">{conv.lastMessage.senderId === currentUser?.id ? "Vous: " : ""}{conv.lastMessage.content}</p>
+                  <p className="text-xs text-gray-500 truncate">{conv.lastMessage ? `${conv.lastMessage.senderId === currentUser?.id ? "Vous: " : ""}${conv.lastMessage.content}` : "Démarrer la conversation"}</p>
                   {conv.unreadCount > 0 && <span className="ml-2 flex-shrink-0 inline-flex items-center justify-center w-5 h-5 text-xs font-bold text-white bg-[#D1B280]">{conv.unreadCount}</span>}
                 </div>
                 <p className="text-[10px] text-gray-400 mt-0.5">Ambassadeur</p>
