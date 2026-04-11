@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useRef, useCallback } from "react";
-import { Bell, CheckCheck, Info, CheckCircle2, AlertTriangle, XCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Bell, CheckCheck, Info, CheckCircle2, AlertTriangle, XCircle, MessageSquare } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 
 type Notification = {
@@ -9,6 +10,7 @@ type Notification = {
   title: string;
   message: string;
   type: string;
+  link: string | null;
   read: boolean;
   createdAt: string;
 };
@@ -18,9 +20,12 @@ const TYPE_ICON: Record<string, React.ReactNode> = {
   WARNING: <AlertTriangle className="w-4 h-4 text-amber-500" />,
   ERROR: <XCircle className="w-4 h-4 text-red-500" />,
   INFO: <Info className="w-4 h-4 text-blue-500" />,
+  MESSAGE: <MessageSquare className="w-4 h-4 text-blue-500" />,
+  LEAD: <CheckCircle2 className="w-4 h-4 text-purple-500" />,
 };
 
 export function NotificationsBell() {
+  const router = useRouter();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [open, setOpen] = useState(false);
   const [panelPos, setPanelPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
@@ -107,7 +112,13 @@ export function NotificationsBell() {
               notifications.map(notif => (
                 <div
                   key={notif.id}
-                  onClick={() => markRead(notif.id)}
+                  onClick={() => {
+                    markRead(notif.id);
+                    if (notif.link) {
+                      setOpen(false);
+                      router.push(notif.link);
+                    }
+                  }}
                   className={`px-4 py-3 cursor-pointer hover:bg-gray-50 transition-colors ${!notif.read ? "bg-blue-50/50" : ""}`}
                 >
                   <div className="flex items-start gap-3">

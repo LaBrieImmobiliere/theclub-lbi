@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { sendNotificationEmail } from "@/lib/email";
 
 export async function GET() {
   const session = await auth();
@@ -9,11 +10,8 @@ export async function GET() {
   const user = session.user as { id?: string; role?: string };
   const userId = user.id!;
 
-  // Fetch all messages where current user is sender or receiver
   const messages = await prisma.message.findMany({
-    where: {
-      OR: [{ senderId: userId }, { receiverId: userId }],
-    },
+    where: { OR: [{ senderId: userId }, { receiverId: userId }] },
     orderBy: { createdAt: "desc" },
     include: {
       sender: { select: { id: true, name: true, email: true, role: true } },
@@ -21,7 +19,6 @@ export async function GET() {
     },
   });
 
-  // Group by conversation partner
   const conversationMap = new Map<
     string,
     {
@@ -38,66 +35,41 @@ export async function GET() {
     if (!conversationMap.has(partnerId)) {
       conversationMap.set(partnerId, {
         user: partner,
-        lastMessage: {
-          id: msg.id,
-          content: msg.content,
-          createdAt: msg.createdAt,
-          senderId: msg.senderId,
-        },
+        lastMessage: { id: msg.id, content: msg.content, createdAt: msg.createdAt, senderId: msg.senderId },
         unreadCount: 0,
       });
     }
 
-    // Count unread messages sent TO current user by this partner
     if (msg.receiverId === userId && !msg.read && msg.senderId === partnerId) {
       const conv = conversationMap.get(partnerId)!;
       conv.unreadCount += 1;
     }
   }
 
-  // Add linked contacts who have no existing conversation
-  // Ambassador → show their negotiator
-  // Negotiator → show their ambassadors
+  // Add linked contacts without existing conversation
   if (user.role === "AMBASSADOR") {
     const ambassador = await prisma.ambassador.findUnique({
       where: { userId },
-      include: {
-        negotiator: {
-          include: { user: { select: { id: true, name: true, email: true, role: true } } },
-        },
-      },
+      include: { negotiator: { include: { user: { select: { id: true, name: true, email: true, role: true } } } } },
     });
     if (ambassador?.negotiator && !conversationMap.has(ambassador.negotiator.userId)) {
-      conversationMap.set(ambassador.negotiator.userId, {
-        user: ambassador.negotiator.user,
-        lastMessage: null,
-        unreadCount: 0,
-      });
+      conversationMap.set(ambassador.negotiator.userId, { user: ambassador.negotiator.user, lastMessage: null, unreadCount: 0 });
     }
   } else if (user.role === "NEGOTIATOR") {
     const negotiator = await prisma.negotiator.findUnique({
       where: { userId },
-      include: {
-        ambassadors: {
-          where: { status: "ACTIVE" },
-          include: { user: { select: { id: true, name: true, email: true, role: true } } },
-        },
-      },
+      include: { ambassadors: { where: { status: "ACTIVE" }, include: { user: { select: { id: true, name: true, email: true, role: true } } } } },
     });
     if (negotiator?.ambassadors) {
       for (const amb of negotiator.ambassadors) {
         if (!conversationMap.has(amb.userId)) {
-          conversationMap.set(amb.userId, {
-            user: amb.user,
-            lastMessage: null,
-            unreadCount: 0,
-          });
+          conversationMap.set(amb.userId, { user: amb.user, lastMessage: null, unreadCount: 0 });
         }
       }
     }
   }
 
-  // Also add admins for everyone if no admin conversation exists
+  // Add admins for everyone
   const admins = await prisma.user.findMany({
     where: { role: "ADMIN", id: { not: userId } },
     select: { id: true, name: true, email: true, role: true },
@@ -105,22 +77,14 @@ export async function GET() {
   });
   for (const admin of admins) {
     if (!conversationMap.has(admin.id)) {
-      conversationMap.set(admin.id, {
-        user: admin,
-        lastMessage: null,
-        unreadCount: 0,
-      });
+      conversationMap.set(admin.id, { user: admin, lastMessage: null, unreadCount: 0 });
     }
   }
 
   const conversations = Array.from(conversationMap.values()).sort((a, b) => {
-    // Conversations with messages first, sorted by date
-    if (a.lastMessage && b.lastMessage) {
-      return new Date(b.lastMessage.createdAt).getTime() - new Date(a.lastMessage.createdAt).getTime();
-    }
+    if (a.lastMessage && b.lastMessage) return new Date(b.lastMessage.createdAt).getTime() - new Date(a.lastMessage.createdAt).getTime();
     if (a.lastMessage) return -1;
     if (b.lastMessage) return 1;
-    // Contacts without messages: sort by name
     return (a.user.name ?? a.user.email).localeCompare(b.user.name ?? b.user.email);
   });
 
@@ -131,7 +95,7 @@ export async function POST(req: NextRequest) {
   const session = await auth();
   if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
 
-  const user = session.user as { id?: string; name?: string | null };
+  const user = session.user as { id?: string; name?: string | null; role?: string };
   const userId = user.id!;
 
   const body = await req.json();
@@ -142,22 +106,39 @@ export async function POST(req: NextRequest) {
   }
 
   const message = await prisma.message.create({
-    data: {
-      senderId: userId,
-      receiverId,
-      content: content.trim(),
-    },
+    data: { senderId: userId, receiverId, content: content.trim() },
   });
 
-  // Create a notification for the receiver
+  // Determine the right messagerie link based on receiver's role
+  const receiver = await prisma.user.findUnique({ where: { id: receiverId }, select: { name: true, email: true, role: true } });
+  let messageLink = "/portail/messagerie";
+  if (receiver?.role === "NEGOTIATOR") messageLink = "/negociateur/messagerie";
+  else if (receiver?.role === "ADMIN") messageLink = "/admin/messagerie";
+
+  // Create in-app notification with link
   await prisma.notification.create({
     data: {
       userId: receiverId,
       title: "Nouveau message",
       message: `${user.name || "Un utilisateur"} vous a envoyé un message`,
       type: "MESSAGE",
+      link: messageLink,
     },
   });
+
+  // Send email notification
+  if (receiver?.email) {
+    try {
+      await sendNotificationEmail(
+        receiver.email,
+        receiver.name || "Utilisateur",
+        "Nouveau message - The Club LBI",
+        `${user.name || "Un utilisateur"} vous a envoyé un message sur la plateforme The Club.\n\nConnectez-vous pour le lire et y répondre.`
+      );
+    } catch {
+      // Email failure should not block the message
+    }
+  }
 
   return NextResponse.json(message, { status: 201 });
 }

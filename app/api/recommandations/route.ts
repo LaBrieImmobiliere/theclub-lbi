@@ -127,7 +127,8 @@ export async function POST(req: NextRequest) {
         userId: admin.id,
         title: "Nouvelle recommandation",
         message: `${ambassadorName} a recommandé ${leadFullName} (${type}).`,
-        type: "INFO",
+        type: "LEAD",
+        link: "/admin/recommandations",
       },
     });
     try {
@@ -148,7 +149,8 @@ export async function POST(req: NextRequest) {
         userId: neg.user.id,
         title: "Nouvelle recommandation",
         message: `Votre ambassadeur ${ambassadorName} a recommandé ${leadFullName} (${type}).`,
-        type: "SUCCESS",
+        type: "LEAD",
+        link: "/negociateur/mes-recommandations",
       },
     });
     try {
