@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { sendNotificationEmail } from "@/lib/email";
+import { sendPushToUser } from "@/lib/push";
 
 export async function GET() {
   const session = await auth();
@@ -125,6 +126,16 @@ export async function POST(req: NextRequest) {
       link: messageLink,
     },
   });
+
+  // Send push notification
+  try {
+    await sendPushToUser(
+      receiverId,
+      "Nouveau message",
+      `${user.name || "Un utilisateur"} vous a envoyé un message`,
+      messageLink
+    );
+  } catch { /* push failure should not block */ }
 
   // Send email notification
   if (receiver?.email) {

@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import {
   LayoutDashboard,
   Users,
+  UserCog,
   FileText,
   ClipboardList,
   LogOut,
@@ -13,6 +14,7 @@ import {
   Building2,
   Megaphone,
   MessageSquare,
+  Trophy,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { NotificationsBell } from "@/components/notifications-bell";
@@ -22,9 +24,11 @@ import { SidebarDrawer, MobileOverlay, MobileHeader, useSidebar } from "@/compon
 const nav = [
   { href: "/admin/dashboard", label: "Tableau de bord", icon: LayoutDashboard },
   { href: "/admin/ambassadeurs", label: "Ambassadeurs", icon: Users },
+  { href: "/admin/negociateurs", label: "Négociateurs", icon: UserCog },
   { href: "/admin/recommandations", label: "Recommandations", icon: ClipboardList },
   { href: "/admin/contrats", label: "Contrats", icon: FileText },
   { href: "/admin/agences", label: "Agences", icon: Building2 },
+  { href: "/admin/leaderboard", label: "Classement", icon: Trophy },
   { href: "/admin/actualites", label: "Fil d'actualité", icon: Megaphone },
   { href: "/admin/messagerie", label: "Messagerie", icon: MessageSquare },
   { href: "/admin/stats", label: "Statistiques", icon: BarChart2 },

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { sendNewLeadEmail, sendNotificationEmail } from "@/lib/email";
+import { sendPushToUser } from "@/lib/push";
 import { createLeadSchema } from "@/lib/validations";
 import { rateLimit } from "@/lib/rate-limit";
 
@@ -139,6 +140,7 @@ export async function POST(req: NextRequest) {
         `${ambassadorName} vient de recommander ${leadFullName} (${type}). Connectez-vous pour traiter cette recommandation.`
       );
     } catch { /* email failure shouldn't block */ }
+    try { await sendPushToUser(admin.id, "Nouvelle recommandation", `${ambassadorName} a recommandé ${leadFullName}`, "/admin/recommandations"); } catch { /* push failure shouldn't block */ }
   }
 
   // 2. Notify the negotiator linked to this ambassador (in-app + email)
@@ -161,6 +163,7 @@ export async function POST(req: NextRequest) {
         `${ambassadorName} vient de recommander ${leadFullName} (${type}). Connectez-vous pour consulter les détails.`
       );
     } catch { /* email failure shouldn't block */ }
+    try { await sendPushToUser(neg.user.id, "Nouvelle recommandation", `${ambassadorName} a recommandé ${leadFullName}`, "/negociateur/mes-recommandations"); } catch { /* push failure shouldn't block */ }
   }
 
   return NextResponse.json(lead, { status: 201 });

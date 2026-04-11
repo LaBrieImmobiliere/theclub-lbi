@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Camera, Check, AlertCircle, Eye, EyeOff, Download, Trash2, AlertTriangle } from "lucide-react";
 import { signOut } from "next-auth/react";
+import { PushSubscribeButton } from "@/components/push-subscribe";
 
 interface UserProfile {
   id: string;
@@ -189,6 +190,17 @@ export default function NegociateurProfilPage() {
           <p className="text-xs text-gray-400">
             Membre depuis le {new Date(profile.createdAt).toLocaleDateString("fr-FR", { day: "2-digit", month: "long", year: "numeric" })}
           </p>
+        </CardContent>
+      </Card>
+
+      {/* Push Notifications */}
+      <Card>
+        <CardHeader>
+          <h2 className="text-lg font-bold text-gray-900">Notifications push</h2>
+          <p className="text-xs text-gray-500">Recevez des alertes m&ecirc;me quand l&apos;app est ferm&eacute;e</p>
+        </CardHeader>
+        <CardContent>
+          <PushSubscribeButton />
         </CardContent>
       </Card>
 

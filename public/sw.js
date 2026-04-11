@@ -94,3 +94,47 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 });
+
+// Push notifications
+self.addEventListener("push", (event) => {
+  if (!event.data) return;
+
+  try {
+    const data = event.data.json();
+    const options = {
+      body: data.body || "",
+      icon: data.icon || "/apple-touch-icon.png",
+      badge: data.badge || "/apple-touch-icon.png",
+      data: { url: data.url || "/" },
+      vibrate: [200, 100, 200],
+      tag: data.tag || "default",
+      renotify: true,
+    };
+
+    event.waitUntil(
+      self.registration.showNotification(data.title || "The Club LBI", options)
+    );
+  } catch (e) {
+    console.error("Push parse error:", e);
+  }
+});
+
+// Click on push notification → open the app
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const url = event.notification.data?.url || "/";
+
+  event.waitUntil(
+    clients.matchAll({ type: "window", includeUncontrolled: true }).then((clientList) => {
+      // Focus existing tab if open
+      for (const client of clientList) {
+        if (client.url.includes(self.registration.scope) && "focus" in client) {
+          client.navigate(url);
+          return client.focus();
+        }
+      }
+      // Open new tab
+      return clients.openWindow(url);
+    })
+  );
+});
