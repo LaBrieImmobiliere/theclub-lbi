@@ -23,6 +23,7 @@ const TYPE_ICON: Record<string, React.ReactNode> = {
 export function NotificationsBell() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [open, setOpen] = useState(false);
+  const [panelPos, setPanelPos] = useState({ top: 0, right: 0 });
   const ref = useRef<HTMLDivElement>(null);
 
   const fetchNotifications = useCallback(async () => {
@@ -63,7 +64,14 @@ export function NotificationsBell() {
   return (
     <div className="relative" ref={ref}>
       <button
-        onClick={() => setOpen(!open)}
+        onClick={(e) => {
+          const rect = e.currentTarget.getBoundingClientRect();
+          setPanelPos({
+            top: rect.bottom + 8,
+            right: window.innerWidth - rect.right,
+          });
+          setOpen(!open);
+        }}
         className="relative p-2 rounded-lg hover:bg-slate-800 transition-colors"
       >
         <Bell className="w-5 h-5 text-slate-300" />
@@ -75,7 +83,10 @@ export function NotificationsBell() {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-10 w-[calc(100vw-2rem)] sm:w-80 max-w-80 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-hidden">
+        <div
+          style={{ top: panelPos.top, right: panelPos.right }}
+          className="fixed w-80 max-w-[calc(100vw-1rem)] bg-white rounded-xl shadow-xl border border-gray-100 z-[9999] overflow-hidden"
+        >
           <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
             <h3 className="font-semibold text-gray-900 text-sm">Notifications</h3>
             {unread > 0 && (

@@ -5,6 +5,7 @@ import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Eye, EyeOff, Mail, KeyRound } from "lucide-react";
+import { PwaInstallButton } from "@/components/pwa-install-button";
 
 function ConnexionForm() {
   const router = useRouter();
@@ -190,6 +191,8 @@ export default function ConnexionPage() {
         <Suspense fallback={<div className="bg-white p-8 text-center text-gray-400">Chargement...</div>}>
           <ConnexionForm />
         </Suspense>
+
+        <PwaInstallButton variant="login" />
 
         <p className="text-center text-xs text-white/30 mt-8">
           &copy; {new Date().getFullYear()} La Brie Immobilière &mdash; depuis 1969

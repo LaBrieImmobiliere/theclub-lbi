@@ -14,12 +14,14 @@ import {
   MessageSquare,
   Megaphone,
   UserCircle,
+  Users,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { NotificationsBell } from "@/components/notifications-bell";
+import { PwaInstallButton } from "@/components/pwa-install-button";
 import { SidebarDrawer, MobileOverlay, MobileHeader, useSidebar } from "@/components/mobile-sidebar";
 
-const nav = [
+const ambassadorNav = [
   { href: "/portail/tableau-de-bord", label: "Tableau de bord", icon: LayoutDashboard },
   { href: "/portail/recommander", label: "Recommander", icon: PlusCircle },
   { href: "/portail/mes-recommandations", label: "Mes recommandations", icon: ClipboardList },
@@ -31,9 +33,21 @@ const nav = [
   { href: "/portail/messagerie", label: "Messagerie", icon: MessageSquare },
 ];
 
-function SidebarContent() {
+const negotiatorNav = [
+  { href: "/portail/tableau-de-bord", label: "Tableau de bord", icon: LayoutDashboard },
+  { href: "/portail/mes-recommandations", label: "Recommandations", icon: ClipboardList },
+  { href: "/portail/mes-ambassadeurs", label: "Mes ambassadeurs", icon: Users },
+  { href: "/portail/mes-contrats", label: "Contrats", icon: FileText },
+  { href: "/portail/actualites", label: "Actualités", icon: Megaphone },
+  { href: "/portail/profil", label: "Mon profil", icon: UserCircle },
+  { href: "/portail/messagerie", label: "Messagerie", icon: MessageSquare },
+];
+
+function SidebarContent({ role }: { role: string }) {
   const pathname = usePathname();
   const { close } = useSidebar();
+  const isNegotiator = role === "NEGOTIATOR";
+  const nav = isNegotiator ? negotiatorNav : ambassadorNav;
 
   return (
     <>
@@ -47,9 +61,11 @@ function SidebarContent() {
         </div>
       </div>
 
-      {/* App name */}
+      {/* Role label */}
       <div className="px-4 py-3 border-b border-gray-100">
-        <p className="text-[10px] text-gray-400 tracking-widest uppercase">Espace Ambassadeur</p>
+        <p className="text-[10px] text-gray-400 tracking-widest uppercase">
+          {isNegotiator ? "Espace N\u00e9gociateur" : "Espace Ambassadeur"}
+        </p>
       </div>
 
       {/* Navigation */}
@@ -76,6 +92,9 @@ function SidebarContent() {
         })}
       </nav>
 
+      {/* PWA Install */}
+      <PwaInstallButton variant="sidebar-light" />
+
       {/* Footer */}
       <div className="px-3 py-4 border-t border-gray-100">
         <button
@@ -83,20 +102,20 @@ function SidebarContent() {
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-none text-sm font-medium text-gray-600 hover:bg-gray-50 hover:text-brand-deep transition-colors"
         >
           <LogOut className="w-5 h-5 text-gray-400" />
-          Déconnexion
+          D&eacute;connexion
         </button>
       </div>
     </>
   );
 }
 
-export function PortalSidebar() {
+export function PortalSidebar({ role }: { role: string }) {
   return (
     <>
       <MobileHeader variant="portal" />
       <MobileOverlay />
       <SidebarDrawer variant="portal">
-        <SidebarContent />
+        <SidebarContent role={role} />
       </SidebarDrawer>
     </>
   );

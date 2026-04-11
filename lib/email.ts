@@ -29,6 +29,43 @@ function findFile(filename: string): string {
 
 const fromAddress = `"The Club - La Brie Immobilière" <${process.env.EMAIL_FROM || process.env.EMAIL_SERVER_USER}>`;
 
+function pwaInstallBlock(appUrl: string): string {
+  return `
+  <!-- PWA INSTALL -->
+  <tr>
+    <td style="padding: 0 40px 30px 40px;">
+      <table width="100%" cellpadding="0" cellspacing="0" style="background:#f9f6f1; border-left: 3px solid #D1B280;">
+        <tr>
+          <td style="padding: 20px 25px;">
+            <p style="margin:0 0 6px 0; font-size:13px; color:#888; text-transform:uppercase; letter-spacing:1px; font-weight:600; font-family: Arial, sans-serif;">&#128241; Installez l&apos;application</p>
+            <p style="margin:0 0 12px 0; font-size:14px; color:#333; line-height:1.6; font-family: Arial, sans-serif;">
+              Pour recommander rapidement depuis votre mobile, installez <strong>The Club</strong> sur votre écran d&apos;accueil — aussi simple qu&apos;une application native.
+            </p>
+            <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:14px;">
+              <tr>
+                <td width="50%" style="padding-right:8px; vertical-align:top;">
+                  <p style="margin:0 0 4px 0; font-size:12px; font-weight:700; color:#030A24; font-family: Arial, sans-serif;">Sur iPhone (Safari) :</p>
+                  <p style="margin:0; font-size:12px; color:#666; line-height:1.5; font-family: Arial, sans-serif;">Appuyez sur &#8918; puis &laquo;&nbsp;Sur l&apos;écran d&apos;accueil&nbsp;&raquo;</p>
+                </td>
+                <td width="50%" style="padding-left:8px; vertical-align:top;">
+                  <p style="margin:0 0 4px 0; font-size:12px; font-weight:700; color:#030A24; font-family: Arial, sans-serif;">Sur Android (Chrome) :</p>
+                  <p style="margin:0; font-size:12px; color:#666; line-height:1.5; font-family: Arial, sans-serif;">Menu &#8942; puis &laquo;&nbsp;Ajouter à l&apos;écran d&apos;accueil&nbsp;&raquo;</p>
+                </td>
+              </tr>
+            </table>
+            <table cellpadding="0" cellspacing="0" border="0" width="100%"><tr><td align="center">
+              <a href="${appUrl}" style="display:inline-block; background:#030A24; color:#D1B280; text-decoration:none; padding:10px 30px; font-size:12px; font-weight:700; letter-spacing:2px; text-transform:uppercase; font-family: Arial, sans-serif; border: 1px solid #D1B280;">
+                &#128241; Ouvrir l&apos;application
+              </a>
+            </td></tr></table>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  `;
+}
+
 interface NegotiatorInfo {
   name: string;
   email: string;
@@ -232,6 +269,8 @@ export async function sendWelcomeEmail(to: string, name: string, password: strin
       </p>
     </td>
   </tr>
+
+  ${pwaInstallBlock(portalUrl)}
 
   <!-- FOOTER -->
   <tr>
@@ -605,6 +644,8 @@ export async function sendNegotiatorWelcomeEmail(
       </table>
     </td>
   </tr>
+
+  ${pwaInstallBlock(portalUrl)}
 
   <!-- FOOTER -->
   <tr>

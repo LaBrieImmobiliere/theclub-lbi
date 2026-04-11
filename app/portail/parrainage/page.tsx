@@ -12,6 +12,8 @@ export default async function ParrainagePage() {
   if (!session) redirect("/auth/connexion");
 
   const user = session.user as { id?: string; role?: string };
+  // Négociateurs n'ont pas accès au parrainage ambassadeur
+  if (user.role === "NEGOTIATOR") redirect("/portail/tableau-de-bord");
 
   // Support both ambassadors and negotiators
   let code = "";

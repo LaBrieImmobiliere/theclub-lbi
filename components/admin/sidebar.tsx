@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { NotificationsBell } from "@/components/notifications-bell";
+import { PwaInstallButton } from "@/components/pwa-install-button";
 import { SidebarDrawer, MobileOverlay, MobileHeader, useSidebar } from "@/components/mobile-sidebar";
 
 const nav = [
@@ -71,6 +72,9 @@ function SidebarContent() {
           );
         })}
       </nav>
+
+      {/* PWA Install */}
+      <PwaInstallButton variant="sidebar-dark" />
 
       {/* Footer */}
       <div className="px-3 py-4 border-t border-white/10">

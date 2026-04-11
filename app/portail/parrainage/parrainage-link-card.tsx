@@ -7,10 +7,10 @@ import { Copy, Check, Share2, Link2, ExternalLink, MessageSquare, Smartphone, Do
 import QRCodeLib from "qrcode";
 
 const SMS_MESSAGE = (url: string) =>
-  "Salut !\n\nJe fais partie du club ambassadeurs La Brie Immobili\u00e8re et je pense que \u00e7a pourrait t\u2019int\u00e9resser \uD83D\uDE0A\n\nSi tu connais quelqu\u2019un qui cherche \u00e0 acheter, vendre ou investir dans l\u2019immobilier, tu peux le recommander via mon lien et toucher une commission de 5% sur chaque transaction r\u00e9alis\u00e9e.\n\nC\u2019est 100% gratuit, sans engagement, et \u00e7a prend 30 secondes pour s\u2019inscrire \uD83D\uDC49\n" + url + "\n\n\uD83D\uDCA1 Petit conseil : partage ce lien \u00e0 tes proches qui ont un projet immobilier, m\u00eame \u00e0 long terme. Une simple mise en relation peut te rapporter gros !\n\nBelle journ\u00e9e \u00e0 toi \u2728";
+  "Salut !\n\nJe fais partie du club ambassadeurs La Brie Immobili\u00e8re et je pense que \u00e7a pourrait t\u2019int\u00e9resser \uD83D\uDE0A\n\nSi tu connais quelqu\u2019un qui cherche \u00e0 acheter, vendre ou investir dans l\u2019immobilier, tu peux le recommander via mon lien et toucher une commission de 5% sur chaque transaction r\u00e9alis\u00e9e.\n\nC\u2019est 100% gratuit, sans engagement, et \u00e7a prend 30 secondes pour s\u2019inscrire \uD83D\uDC49\n" + url + "\n\n\uD83D\uDCF1 Une fois inscrit(e), installe l\u2019app sur ton t\u00e9l\u00e9phone : tu acc\u00e8des \u00e0 ton espace en un clic depuis ton \u00e9cran d\u2019accueil !\n\n\uD83D\uDCA1 Petit conseil : partage ce lien \u00e0 tes proches qui ont un projet immobilier, m\u00eame \u00e0 long terme. Une simple mise en relation peut te rapporter gros !\n\nBelle journ\u00e9e \u00e0 toi \u2728";
 
 const SHARE_TEXT = (url: string) =>
-  "Rejoins le club ambassadeurs La Brie Immobili\u00e8re ! Recommande des contacts et touche 5% de commission sur chaque transaction r\u00e9alis\u00e9e. Inscris-toi ici : " + url;
+  "Rejoins le club ambassadeurs La Brie Immobili\u00e8re ! Recommande des contacts et touche 5% de commission sur chaque transaction r\u00e9alis\u00e9e. Inscris-toi ici : " + url + " \uD83D\uDCF1 (installable sur mobile)";
 
 export function ParrainageLinkCard({ code }: { code: string }) {
   const [copied, setCopied] = useState(false);
