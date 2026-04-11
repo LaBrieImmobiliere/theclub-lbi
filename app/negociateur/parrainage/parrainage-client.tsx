@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Copy, Check, Users, Link2, QrCode, Share2, Smartphone, FileImage, FileText, MessageSquare } from "lucide-react";
+import { Copy, Check, Users, Link2, QrCode, Share2, Smartphone, FileImage, FileText, MessageSquare, Download } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import QRCodeLib from "qrcode";
 
@@ -24,7 +24,7 @@ export function NegociateurParrainagePage({ code, inscriptionUrl, ambassadorCoun
   const [copiedLink, setCopiedLink] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
   const [copiedMsg, setCopiedMsg] = useState(false);
-  const [downloading, setDownloading] = useState<"jpg" | null>(null);
+  const [downloading, setDownloading] = useState<"jpg" | "pdf" | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -135,6 +135,88 @@ export function NegociateurParrainagePage({ code, inscriptionUrl, ambassadorCoun
     }
   };
 
+  const downloadPdf = async () => {
+    setDownloading("pdf");
+    try {
+      const jsPDFModule = await import("jspdf");
+      const jsPDF = jsPDFModule.default;
+      const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+
+      const pageW = doc.internal.pageSize.getWidth();
+      const pageH = doc.internal.pageSize.getHeight();
+
+      // Dark background
+      doc.setFillColor(3, 10, 36);
+      doc.rect(0, 0, pageW, pageH, "F");
+
+      // Gold accent bar
+      doc.setFillColor(201, 169, 110);
+      doc.rect(0, 0, pageW, 2, "F");
+
+      // Title
+      doc.setTextColor(201, 169, 110);
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.text("LA BRIE IMMOBILIÈRE", pageW / 2, 20, { align: "center" });
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(22);
+      doc.setFont("helvetica", "bold");
+      doc.text("THE CLUB", pageW / 2, 30, { align: "center" });
+
+      doc.setTextColor(201, 169, 110);
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "normal");
+      doc.text("RECRUTEMENT AMBASSADEURS", pageW / 2, 40, { align: "center" });
+
+      // QR code
+      const qrCanvas = document.createElement("canvas");
+      await QRCodeLib.toCanvas(qrCanvas, inscriptionUrl, {
+        width: 600, margin: 2,
+        color: { dark: "#030A24", light: "#ffffff" },
+        errorCorrectionLevel: "H",
+      });
+      const qrData = qrCanvas.toDataURL("image/png");
+      const qrW = 100;
+      const qrX = (pageW - qrW) / 2;
+      doc.addImage(qrData, "PNG", qrX, 48, qrW, qrW);
+
+      // Code
+      doc.setTextColor(201, 169, 110);
+      doc.setFontSize(20);
+      doc.setFont("courier", "bold");
+      doc.text(code, pageW / 2, 162, { align: "center" });
+
+      // URL
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(8);
+      doc.setFont("helvetica", "normal");
+      doc.text(inscriptionUrl, pageW / 2, 172, { align: "center" });
+
+      // Divider
+      doc.setDrawColor(201, 169, 110);
+      doc.setLineWidth(0.3);
+      doc.line(20, 180, pageW - 20, 180);
+
+      // Instructions
+      doc.setTextColor(180, 180, 180);
+      doc.setFontSize(9);
+      doc.text("Scannez ce QR code pour devenir ambassadeur", pageW / 2, 190, { align: "center" });
+      doc.text("La Brie Immobilière.", pageW / 2, 197, { align: "center" });
+
+      // Footer
+      doc.setFillColor(201, 169, 110);
+      doc.rect(0, pageH - 2, pageW, 2, "F");
+      doc.setTextColor(100, 100, 100);
+      doc.setFontSize(7);
+      doc.text("The Club : La Brie Immobilière", pageW / 2, pageH - 5, { align: "center" });
+
+      doc.save(`qrcode-recrutement-${code}.pdf`);
+    } finally {
+      setDownloading(null);
+    }
+  };
+
   return (
     <div className="space-y-8">
       <div>
@@ -186,14 +268,24 @@ export function NegociateurParrainagePage({ code, inscriptionUrl, ambassadorCoun
             <p className="text-white/60 text-xs leading-relaxed">
               Imprimez ou partagez ce QR code. Chaque scan redirige vers le formulaire d&apos;inscription ambassadeur.
             </p>
-            <button
-              onClick={downloadJpg}
-              disabled={!!downloading}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-[#D1B280] text-[#030A24] text-sm font-semibold hover:bg-[#b89a65] transition-colors"
-            >
-              <FileImage className="w-4 h-4" />
-              {downloading ? "Export..." : "Télécharger JPG"}
-            </button>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <button
+                onClick={downloadJpg}
+                disabled={!!downloading}
+                className="inline-flex items-center gap-2 px-4 py-2 bg-[#D1B280] text-[#030A24] text-sm font-semibold hover:bg-[#b89a65] transition-colors disabled:opacity-50"
+              >
+                <FileImage className="w-4 h-4" />
+                {downloading === "jpg" ? "Export..." : "Télécharger JPG"}
+              </button>
+              <button
+                onClick={downloadPdf}
+                disabled={!!downloading}
+                className="inline-flex items-center gap-2 px-4 py-2 border border-[#D1B280]/40 text-white text-sm font-medium hover:bg-white/10 transition-colors disabled:opacity-50"
+              >
+                <FileText className="w-4 h-4" />
+                {downloading === "pdf" ? "Export..." : "Télécharger PDF"}
+              </button>
+            </div>
           </div>
         </div>
       </div>
