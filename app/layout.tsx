@@ -5,7 +5,10 @@ import { RegisterSW } from "@/components/register-sw";
 import { PwaInstallPrompt } from "@/components/pwa-install-prompt";
 
 export const metadata: Metadata = {
-  title: "The Club : La Brie Immobilière",
+  title: {
+    default: "The Club",
+    template: "%s | The Club",
+  },
   description: "Plateforme de gestion des ambassadeurs et apporteurs d'affaire",
   manifest: "/manifest.json",
   appleWebApp: {
