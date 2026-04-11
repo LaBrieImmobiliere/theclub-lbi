@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import DashboardChart from "@/components/portal/dashboard-chart";
+import { CagnotteGauge } from "@/components/portal/cagnotte-gauge";
 import {
   ClipboardList,
   FileText,
@@ -296,6 +297,12 @@ export default async function PortalDashboardPage() {
     .filter((c) => new Date(c.createdAt) >= currentMonthStart)
     .reduce((sum, c) => sum + (c.commissionAmount || 0), 0);
 
+  // Cagnotte: gains acquis (contrats payés) vs gains potentiels (tous contrats)
+  const gainsAcquis = allContracts
+    .filter((c) => c.status === "PAYE")
+    .reduce((sum, c) => sum + (c.commissionAmount || 0), 0);
+  const gainsPotentiels = totalCommissions;
+
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -310,6 +317,44 @@ export default async function PortalDashboardPage() {
           </code>
         </p>
       </div>
+
+      {/* Cagnotte Gauge */}
+      <Card>
+        <CardContent className="py-6">
+          <CagnotteGauge gainsAcquis={gainsAcquis} gainsPotentiels={gainsPotentiels} />
+        </CardContent>
+        {allContracts.length > 0 && (
+          <>
+            <div className="px-6 py-2 border-t border-gray-100">
+              <p className="text-sm font-semibold text-gray-900">D&eacute;tails</p>
+            </div>
+            <div className="px-6 pb-4 divide-y divide-gray-50">
+              {allContracts.slice(0, 5).map((contract) => (
+                <div key={contract.id} className="flex items-center justify-between py-2.5">
+                  <div>
+                    <p className="text-sm font-medium text-gray-900">{contract.number}</p>
+                    <p className="text-xs text-gray-400">
+                      {formatDate(contract.createdAt)}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-bold text-gray-900">
+                      {formatCurrency(contract.commissionAmount || 0)}
+                    </p>
+                    <p className={`text-[10px] font-medium ${
+                      contract.status === "PAYE" ? "text-green-600" :
+                      contract.status === "SIGNE" ? "text-blue-600" :
+                      "text-amber-600"
+                    }`}>
+                      {CONTRACT_STATUS_LABELS[contract.status] || contract.status}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
+      </Card>
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
