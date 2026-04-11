@@ -142,8 +142,7 @@ export default async function NegociateurDashboardPage() {
       </div>
 
       {/* Jauges CA */}
-      {caPotentiel > 0 && (
-        <Card>
+      <Card>
           <CardHeader>
             <h2 className="font-semibold text-gray-900" style={{ fontFamily: "'Fira Sans', sans-serif" }}>
               Chiffre d&apos;affaires — Commissions
@@ -171,7 +170,6 @@ export default async function NegociateurDashboardPage() {
             </div>
           </CardContent>
         </Card>
-      )}
 
       {/* Alerte leads en attente */}
       {newLeads > 0 && (
