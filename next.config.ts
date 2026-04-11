@@ -1,13 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  webpack: (config) => {
-    config.output = {
-      ...config.output,
-      charset: true,
-    };
-    return config;
-  },
+  turbopack: {},
 };
 
 export default nextConfig;
