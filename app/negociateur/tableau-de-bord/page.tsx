@@ -10,6 +10,8 @@ import { formatDate, LEAD_STATUS_LABELS, LEAD_STATUS_COLORS } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import DashboardChart from "@/components/portal/dashboard-chart";
+import { CAGauge } from "@/components/admin/ca-gauge";
+import { formatCurrency } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -61,6 +63,11 @@ export default async function NegociateurDashboardPage() {
       contrats: allLeads.filter((l) => { if (!l.contract) return false; const c = new Date(l.createdAt); return c.getFullYear() === y && c.getMonth() === m; }).length,
     };
   });
+
+  // CA calculations
+  const caPotentiel = allLeads.reduce((s, l) => s + (l.contract?.commissionAmount || 0), 0);
+  const caSigne = allLeads.filter(l => l.contract && ["SIGNE", "PAYE"].includes(l.contract.status)).reduce((s, l) => s + (l.contract!.commissionAmount || 0), 0);
+  const caValide = allLeads.filter(l => l.contract?.status === "PAYE").reduce((s, l) => s + (l.contract!.commissionAmount || 0), 0);
 
   const recentLeads = allLeads.slice(0, 5);
   const activeAmbassadors = negotiator.ambassadors.filter((a) => a.status === "ACTIVE");
@@ -133,6 +140,38 @@ export default async function NegociateurDashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Jauges CA */}
+      {caPotentiel > 0 && (
+        <Card>
+          <CardHeader>
+            <h2 className="font-semibold text-gray-900" style={{ fontFamily: "'Fira Sans', sans-serif" }}>
+              Chiffre d&apos;affaires — Commissions
+            </h2>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              <CAGauge label="CA Potentiel" value={caPotentiel} maxValue={caPotentiel} color="#8B5CF6" lightColor="#EDE9FE" />
+              <CAGauge label="CA Signé" value={caSigne} maxValue={caPotentiel} color="#2563EB" lightColor="#DBEAFE" />
+              <CAGauge label="CA Validé / Payé" value={caValide} maxValue={caPotentiel} color="#16A34A" lightColor="#DCFCE7" />
+            </div>
+            <div className="grid grid-cols-3 gap-6 mt-4 pt-4 border-t border-gray-100">
+              <div className="text-center">
+                <p className="text-lg font-bold text-gray-900">{formatCurrency(caPotentiel)}</p>
+                <p className="text-xs text-gray-500">Total tous contrats</p>
+              </div>
+              <div className="text-center">
+                <p className="text-lg font-bold text-blue-600">{formatCurrency(caSigne)}</p>
+                <p className="text-xs text-gray-500">Signé + Payé</p>
+              </div>
+              <div className="text-center">
+                <p className="text-lg font-bold text-green-600">{formatCurrency(caValide)}</p>
+                <p className="text-xs text-gray-500">Validé (payé)</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Alerte leads en attente */}
       {newLeads > 0 && (
