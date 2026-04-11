@@ -141,10 +141,10 @@ export default function RecommandationsPage() {
                   <thead>
                     <tr className="border-b border-gray-100 text-left">
                       <th className="px-6 py-3 font-medium text-gray-500">Prospect</th>
-                      <th className="px-6 py-3 font-medium text-gray-500">Type</th>
+                      <th className="px-6 py-3 font-medium text-gray-500 hidden sm:table-cell">Type</th>
                       <th className="px-6 py-3 font-medium text-gray-500">Ambassadeur</th>
                       <th className="px-6 py-3 font-medium text-gray-500">Statut</th>
-                      <th className="px-6 py-3 font-medium text-gray-500">Date</th>
+                      <th className="px-6 py-3 font-medium text-gray-500 hidden sm:table-cell">Date</th>
                       <th className="px-6 py-3"></th>
                     </tr>
                   </thead>
@@ -159,7 +159,7 @@ export default function RecommandationsPage() {
                           <p className="font-medium text-gray-900">{lead.firstName} {lead.lastName}</p>
                           <p className="text-xs text-gray-500">{lead.phone}</p>
                         </td>
-                        <td className="px-6 py-3">
+                        <td className="px-6 py-3 hidden sm:table-cell">
                           <Badge className="bg-slate-100 text-slate-700">
                             {LEAD_TYPE_LABELS[lead.type] || lead.type}
                           </Badge>
@@ -170,7 +170,7 @@ export default function RecommandationsPage() {
                             {LEAD_STATUS_LABELS[lead.status]}
                           </Badge>
                         </td>
-                        <td className="px-6 py-3 text-gray-500">{formatDate(lead.createdAt)}</td>
+                        <td className="px-6 py-3 text-gray-500 hidden sm:table-cell">{formatDate(lead.createdAt)}</td>
                         <td className="px-6 py-3">
                           {lead.contract && (
                             <Link href={`/admin/contrats/${lead.contract.id}`} onClick={(e) => e.stopPropagation()}>

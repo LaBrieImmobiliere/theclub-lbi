@@ -89,12 +89,12 @@ export default async function AdminDashboardPage() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <Link href="/admin/ambassadeurs">
           <Card className="hover:shadow-md transition-shadow cursor-pointer">
-            <CardContent className="flex items-center gap-3 py-5">
-              <div className="w-11 h-11 bg-blue-50 rounded-xl flex items-center justify-center flex-shrink-0">
-                <Users className="w-5 h-5 text-blue-600" />
+            <CardContent className="flex items-center gap-2 sm:gap-3 py-5">
+              <div className="w-9 h-9 sm:w-11 sm:h-11 bg-blue-50 rounded-xl flex items-center justify-center flex-shrink-0">
+                <Users className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-gray-900">{ambassadorCount}</p>
+                <p className="text-xl sm:text-2xl font-bold text-gray-900">{ambassadorCount}</p>
                 <p className="text-xs text-gray-500">Ambassadeurs</p>
               </div>
             </CardContent>
@@ -102,12 +102,12 @@ export default async function AdminDashboardPage() {
         </Link>
         <Link href="/admin/recommandations">
           <Card className="hover:shadow-md transition-shadow cursor-pointer">
-            <CardContent className="flex items-center gap-3 py-5">
-              <div className="w-11 h-11 bg-purple-50 rounded-xl flex items-center justify-center flex-shrink-0">
-                <ClipboardList className="w-5 h-5 text-purple-600" />
+            <CardContent className="flex items-center gap-2 sm:gap-3 py-5">
+              <div className="w-9 h-9 sm:w-11 sm:h-11 bg-purple-50 rounded-xl flex items-center justify-center flex-shrink-0">
+                <ClipboardList className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-gray-900">{leadCount}</p>
+                <p className="text-xl sm:text-2xl font-bold text-gray-900">{leadCount}</p>
                 <p className="text-xs text-gray-500">Recommandations</p>
               </div>
             </CardContent>
@@ -115,24 +115,24 @@ export default async function AdminDashboardPage() {
         </Link>
         <Link href="/admin/contrats">
           <Card className="hover:shadow-md transition-shadow cursor-pointer">
-            <CardContent className="flex items-center gap-3 py-5">
-              <div className="w-11 h-11 bg-green-50 rounded-xl flex items-center justify-center flex-shrink-0">
-                <FileText className="w-5 h-5 text-green-600" />
+            <CardContent className="flex items-center gap-2 sm:gap-3 py-5">
+              <div className="w-9 h-9 sm:w-11 sm:h-11 bg-green-50 rounded-xl flex items-center justify-center flex-shrink-0">
+                <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-gray-900">{contractCount}</p>
+                <p className="text-xl sm:text-2xl font-bold text-gray-900">{contractCount}</p>
                 <p className="text-xs text-gray-500">Contrats</p>
               </div>
             </CardContent>
           </Card>
         </Link>
         <Card>
-          <CardContent className="flex items-center gap-3 py-5">
-            <div className="w-11 h-11 bg-amber-50 rounded-xl flex items-center justify-center flex-shrink-0">
-              <Percent className="w-5 h-5 text-amber-600" />
+          <CardContent className="flex items-center gap-2 sm:gap-3 py-5">
+            <div className="w-9 h-9 sm:w-11 sm:h-11 bg-amber-50 rounded-xl flex items-center justify-center flex-shrink-0">
+              <Percent className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{conversionRate}%</p>
+              <p className="text-xl sm:text-2xl font-bold text-gray-900">{conversionRate}%</p>
               <p className="text-xs text-gray-500">Conversion</p>
             </div>
           </CardContent>
@@ -162,7 +162,7 @@ export default async function AdminDashboardPage() {
           </h2>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
             <CAGauge
               label="CA Potentiel"
               value={caPotentiel}
@@ -185,17 +185,17 @@ export default async function AdminDashboardPage() {
               lightColor="#DCFCE7"
             />
           </div>
-          <div className="grid grid-cols-3 gap-6 mt-4 pt-4 border-t border-gray-100">
+          <div className="grid grid-cols-3 gap-2 sm:gap-6 mt-4 pt-4 border-t border-gray-100">
             <div className="text-center">
-              <p className="text-lg font-bold text-gray-900">{formatCurrency(caPotentiel)}</p>
+              <p className="text-sm sm:text-lg font-bold text-gray-900">{formatCurrency(caPotentiel)}</p>
               <p className="text-xs text-gray-500">Total tous contrats</p>
             </div>
             <div className="text-center">
-              <p className="text-lg font-bold text-blue-600">{formatCurrency(caSigne)}</p>
+              <p className="text-sm sm:text-lg font-bold text-blue-600">{formatCurrency(caSigne)}</p>
               <p className="text-xs text-gray-500">Signé + Payé</p>
             </div>
             <div className="text-center">
-              <p className="text-lg font-bold text-green-600">{formatCurrency(caValide)}</p>
+              <p className="text-sm sm:text-lg font-bold text-green-600">{formatCurrency(caValide)}</p>
               <p className="text-xs text-gray-500">Validé (payé)</p>
             </div>
           </div>

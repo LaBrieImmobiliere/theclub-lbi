@@ -191,7 +191,7 @@ export default function RejoindrePublicPage() {
 
       {/* Content */}
       <div className="flex-1 flex items-start justify-center py-10 px-4">
-        <div className="w-full max-w-4xl grid md:grid-cols-2 gap-8">
+        <div className="w-full max-w-4xl grid md:grid-cols-2 gap-4 md:gap-8">
 
           {/* Left: Info */}
           <div className="space-y-6">

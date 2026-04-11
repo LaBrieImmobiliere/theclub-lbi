@@ -198,7 +198,7 @@ export default function AmbassadeursPage() {
                     <th className="px-6 py-3 font-medium text-gray-500">Recommandations</th>
                     <th className="px-6 py-3 font-medium text-gray-500">Contrats</th>
                     <th className="px-6 py-3 font-medium text-gray-500">Statut</th>
-                    <th className="px-6 py-3 font-medium text-gray-500">Inscrit le</th>
+                    <th className="px-6 py-3 font-medium text-gray-500 hidden sm:table-cell">Inscrit le</th>
                     <th className="px-6 py-3"></th>
                   </tr>
                 </thead>
@@ -225,7 +225,7 @@ export default function AmbassadeursPage() {
                           {amb.status === "ACTIVE" ? "Actif" : amb.status === "INACTIVE" ? "Inactif" : "En attente"}
                         </Badge>
                       </td>
-                      <td className="px-6 py-4 text-gray-500">{formatDate(amb.createdAt)}</td>
+                      <td className="px-6 py-4 text-gray-500 hidden sm:table-cell">{formatDate(amb.createdAt)}</td>
                       <td className="px-6 py-4">
                         <Link href={`/admin/ambassadeurs/${amb.id}`}>
                           <Button variant="ghost" size="sm">

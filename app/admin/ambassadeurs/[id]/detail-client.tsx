@@ -110,7 +110,7 @@ export function AmbassadeurDetailClient({ data }: { data: AmbassadorData }) {
             {data.status === "ACTIVE" ? "Actif" : "Inactif"}
           </Badge>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center flex-wrap gap-2">
           {!editing ? (
             <button
               onClick={() => setEditing(true)}

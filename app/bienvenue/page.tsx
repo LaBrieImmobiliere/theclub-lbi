@@ -38,7 +38,7 @@ export default function LandingPage() {
             </Link>
             <Link
               href="/auth/connexion"
-              className="bg-brand-gold text-white text-sm font-medium px-5 py-2.5 hover:bg-brand-gold-dark transition-colors tracking-wide"
+              className="bg-brand-gold text-white text-xs sm:text-sm font-medium px-5 py-2.5 hover:bg-brand-gold-dark transition-colors tracking-wide"
             >
               Devenir Ambassadeur
             </Link>
@@ -73,7 +73,7 @@ export default function LandingPage() {
               Comment ça marche ?
             </a>
           </div>
-          <div className="mt-16 grid grid-cols-3 gap-8 max-w-2xl mx-auto">
+          <div className="mt-16 grid grid-cols-3 gap-4 md:gap-8 max-w-2xl mx-auto">
             {[
               { value: "5%", label: "Commission HT" },
               { value: "48h", label: "Délai de contact" },
@@ -95,7 +95,7 @@ export default function LandingPage() {
             <h2 className="text-3xl font-bold text-brand-deep" style={{ fontFamily: "'Fira Sans', sans-serif" }}>Comment ça marche ?</h2>
             <p className="text-gray-500 mt-3">Simple, rapide et entièrement digital</p>
           </div>
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
             {steps.map(({ num, title, desc }) => (
               <div key={num} className="relative">
                 <div className="bg-white p-8 border border-gray-100 h-full">
@@ -115,7 +115,7 @@ export default function LandingPage() {
           <div className="text-center mb-14">
             <h2 className="text-3xl font-bold text-brand-deep" style={{ fontFamily: "'Fira Sans', sans-serif" }}>Pourquoi devenir ambassadeur ?</h2>
           </div>
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid md:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
             {avantages.map(({ icon: Icon, title, desc }) => (
               <div key={title} className="p-6 border border-gray-100 hover:border-brand-gold/30 hover:shadow-sm transition-all">
                 <div className="w-12 h-12 bg-brand-cream flex items-center justify-center mb-4">

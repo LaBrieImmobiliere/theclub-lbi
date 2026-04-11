@@ -253,7 +253,7 @@ export default function ContratsPage() {
                     <th className="px-6 py-3 font-medium text-gray-500">Bien</th>
                     <th className="px-6 py-3 font-medium text-gray-500">Commission</th>
                     <th className="px-6 py-3 font-medium text-gray-500">Statut</th>
-                    <th className="px-6 py-3 font-medium text-gray-500">Date</th>
+                    <th className="px-6 py-3 font-medium text-gray-500 hidden sm:table-cell">Date</th>
                     <th className="px-6 py-3"></th>
                   </tr>
                 </thead>
@@ -282,7 +282,7 @@ export default function ContratsPage() {
                           {CONTRACT_STATUS_LABELS[contract.status]}
                         </Badge>
                       </td>
-                      <td className="px-6 py-4 text-gray-500">{formatDate(contract.createdAt)}</td>
+                      <td className="px-6 py-4 text-gray-500 hidden sm:table-cell">{formatDate(contract.createdAt)}</td>
                       <td className="px-6 py-4">
                         <Link href={`/admin/contrats/${contract.id}`}>
                           <Button variant="ghost" size="sm">

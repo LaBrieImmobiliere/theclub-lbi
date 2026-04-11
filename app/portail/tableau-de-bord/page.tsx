@@ -103,44 +103,44 @@ export default async function PortalDashboardPage() {
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
           <Card>
             <CardContent className="flex items-center gap-4 py-5">
-              <div className="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center">
-                <ClipboardList className="w-6 h-6 text-purple-600" />
+              <div className="w-9 h-9 sm:w-12 sm:h-12 bg-purple-50 rounded-xl flex items-center justify-center">
+                <ClipboardList className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-gray-900">{totalLeads}</p>
+                <p className="text-xl sm:text-2xl font-bold text-gray-900">{totalLeads}</p>
                 <p className="text-sm text-gray-500">Recommandations</p>
               </div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="flex items-center gap-4 py-5">
-              <div className="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center">
-                <FileText className="w-6 h-6 text-green-600" />
+              <div className="w-9 h-9 sm:w-12 sm:h-12 bg-green-50 rounded-xl flex items-center justify-center">
+                <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-gray-900">{totalContracts}</p>
+                <p className="text-xl sm:text-2xl font-bold text-gray-900">{totalContracts}</p>
                 <p className="text-sm text-gray-500">Contrats</p>
               </div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="flex items-center gap-4 py-5">
-              <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center">
-                <Users className="w-6 h-6 text-blue-600" />
+              <div className="w-9 h-9 sm:w-12 sm:h-12 bg-blue-50 rounded-xl flex items-center justify-center">
+                <Users className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-gray-900">{totalAmbassadors}</p>
+                <p className="text-xl sm:text-2xl font-bold text-gray-900">{totalAmbassadors}</p>
                 <p className="text-sm text-gray-500">Ambassadeurs</p>
               </div>
             </CardContent>
           </Card>
           <Card>
             <CardContent className="flex items-center gap-4 py-5">
-              <div className="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center">
-                <Percent className="w-6 h-6 text-orange-600" />
+              <div className="w-9 h-9 sm:w-12 sm:h-12 bg-orange-50 rounded-xl flex items-center justify-center">
+                <Percent className="w-5 h-5 sm:w-6 sm:h-6 text-orange-600" />
               </div>
               <div>
-                <p className="text-2xl font-bold text-gray-900">{conversionRate}%</p>
+                <p className="text-xl sm:text-2xl font-bold text-gray-900">{conversionRate}%</p>
                 <p className="text-sm text-gray-500">Taux de conversion</p>
               </div>
             </CardContent>
@@ -360,44 +360,44 @@ export default async function PortalDashboardPage() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <Card>
           <CardContent className="flex items-center gap-4 py-5">
-            <div className="w-12 h-12 bg-purple-50 rounded-xl flex items-center justify-center">
-              <ClipboardList className="w-6 h-6 text-purple-600" />
+            <div className="w-9 h-9 sm:w-12 sm:h-12 bg-purple-50 rounded-xl flex items-center justify-center">
+              <ClipboardList className="w-5 h-5 sm:w-6 sm:h-6 text-purple-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{totalLeads}</p>
+              <p className="text-xl sm:text-2xl font-bold text-gray-900">{totalLeads}</p>
               <p className="text-sm text-gray-500">Recommandations</p>
             </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="flex items-center gap-4 py-5">
-            <div className="w-12 h-12 bg-green-50 rounded-xl flex items-center justify-center">
-              <FileText className="w-6 h-6 text-green-600" />
+            <div className="w-9 h-9 sm:w-12 sm:h-12 bg-green-50 rounded-xl flex items-center justify-center">
+              <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-green-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{totalContracts}</p>
+              <p className="text-xl sm:text-2xl font-bold text-gray-900">{totalContracts}</p>
               <p className="text-sm text-gray-500">Contrats</p>
             </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="flex items-center gap-4 py-5">
-            <div className="w-12 h-12 bg-orange-50 rounded-xl flex items-center justify-center">
-              <TrendingUp className="w-6 h-6 text-orange-600" />
+            <div className="w-9 h-9 sm:w-12 sm:h-12 bg-orange-50 rounded-xl flex items-center justify-center">
+              <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6 text-orange-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{formatCurrency(totalCommissions)}</p>
+              <p className="text-xl sm:text-2xl font-bold text-gray-900">{formatCurrency(totalCommissions)}</p>
               <p className="text-sm text-gray-500">Commissions totales</p>
             </div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="flex items-center gap-4 py-5">
-            <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center">
-              <Percent className="w-6 h-6 text-blue-600" />
+            <div className="w-9 h-9 sm:w-12 sm:h-12 bg-blue-50 rounded-xl flex items-center justify-center">
+              <Percent className="w-5 h-5 sm:w-6 sm:h-6 text-blue-600" />
             </div>
             <div>
-              <p className="text-2xl font-bold text-gray-900">{conversionRate}%</p>
+              <p className="text-xl sm:text-2xl font-bold text-gray-900">{conversionRate}%</p>
               <p className="text-sm text-gray-500">Taux de conversion</p>
             </div>
           </CardContent>
@@ -417,8 +417,8 @@ export default async function PortalDashboardPage() {
       {/* Commission du mois */}
       <Card className="border-[#D1B280]/40 bg-gradient-to-r from-[#D1B280]/10 to-[#D1B280]/5">
         <CardContent className="flex items-center gap-4 py-5">
-          <div className="w-12 h-12 bg-[#D1B280]/20 rounded-xl flex items-center justify-center">
-            <Coins className="w-6 h-6 text-[#D1B280]" />
+          <div className="w-9 h-9 sm:w-12 sm:h-12 bg-[#D1B280]/20 rounded-xl flex items-center justify-center">
+            <Coins className="w-5 h-5 sm:w-6 sm:h-6 text-[#D1B280]" />
           </div>
           <div>
             <p className="text-sm font-medium text-[#030A24]/60">Commission du mois</p>
@@ -451,8 +451,8 @@ export default async function PortalDashboardPage() {
                 Transmettez les coordonn&eacute;es d&apos;un ami, client ou contact int&eacute;ress&eacute; par l&apos;immobilier.
               </p>
             </div>
-            <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
-              <Plus className="w-6 h-6 text-white" />
+            <div className="w-9 h-9 sm:w-12 sm:h-12 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
+              <Plus className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </div>
           </div>
         </div>

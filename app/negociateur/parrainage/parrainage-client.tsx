@@ -236,7 +236,7 @@ export function NegociateurParrainagePage({ code, inscriptionUrl, ambassadorCoun
               <Users className="w-5 h-5 text-[#030A24]" />
             </div>
           </div>
-          <p className="text-3xl font-bold text-gray-900">{ambassadorCount}</p>
+          <p className="text-2xl sm:text-3xl font-bold text-gray-900">{ambassadorCount}</p>
           <p className="text-sm text-gray-500 mt-1">Ambassadeur{ambassadorCount !== 1 ? "s" : ""} recruté{ambassadorCount !== 1 ? "s" : ""}</p>
         </div>
         <div className="bg-white border border-[#D1B280]/30 shadow-sm p-5">
@@ -245,7 +245,7 @@ export function NegociateurParrainagePage({ code, inscriptionUrl, ambassadorCoun
               <Link2 className="w-5 h-5 text-[#D1B280]" />
             </div>
           </div>
-          <p className="text-3xl font-bold text-gray-900">{recentAmbassadors.reduce((s, a) => s + a.leadsCount, 0)}</p>
+          <p className="text-2xl sm:text-3xl font-bold text-gray-900">{recentAmbassadors.reduce((s, a) => s + a.leadsCount, 0)}</p>
           <p className="text-sm text-gray-500 mt-1">Recommandations générées</p>
         </div>
       </div>
@@ -257,7 +257,7 @@ export function NegociateurParrainagePage({ code, inscriptionUrl, ambassadorCoun
           <h2 className="font-semibold text-white">Votre QR Code de recrutement</h2>
         </div>
         <div className="p-6 flex flex-col sm:flex-row items-center gap-6">
-          <div className="bg-white p-3 flex-shrink-0">
+          <div className="bg-white p-3 flex-shrink-0 max-w-[200px] sm:max-w-none">
             <canvas ref={canvasRef} />
           </div>
           <div className="space-y-3 flex-1 text-center sm:text-left">

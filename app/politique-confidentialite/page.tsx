@@ -9,7 +9,7 @@ export default function PolitiqueConfidentialitePage() {
           <ArrowLeft className="w-4 h-4" /> Retour
         </Link>
 
-        <h1 className="text-3xl font-bold text-gray-900 mb-8" style={{ fontFamily: "'Fira Sans', sans-serif" }}>
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-8" style={{ fontFamily: "'Fira Sans', sans-serif" }}>
           Politique de confidentialit&eacute;
         </h1>
 
