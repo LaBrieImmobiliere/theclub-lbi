@@ -7,7 +7,20 @@ export async function GET() {
   const session = await auth();
   if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
 
+  const user = session.user as { role?: string };
+
+  // Filtrer les broadcasts selon le rôle : chacun ne voit que ce qui lui est destiné
+  let targetFilter: string[] = ["ALL"];
+  if (user.role === "AMBASSADOR") {
+    targetFilter = ["ALL", "AMBASSADORS"];
+  } else if (user.role === "NEGOTIATOR") {
+    targetFilter = ["ALL", "NEGOTIATORS"];
+  } else if (user.role === "ADMIN") {
+    targetFilter = ["ALL", "AMBASSADORS", "NEGOTIATORS"]; // Admin voit tout
+  }
+
   const broadcasts = await prisma.broadcast.findMany({
+    where: { target: { in: targetFilter } },
     orderBy: { sentAt: "desc" },
     take: 50,
     include: {
