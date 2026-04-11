@@ -1,0 +1,89 @@
+import { type ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+
+export function generateCode(prefix = "AMB") {
+  const random = Math.random().toString(36).substring(2, 8).toUpperCase();
+  return `${prefix}-${random}`;
+}
+
+export function generateContractNumber() {
+  const year = new Date().getFullYear();
+  const random = Math.floor(Math.random() * 10000).toString().padStart(4, "0");
+  return `CAA-${year}-${random}`;
+}
+
+export function generateAcknowledgmentNumber() {
+  const year = new Date().getFullYear();
+  const random = Math.floor(Math.random() * 10000).toString().padStart(4, "0");
+  return `RH-${year}-${random}`;
+}
+
+export function formatCurrency(amount: number) {
+  return new Intl.NumberFormat("fr-FR", {
+    style: "currency",
+    currency: "EUR",
+  }).format(amount);
+}
+
+export function formatDate(date: Date | string | null | undefined) {
+  if (!date) return "-";
+  return new Intl.DateTimeFormat("fr-FR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  }).format(new Date(date));
+}
+
+export const LEAD_STATUS_LABELS: Record<string, string> = {
+  NOUVEAU: "Nouveau",
+  CONTACTE: "Contacté",
+  EN_COURS: "En cours",
+  SIGNE: "Signé",
+  PERDU: "Perdu",
+};
+
+export const LEAD_STATUS_COLORS: Record<string, string> = {
+  NOUVEAU: "bg-blue-100 text-blue-800",
+  CONTACTE: "bg-yellow-100 text-yellow-800",
+  EN_COURS: "bg-orange-100 text-orange-800",
+  SIGNE: "bg-green-100 text-green-800",
+  PERDU: "bg-red-100 text-red-800",
+};
+
+export const CONTRACT_STATUS_LABELS: Record<string, string> = {
+  BROUILLON: "Brouillon",
+  ENVOYE: "Envoyé",
+  SIGNE: "Signé",
+  PAYE: "Payé",
+  ANNULE: "Annulé",
+};
+
+export const CONTRACT_STATUS_COLORS: Record<string, string> = {
+  BROUILLON: "bg-gray-100 text-gray-800",
+  ENVOYE: "bg-blue-100 text-blue-800",
+  SIGNE: "bg-green-100 text-green-800",
+  PAYE: "bg-emerald-100 text-emerald-800",
+  ANNULE: "bg-red-100 text-red-800",
+};
+
+export const HONORAIRE_STATUS_LABELS: Record<string, string> = {
+  EN_ATTENTE: "En attente",
+  VALIDEE: "Validée",
+  PAYEE: "Payée",
+};
+
+export const HONORAIRE_STATUS_COLORS: Record<string, string> = {
+  EN_ATTENTE: "bg-yellow-100 text-yellow-800",
+  VALIDEE: "bg-blue-100 text-blue-800",
+  PAYEE: "bg-green-100 text-green-800",
+};
+
+export const LEAD_TYPE_LABELS: Record<string, string> = {
+  ACHAT: "Achat",
+  VENTE: "Vente",
+  LOCATION: "Location",
+};

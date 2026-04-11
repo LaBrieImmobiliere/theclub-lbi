@@ -1,0 +1,100 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
+import {
+  LayoutDashboard,
+  Users,
+  FileText,
+  ClipboardList,
+  LogOut,
+  BarChart2,
+  Building2,
+  Megaphone,
+} from "lucide-react";
+import { signOut } from "next-auth/react";
+import { NotificationsBell } from "@/components/notifications-bell";
+import { SidebarDrawer, MobileOverlay, MobileHeader, useSidebar } from "@/components/mobile-sidebar";
+
+const nav = [
+  { href: "/admin/dashboard", label: "Tableau de bord", icon: LayoutDashboard },
+  { href: "/admin/ambassadeurs", label: "Ambassadeurs", icon: Users },
+  { href: "/admin/recommandations", label: "Recommandations", icon: ClipboardList },
+  { href: "/admin/contrats", label: "Contrats", icon: FileText },
+  { href: "/admin/agences", label: "Agences", icon: Building2 },
+  { href: "/admin/actualites", label: "Fil d'actualité", icon: Megaphone },
+  { href: "/admin/stats", label: "Statistiques", icon: BarChart2 },
+]; // nav items
+
+function SidebarContent() {
+  const pathname = usePathname();
+  const { close } = useSidebar();
+
+  return (
+    <>
+      {/* Logo */}
+      <div className="flex items-center gap-3 px-4 py-4 border-b border-white/10">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/logo-white.png" alt="La Brie Immobilière" style={{ height: 60, width: "auto", objectFit: "contain" }} />
+        <div className="flex-1" />
+        <div className="hidden lg:block">
+          <NotificationsBell />
+        </div>
+      </div>
+
+      {/* App name */}
+      <div className="px-4 py-3 border-b border-white/10">
+        <p className="text-xs font-medium text-brand-gold tracking-widest uppercase">The Club</p>
+        <p className="text-[10px] text-white/50">Administration</p>
+      </div>
+
+      {/* Navigation */}
+      <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+        {nav.map(({ href, label, icon: Icon }) => {
+          const active = pathname === href || pathname.startsWith(href + "/");
+          return (
+            <Link
+              key={href}
+              href={href}
+              onClick={close}
+              suppressHydrationWarning
+              className={cn(
+                "flex items-center gap-3 px-3 py-2.5 rounded-none text-sm font-medium transition-colors",
+                active
+                  ? "bg-brand-gold text-brand-deep"
+                  : "text-white/70 hover:bg-white/10 hover:text-white"
+              )}
+            >
+              <Icon className="w-5 h-5 flex-shrink-0" />
+              <span suppressHydrationWarning>{label}</span>
+            </Link>
+          );
+        })}
+      </nav>
+
+      {/* Footer */}
+      <div className="px-3 py-4 border-t border-white/10">
+        <button
+          onClick={() => signOut({ callbackUrl: "/auth/connexion" })}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-none text-sm font-medium text-white/70 hover:bg-white/10 hover:text-white transition-colors"
+        >
+          <LogOut className="w-5 h-5" />
+          Déconnexion
+        </button>
+      </div>
+    </>
+  );
+}
+
+export function AdminSidebar() {
+  return (
+    <>
+      <MobileHeader variant="admin" />
+      <MobileOverlay />
+      <SidebarDrawer variant="admin">
+        <SidebarContent />
+      </SidebarDrawer>
+    </>
+  );
+}

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Club - Hors ligne</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Montserrat', -apple-system, sans-serif;
+      background: #030A24;
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 2rem;
+    }
+    .container { max-width: 400px; }
+    .icon {
+      width: 80px; height: 80px;
+      margin: 0 auto 2rem;
+      background: rgba(209, 178, 128, 0.15);
+      border-radius: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .icon svg { width: 40px; height: 40px; color: #D1B280; }
+    h1 {
+      font-family: 'Fira Sans', sans-serif;
+      font-size: 1.5rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      color: #D1B280;
+    }
+    p {
+      color: rgba(255,255,255,0.7);
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+    button {
+      background: #D1B280;
+      color: #030A24;
+      border: none;
+      padding: 0.75rem 2rem;
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    button:active { opacity: 0.8; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 5.636a9 9 0 010 12.728M5.636 18.364a9 9 0 010-12.728M8.464 15.536a5 5 0 010-7.072M15.536 8.464a5 5 0 010 7.072M12 12h.01" />
+      </svg>
+    </div>
+    <h1>Vous etes hors ligne</h1>
+    <p>
+      Verifiez votre connexion internet et reessayez.
+      L'application sera de nouveau disponible des que vous serez connecte.
+    </p>
+    <button onclick="window.location.reload()">Reessayer</button>
+  </div>
+</body>
+</html>
