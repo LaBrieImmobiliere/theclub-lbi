@@ -185,7 +185,7 @@ export default function ConnexionPage() {
             <img src="/logo-white.png" alt="La Brie Immobilière" style={{ height: 120, width: "auto", objectFit: "contain" }} />
           </div>
           <p className="text-brand-gold text-xs font-medium tracking-[0.3em] uppercase">The Club</p>
-          <p className="text-white/50 text-sm mt-1">Espace Ambassadeurs &amp; Administration</p>
+          <p className="text-white/50 text-sm mt-1">Espace Ambassadeur</p>
         </div>
 
         <Suspense fallback={<div className="bg-white p-8 text-center text-gray-400">Chargement...</div>}>
