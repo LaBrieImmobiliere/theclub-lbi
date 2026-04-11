@@ -29,7 +29,7 @@ const ambassadorNav = [
   { href: "/portail/mes-contrats", label: "Mes contrats", icon: FileText },
   { href: "/portail/commissions", label: "Mes commissions", icon: Coins },
   { href: "/portail/documents", label: "Mes documents", icon: FolderOpen },
-  { href: "/portail/parrainage", label: "Mon lien parrainage", icon: Link2 },
+  { href: "/portail/parrainage", label: "Partager l'agence", icon: Link2 },
   { href: "/portail/actualites", label: "Actualités", icon: Megaphone },
   { href: "/portail/profil", label: "Mon profil", icon: UserCircle },
   { href: "/portail/messagerie", label: "Messagerie", icon: MessageSquare },

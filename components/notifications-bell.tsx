@@ -23,7 +23,7 @@ const TYPE_ICON: Record<string, React.ReactNode> = {
 export function NotificationsBell() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [open, setOpen] = useState(false);
-  const [panelPos, setPanelPos] = useState({ top: 0, right: 0 });
+  const [panelPos, setPanelPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
   const ref = useRef<HTMLDivElement>(null);
 
   const fetchNotifications = useCallback(async () => {
@@ -66,10 +66,10 @@ export function NotificationsBell() {
       <button
         onClick={(e) => {
           const rect = e.currentTarget.getBoundingClientRect();
-          setPanelPos({
-            top: rect.bottom + 8,
-            right: window.innerWidth - rect.right,
-          });
+          const panelWidth = 320;
+          // Align panel to button's left edge, but clamp so it never overflows the right side
+          const left = Math.min(rect.left, window.innerWidth - panelWidth - 8);
+          setPanelPos({ top: rect.bottom + 8, left: Math.max(8, left) });
           setOpen(!open);
         }}
         className="relative p-2 rounded-lg hover:bg-slate-800 transition-colors"
@@ -84,7 +84,7 @@ export function NotificationsBell() {
 
       {open && (
         <div
-          style={{ top: panelPos.top, right: panelPos.right }}
+          style={{ top: panelPos.top, left: panelPos.left }}
           className="fixed w-80 max-w-[calc(100vw-1rem)] bg-white rounded-xl shadow-xl border border-gray-100 z-[9999] overflow-hidden"
         >
           <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100">
