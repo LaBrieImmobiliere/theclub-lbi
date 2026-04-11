@@ -1,9 +1,10 @@
 "use client";
 // SMS invitation + social sharing v2
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Copy, Check, Share2, Link2, ExternalLink, MessageSquare, Smartphone } from "lucide-react";
+import { Copy, Check, Share2, Link2, ExternalLink, MessageSquare, Smartphone, Download, FileImage, FileText, QrCode } from "lucide-react";
+import QRCodeLib from "qrcode";
 
 const SMS_MESSAGE = (url: string) =>
   "Salut !\n\nJe fais partie du club ambassadeurs La Brie Immobili\u00e8re et je pense que \u00e7a pourrait t\u2019int\u00e9resser \uD83D\uDE0A\n\nSi tu connais quelqu\u2019un qui cherche \u00e0 acheter, vendre ou investir dans l\u2019immobilier, tu peux le recommander via mon lien et toucher une commission de 5% sur chaque transaction r\u00e9alis\u00e9e.\n\nC\u2019est 100% gratuit, sans engagement, et \u00e7a prend 30 secondes pour s\u2019inscrire \uD83D\uDC49\n" + url + "\n\n\uD83D\uDCA1 Petit conseil : partage ce lien \u00e0 tes proches qui ont un projet immobilier, m\u00eame \u00e0 long terme. Une simple mise en relation peut te rapporter gros !\n\nBelle journ\u00e9e \u00e0 toi \u2728";
@@ -14,13 +15,160 @@ const SHARE_TEXT = (url: string) =>
 export function ParrainageLinkCard({ code }: { code: string }) {
   const [copied, setCopied] = useState(false);
   const [smsCopied, setSmsCopied] = useState(false);
+  const [downloading, setDownloading] = useState<"jpg" | "pdf" | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const baseUrl =
     typeof window !== "undefined"
       ? window.location.origin
-      : "https://lbi-immobilier.fr";
+      : "https://theclub.labrieimmobiliere.fr";
 
-  const referralUrl = `${baseUrl}/rejoindre?code=${code}`;
+  const referralUrl = `${baseUrl}/rejoindre?ref=${code}`;
+
+  useEffect(() => {
+    if (canvasRef.current) {
+      QRCodeLib.toCanvas(canvasRef.current, referralUrl, {
+        width: 240,
+        margin: 2,
+        color: { dark: "#030A24", light: "#ffffff" },
+        errorCorrectionLevel: "H",
+      });
+    }
+  }, [referralUrl]);
+
+  const downloadJpg = async () => {
+    setDownloading("jpg");
+    try {
+      // Create a larger canvas with branding
+      const size = 600;
+      const padding = 40;
+      const qrSize = size - padding * 2;
+
+      const offscreen = document.createElement("canvas");
+      offscreen.width = size;
+      offscreen.height = size + 120;
+      const ctx = offscreen.getContext("2d")!;
+
+      // Background
+      ctx.fillStyle = "#030A24";
+      ctx.fillRect(0, 0, offscreen.width, offscreen.height);
+
+      // White QR area
+      const qrCanvas = document.createElement("canvas");
+      await QRCodeLib.toCanvas(qrCanvas, referralUrl, {
+        width: qrSize,
+        margin: 2,
+        color: { dark: "#030A24", light: "#ffffff" },
+        errorCorrectionLevel: "H",
+      });
+      ctx.drawImage(qrCanvas, padding, padding, qrSize, qrSize);
+
+      // Code text
+      ctx.fillStyle = "#C9A96E";
+      ctx.font = "bold 28px Arial";
+      ctx.textAlign = "center";
+      ctx.fillText(code, size / 2, qrSize + padding + 44);
+
+      // Subtitle
+      ctx.fillStyle = "rgba(255,255,255,0.6)";
+      ctx.font = "18px Arial";
+      ctx.fillText("The Club — La Brie Immobilière", size / 2, qrSize + padding + 76);
+
+      // Download
+      offscreen.toBlob((blob) => {
+        if (!blob) return;
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `qrcode-${code}.jpg`;
+        a.click();
+        URL.revokeObjectURL(url);
+      }, "image/jpeg", 0.95);
+    } finally {
+      setDownloading(null);
+    }
+  };
+
+  const downloadPdf = async () => {
+    setDownloading("pdf");
+    try {
+      const { jsPDF } = await import("jspdf");
+      const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+
+      const pageW = doc.internal.pageSize.getWidth();
+      const pageH = doc.internal.pageSize.getHeight();
+
+      // Dark background
+      doc.setFillColor(3, 10, 36);
+      doc.rect(0, 0, pageW, pageH, "F");
+
+      // Gold accent bar
+      doc.setFillColor(201, 169, 110);
+      doc.rect(0, 0, pageW, 2, "F");
+
+      // Title
+      doc.setTextColor(201, 169, 110);
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "normal");
+      doc.text("LA BRIE IMMOBILIÈRE", pageW / 2, 20, { align: "center" });
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(22);
+      doc.setFont("helvetica", "bold");
+      doc.text("THE CLUB", pageW / 2, 30, { align: "center" });
+
+      doc.setTextColor(201, 169, 110);
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "normal");
+      doc.text("MON QR CODE DE PARRAINAGE", pageW / 2, 40, { align: "center" });
+
+      // QR code
+      const qrCanvas = document.createElement("canvas");
+      await QRCodeLib.toCanvas(qrCanvas, referralUrl, {
+        width: 600, margin: 2,
+        color: { dark: "#030A24", light: "#ffffff" },
+        errorCorrectionLevel: "H",
+      });
+      const qrData = qrCanvas.toDataURL("image/png");
+      const qrW = 100;
+      const qrX = (pageW - qrW) / 2;
+      doc.addImage(qrData, "PNG", qrX, 48, qrW, qrW);
+
+      // Code
+      doc.setTextColor(201, 169, 110);
+      doc.setFontSize(20);
+      doc.setFont("courier", "bold");
+      doc.text(code, pageW / 2, 162, { align: "center" });
+
+      // URL
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(8);
+      doc.setFont("helvetica", "normal");
+      doc.text(referralUrl, pageW / 2, 172, { align: "center" });
+
+      // Divider
+      doc.setDrawColor(201, 169, 110);
+      doc.setLineWidth(0.3);
+      doc.line(20, 180, pageW - 20, 180);
+
+      // Instructions
+      doc.setTextColor(180, 180, 180);
+      doc.setFontSize(9);
+      doc.text("Scannez ce QR code pour accéder à votre lien de parrainage.", pageW / 2, 190, { align: "center" });
+      doc.text("Partagez-le à vos contacts pour qu'ils soumettent une recommandation.", pageW / 2, 197, { align: "center" });
+
+      // Footer
+      doc.setFillColor(201, 169, 110);
+      doc.rect(0, pageH - 2, pageW, 2, "F");
+      doc.setTextColor(100, 100, 100);
+      doc.setFontSize(7);
+      doc.text("The Club : La Brie Immobilière — 41, av. du Maréchal de Lattre de Tassigny, 94440 Villecresnes", pageW / 2, pageH - 5, { align: "center" });
+
+      doc.save(`qrcode-${code}.pdf`);
+    } finally {
+      setDownloading(null);
+    }
+  };
 
   const copyToClipboard = async () => {
     await navigator.clipboard.writeText(referralUrl);
@@ -86,6 +234,52 @@ export function ParrainageLinkCard({ code }: { code: string }) {
 
   return (
     <div className="space-y-4">
+
+      {/* QR Code */}
+      <Card className="border-brand-gold/30 bg-brand-deep text-white">
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <QrCode className="w-4 h-4 text-brand-gold" />
+            <h2 className="font-semibold text-white">Votre QR Code</h2>
+          </div>
+        </CardHeader>
+        <CardContent className="flex flex-col sm:flex-row items-center gap-6">
+          <div className="bg-white p-3 rounded-lg flex-shrink-0">
+            <canvas ref={canvasRef} />
+          </div>
+          <div className="space-y-3 flex-1 text-center sm:text-left">
+            <div>
+              <p className="text-brand-gold text-xs tracking-widest uppercase mb-1">Code parrainage</p>
+              <p className="text-white text-2xl font-bold font-mono tracking-widest">{code}</p>
+            </div>
+            <p className="text-white/60 text-xs leading-relaxed">
+              Imprimez ou partagez ce QR code. Chaque scan redirige directement vers votre formulaire de recommandation.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Button
+                onClick={downloadJpg}
+                disabled={!!downloading}
+                className="gap-2 bg-brand-gold hover:bg-brand-gold-dark text-brand-deep font-semibold"
+                size="sm"
+              >
+                <FileImage className="w-4 h-4" />
+                {downloading === "jpg" ? "Export..." : "Télécharger JPG"}
+              </Button>
+              <Button
+                onClick={downloadPdf}
+                disabled={!!downloading}
+                variant="outline"
+                className="gap-2 border-brand-gold/40 text-white hover:bg-white/10"
+                size="sm"
+              >
+                <FileText className="w-4 h-4" />
+                {downloading === "pdf" ? "Export..." : "Télécharger PDF"}
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* Lien unique */}
       <Card className="border-blue-100 bg-gradient-to-br from-blue-50 to-white">
         <CardHeader>
