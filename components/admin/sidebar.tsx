@@ -45,8 +45,7 @@ function SidebarContent() {
 
       {/* App name */}
       <div className="px-4 py-3 border-b border-white/10">
-        <p className="text-xs font-medium text-brand-gold tracking-widest uppercase">The Club</p>
-        <p className="text-[10px] text-white/50">Administration</p>
+        <p className="text-[10px] text-white/50 tracking-widest uppercase">Administration</p>
       </div>
 
       {/* Navigation */}
