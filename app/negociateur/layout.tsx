@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { NegociateurSidebar } from "@/components/negociateur/sidebar";
 import { MobileSidebarProvider } from "@/components/mobile-sidebar";
 import { PushPrompt } from "@/components/push-prompt";
+import { OnboardingTour } from "@/components/onboarding-tour";
 
 export default async function NegociateurLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
@@ -16,6 +17,7 @@ export default async function NegociateurLayout({ children }: { children: React.
         <main className="flex-1 lg:ml-64 min-h-screen pt-14 lg:pt-0">
           <div className="p-4 sm:p-6 lg:p-8">{children}</div>
           <PushPrompt />
+          <OnboardingTour role="NEGOTIATOR" />
         </main>
       </div>
     </MobileSidebarProvider>

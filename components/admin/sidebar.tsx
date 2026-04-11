@@ -19,6 +19,7 @@ import {
 import { signOut } from "next-auth/react";
 import { NotificationsBell } from "@/components/notifications-bell";
 import { PwaInstallButton } from "@/components/pwa-install-button";
+import { GlobalSearch } from "@/components/admin/global-search";
 import { SidebarDrawer, MobileOverlay, MobileHeader, useSidebar } from "@/components/mobile-sidebar";
 
 const nav = [
@@ -29,6 +30,7 @@ const nav = [
   { href: "/admin/contrats", label: "Contrats", icon: FileText },
   { href: "/admin/agences", label: "Agences", icon: Building2 },
   { href: "/admin/leaderboard", label: "Classement", icon: Trophy },
+  { href: "/admin/agences-stats", label: "Comparatif agences", icon: BarChart2 },
   { href: "/admin/actualites", label: "Fil d'actualité", icon: Megaphone },
   { href: "/admin/messagerie", label: "Messagerie", icon: MessageSquare },
   { href: "/admin/stats", label: "Statistiques", icon: BarChart2 },
@@ -50,8 +52,9 @@ function SidebarContent() {
         </div>
       </div>
 
-      {/* App name */}
-      <div className="px-4 py-3 border-b border-white/10">
+      {/* Search + label */}
+      <div className="px-4 py-3 border-b border-white/10 space-y-2">
+        <GlobalSearch />
         <p className="text-[10px] text-white/50 tracking-widest uppercase">Administration</p>
       </div>
 

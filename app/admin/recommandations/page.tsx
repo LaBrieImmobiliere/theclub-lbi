@@ -41,10 +41,19 @@ const STATUS_OPTIONS = [
   { value: "PERDU", label: "Perdu" },
 ];
 
+const TYPE_OPTIONS = [
+  { value: "", label: "Tous les types" },
+  { value: "ACHAT", label: "Achat" },
+  { value: "VENTE", label: "Vente" },
+  { value: "LOCATION", label: "Location" },
+  { value: "INVESTISSEMENT", label: "Investissement" },
+];
+
 export default function RecommandationsPage() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [typeFilter, setTypeFilter] = useState("");
   const [selected, setSelected] = useState<Lead | null>(null);
   const [updatingStatus, setUpdatingStatus] = useState("");
 
@@ -56,13 +65,15 @@ export default function RecommandationsPage() {
 
   useEffect(() => { fetchLeads(); }, [fetchLeads]);
 
-  const filtered = leads.filter(
-    (l) =>
+  const filtered = leads.filter((l) => {
+    const matchSearch = !search ||
       `${l.firstName} ${l.lastName}`.toLowerCase().includes(search.toLowerCase()) ||
       l.phone.includes(search) ||
       (l.email || "").toLowerCase().includes(search.toLowerCase()) ||
-      l.ambassador.user.name.toLowerCase().includes(search.toLowerCase())
-  );
+      l.ambassador.user.name.toLowerCase().includes(search.toLowerCase());
+    const matchType = !typeFilter || l.type === typeFilter;
+    return matchSearch && matchType;
+  });
 
   const updateStatus = async (id: string, status: string) => {
     setUpdatingStatus(id + status);
@@ -117,11 +128,18 @@ export default function RecommandationsPage() {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <div className="w-full sm:w-48">
+        <div className="w-full sm:w-44">
           <Select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
             options={STATUS_OPTIONS}
+          />
+        </div>
+        <div className="w-full sm:w-44">
+          <Select
+            value={typeFilter}
+            onChange={(e) => setTypeFilter(e.target.value)}
+            options={TYPE_OPTIONS}
           />
         </div>
       </div>

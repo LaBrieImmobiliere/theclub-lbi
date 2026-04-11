@@ -4,6 +4,7 @@ import { PortalSidebar } from "@/components/portal/sidebar";
 import { MobileSidebarProvider } from "@/components/mobile-sidebar";
 import { OnboardingWrapper } from "@/components/portal/onboarding-wrapper";
 import { PushPrompt } from "@/components/push-prompt";
+import { OnboardingTour } from "@/components/onboarding-tour";
 
 export default async function PortalLayout({
   children,
@@ -26,6 +27,7 @@ export default async function PortalLayout({
             <div className="p-4 sm:p-6 lg:p-8">{children}</div>
           </OnboardingWrapper>
           <PushPrompt />
+          <OnboardingTour role="AMBASSADOR" />
         </main>
       </div>
     </MobileSidebarProvider>
