@@ -242,6 +242,17 @@ export default async function PortalDashboardPage() {
 
   if (!ambassador) redirect("/auth/connexion");
 
+  // Calculate ranking
+  const allAmbassadors = await prisma.ambassador.findMany({
+    where: { status: "ACTIVE" },
+    include: { contracts: { select: { commissionAmount: true } } },
+  });
+  const rankedAmbs = allAmbassadors
+    .map((a) => ({ id: a.id, total: a.contracts.reduce((s, c) => s + (c.commissionAmount || 0), 0) }))
+    .sort((a, b) => b.total - a.total);
+  const myRank = rankedAmbs.findIndex((a) => a.id === ambassador.id) + 1;
+  const totalActiveAmbassadors = rankedAmbs.length;
+
   // Stats
   const allLeads = ambassador.leads;
   const allContracts = ambassador.contracts;
@@ -413,6 +424,23 @@ export default async function PortalDashboardPage() {
           <DashboardChart data={chartData} />
         </CardContent>
       </Card>
+
+      {/* Classement personnel */}
+      {totalActiveAmbassadors > 1 && (
+        <div className="flex items-center gap-4 bg-gradient-to-r from-[#030A24] to-[#0f1e40] rounded-xl px-5 py-4 text-white">
+          <div className="w-12 h-12 bg-[#D1B280]/20 rounded-xl flex items-center justify-center flex-shrink-0">
+            <span className="text-xl font-bold text-[#D1B280]">{myRank > 0 ? `#${myRank}` : "—"}</span>
+          </div>
+          <div>
+            <p className="text-sm font-semibold">
+              Vous &ecirc;tes {myRank === 1 ? "1er" : `${myRank}\u00e8me`} sur {totalActiveAmbassadors} ambassadeur{totalActiveAmbassadors > 1 ? "s" : ""}
+            </p>
+            <p className="text-xs text-white/50 mt-0.5">
+              {myRank <= 3 ? "Bravo, vous faites partie du top 3 !" : "Continuez \u00e0 recommander pour monter dans le classement !"}
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Commission du mois */}
       <Card className="border-[#D1B280]/40 bg-gradient-to-r from-[#D1B280]/10 to-[#D1B280]/5">

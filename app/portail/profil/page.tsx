@@ -4,9 +4,25 @@ import { useEffect, useState, useRef } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Camera, Check, AlertCircle, Download, Trash2, AlertTriangle } from "lucide-react";
+import { Camera, Check, AlertCircle, Download, Trash2, AlertTriangle, Award } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { PushSubscribeButton } from "@/components/push-subscribe";
+
+interface BadgeData {
+  id: string;
+  type: string;
+  label: string;
+  earnedAt: string;
+}
+
+const BADGE_ICONS: Record<string, string> = {
+  FIRST_LEAD: "\uD83C\uDF1F",
+  "5_LEADS": "\uD83D\uDD25",
+  "10_LEADS": "\uD83D\uDCAA",
+  "25_LEADS": "\uD83C\uDFC6",
+  FIRST_CONTRACT: "\u2705",
+  "5_CONTRACTS": "\uD83D\uDC8E",
+};
 
 interface UserProfile {
   id: string;
@@ -64,6 +80,9 @@ export default function ProfilPage() {
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Badges
+  const [badges, setBadges] = useState<BadgeData[]>([]);
+
   // Toast
   const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
 
@@ -84,6 +103,12 @@ export default function ProfilPage() {
       })
       .catch(() => showToast("Erreur lors du chargement du profil", "error"))
       .finally(() => setLoading(false));
+
+    // Fetch badges
+    fetch("/api/me/badges")
+      .then((res) => res.ok ? res.json() : [])
+      .then((data) => setBadges(data))
+      .catch(() => {});
   }, []);
 
   const handleSaveProfile = async () => {
@@ -335,6 +360,33 @@ export default function ProfilPage() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Badges */}
+      {badges.length > 0 && (
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <Award className="w-5 h-5 text-[#D1B280]" />
+              <h2 className="text-lg font-bold text-gray-900">Mes badges</h2>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+              {badges.map((badge) => (
+                <div key={badge.id} className="flex items-center gap-3 bg-gray-50 p-3 border border-gray-100">
+                  <span className="text-2xl">{BADGE_ICONS[badge.type] || "\uD83C\uDFC5"}</span>
+                  <div>
+                    <p className="text-sm font-semibold text-gray-900">{badge.label}</p>
+                    <p className="text-[10px] text-gray-400">
+                      {new Date(badge.earnedAt).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })}
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Push Notifications */}
       <Card>

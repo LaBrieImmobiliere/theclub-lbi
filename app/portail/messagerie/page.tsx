@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useSession } from "next-auth/react";
-import { MessageSquare, Send } from "lucide-react";
+import { MessageSquare, Send, Search } from "lucide-react";
 
 interface UserInfo {
   id: string;
@@ -42,6 +42,7 @@ export default function MessageriePage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const fetchConversations = useCallback(async () => {
@@ -165,14 +166,36 @@ export default function MessageriePage() {
           </p>
         </div>
 
+        {/* Search */}
+        <div className="px-3 py-2 border-b border-gray-100">
+          <div className="flex items-center gap-2 bg-gray-50 px-3 py-2 rounded">
+            <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Rechercher..."
+              className="flex-1 bg-transparent text-sm outline-none text-gray-700 placeholder:text-gray-400"
+            />
+          </div>
+        </div>
+
         <div className="flex-1 overflow-y-auto">
-          {conversations.length === 0 ? (
+          {conversations.filter((c) => {
+            if (!searchQuery.trim()) return true;
+            const q = searchQuery.toLowerCase();
+            return (c.user.name || "").toLowerCase().includes(q) || c.user.email.toLowerCase().includes(q);
+          }).length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full px-4 text-center">
               <MessageSquare className="w-10 h-10 text-gray-300 mb-2" />
               <p className="text-sm text-gray-500">Aucune conversation</p>
             </div>
           ) : (
-            conversations.map((conv) => (
+            conversations.filter((c) => {
+              if (!searchQuery.trim()) return true;
+              const q = searchQuery.toLowerCase();
+              return (c.user.name || "").toLowerCase().includes(q) || c.user.email.toLowerCase().includes(q);
+            }).map((conv) => (
               <button
                 key={conv.user.id}
                 onClick={() => setSelectedUserId(conv.user.id)}
