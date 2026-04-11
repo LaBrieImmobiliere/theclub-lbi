@@ -15,6 +15,7 @@ import {
   Megaphone,
   UserCircle,
   Users,
+  Coins,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { NotificationsBell } from "@/components/notifications-bell";
@@ -26,6 +27,7 @@ const ambassadorNav = [
   { href: "/portail/recommander", label: "Recommander", icon: PlusCircle },
   { href: "/portail/mes-recommandations", label: "Mes recommandations", icon: ClipboardList },
   { href: "/portail/mes-contrats", label: "Mes contrats", icon: FileText },
+  { href: "/portail/commissions", label: "Mes commissions", icon: Coins },
   { href: "/portail/documents", label: "Mes documents", icon: FolderOpen },
   { href: "/portail/parrainage", label: "Mon lien parrainage", icon: Link2 },
   { href: "/portail/actualites", label: "Actualités", icon: Megaphone },

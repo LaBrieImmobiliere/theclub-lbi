@@ -1,5 +1,11 @@
 {
   "buildCommand": "prisma generate && next build",
   "installCommand": "npm ci",
-  "framework": "nextjs"
+  "framework": "nextjs",
+  "crons": [
+    {
+      "path": "/api/cron/relances",
+      "schedule": "0 9 * * *"
+    }
+  ]
 }
