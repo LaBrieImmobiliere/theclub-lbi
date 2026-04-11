@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { randomBytes } from "crypto";
 import nodemailer from "nodemailer";
+import { rateLimit } from "@/lib/rate-limit";
 
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_SERVER_HOST,
@@ -14,6 +15,13 @@ const transporter = nodemailer.createTransport({
 
 export async function POST(req: NextRequest) {
   try {
+    // Rate limit: 5 requests per 15 minutes
+    const ip = req.headers.get("x-forwarded-for") || "unknown";
+    const rl = rateLimit(`reset-password:${ip}`, 5, 15 * 60 * 1000);
+    if (!rl.success) {
+      return NextResponse.json({ error: "Trop de tentatives. Réessayez dans quelques minutes." }, { status: 429 });
+    }
+
     const { email } = await req.json();
     if (!email) return NextResponse.json({ error: "Email requis" }, { status: 400 });
 

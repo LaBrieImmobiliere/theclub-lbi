@@ -40,7 +40,9 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Email déjà utilisé" }, { status: 400 });
   }
 
-  const tempPassword = Math.random().toString(36).slice(-8);
+  // Generate cryptographically secure temporary password
+  const { randomBytes } = require("crypto");
+  const tempPassword = randomBytes(6).toString("base64url").slice(0, 10);
   const hashedPassword = await bcrypt.hash(tempPassword, 10);
   const code = generateCode("AMB");
 

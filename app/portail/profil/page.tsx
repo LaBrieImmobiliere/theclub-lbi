@@ -4,7 +4,8 @@ import { useEffect, useState, useRef } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Camera, Check, AlertCircle } from "lucide-react";
+import { Camera, Check, AlertCircle, Download, Trash2, AlertTriangle } from "lucide-react";
+import { signOut } from "next-auth/react";
 
 interface UserProfile {
   id: string;
@@ -331,6 +332,43 @@ export default function ProfilPage() {
               {"Modifier le mot de passe"}
             </Button>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* RGPD Section */}
+      <Card className="border-gray-200">
+        <CardHeader>
+          <h2 className="text-lg font-bold text-gray-900">Mes donn&eacute;es personnelles</h2>
+          <p className="text-xs text-gray-500">Conform&eacute;ment au RGPD, vous pouvez exporter ou supprimer vos donn&eacute;es.</p>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex flex-col sm:flex-row gap-3">
+            <a
+              href="/api/me/export"
+              download
+              className="flex items-center justify-center gap-2 px-4 py-2.5 border border-gray-300 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              <Download className="w-4 h-4" />
+              Exporter mes donn&eacute;es
+            </a>
+            <button
+              onClick={() => {
+                if (confirm("Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible. Toutes vos données seront effacées définitivement.")) {
+                  fetch("/api/me", { method: "DELETE" }).then((res) => {
+                    if (res.ok) signOut({ callbackUrl: "/bienvenue" });
+                  });
+                }
+              }}
+              className="flex items-center justify-center gap-2 px-4 py-2.5 border border-red-300 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+            >
+              <Trash2 className="w-4 h-4" />
+              Supprimer mon compte
+            </button>
+          </div>
+          <p className="text-[10px] text-gray-400 flex items-start gap-1">
+            <AlertTriangle className="w-3 h-3 mt-0.5 flex-shrink-0" />
+            La suppression est d&eacute;finitive et entra&icirc;ne la perte de toutes vos recommandations, contrats et messages.
+          </p>
         </CardContent>
       </Card>
     </div>

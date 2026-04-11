@@ -60,9 +60,15 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
-    if (newPassword.length < 6) {
+    if (newPassword.length < 8) {
       return NextResponse.json(
-        { error: "Le nouveau mot de passe doit contenir au moins 6 caract\u00e8res" },
+        { error: "Le mot de passe doit contenir au moins 8 caract\u00e8res" },
+        { status: 400 }
+      );
+    }
+    if (!/[A-Z]/.test(newPassword) || !/[0-9]/.test(newPassword)) {
+      return NextResponse.json(
+        { error: "Le mot de passe doit contenir au moins 1 majuscule et 1 chiffre" },
         { status: 400 }
       );
     }
@@ -103,4 +109,18 @@ export async function PATCH(req: NextRequest) {
   });
 
   return NextResponse.json(updated);
+}
+
+// DELETE — Suppression du compte (droit à l'effacement RGPD)
+export async function DELETE() {
+  const session = await auth();
+  if (!session?.user) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+
+  const user = session.user as { id?: string };
+  if (!user.id) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+
+  // Cascade delete: User model has onDelete: Cascade on Ambassador, Negotiator, etc.
+  await prisma.user.delete({ where: { id: user.id } });
+
+  return NextResponse.json({ success: true, message: "Compte supprimé" });
 }

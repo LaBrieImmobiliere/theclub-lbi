@@ -188,8 +188,9 @@ export default function LandingPage() {
           </div>
           <div className="flex gap-6 text-sm">
             <Link href="/auth/connexion" className="hover:text-white transition-colors">Connexion</Link>
-            <span>Mentions légales</span>
-            <span>Politique de confidentialité</span>
+            <Link href="/mentions-legales" className="hover:text-white transition-colors">Mentions légales</Link>
+            <Link href="/politique-confidentialite" className="hover:text-white transition-colors">Politique de confidentialité</Link>
+            <Link href="/cgu" className="hover:text-white transition-colors">CGU</Link>
           </div>
           <p className="text-xs">&copy; {new Date().getFullYear()} La Brie Immobilière &mdash; depuis 1969</p>
         </div>
