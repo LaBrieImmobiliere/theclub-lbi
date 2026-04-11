@@ -20,6 +20,7 @@ import { signOut } from "next-auth/react";
 import { NotificationsBell } from "@/components/notifications-bell";
 import { PwaInstallButton } from "@/components/pwa-install-button";
 import { GlobalSearch } from "@/components/admin/global-search";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { SidebarDrawer, MobileOverlay, MobileHeader, useSidebar } from "@/components/mobile-sidebar";
 
 const nav = [
@@ -47,6 +48,7 @@ function SidebarContent() {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/logo-white.png" alt="La Brie Immobilière" style={{ height: 60, width: "auto", objectFit: "contain" }} />
         <div className="flex-1" />
+        <ThemeToggle />
         <div className="hidden lg:block">
           <NotificationsBell />
         </div>

@@ -17,13 +17,39 @@ interface Props {
   }[];
 }
 
-const SMS_MESSAGE = (url: string) =>
-  `Salut !\n\nJe suis négociateur chez La Brie Immobilière et je recrute des ambassadeurs pour notre réseau.\n\nEn devenant ambassadeur, tu peux recommander des contacts ayant un projet immobilier et toucher une commission de 5% sur chaque transaction réalisée.\n\nC'est 100% gratuit, sans engagement, et ça prend 30 secondes pour s'inscrire 👉\n${url}\n\n📱 Une fois inscrit(e), installe l'app sur ton téléphone pour accéder à ton espace en un clic !\n\n💡 Petit conseil : même si tu n'as pas de projet immobilier toi-même, tu connais sûrement quelqu'un qui cherche à acheter, vendre ou investir !\n\nBelle journée à toi ✨`;
+const MESSAGE_STYLES = [
+  {
+    id: "fun",
+    label: "\uD83C\uDF89 Fun",
+    message: (url: string) =>
+      `Hey ! \uD83D\uDC4B\n\nTu connais quelqu'un qui veut acheter, vendre ou investir dans l'immobilier ? \uD83C\uDFE1\n\nJe recrute des ambassadeurs pour La Brie Immobilière ! Le concept est simple :\n\n1\uFE0F\u20E3 Tu t'inscris gratuitement\n2\uFE0F\u20E3 Tu recommandes des contacts\n3\uFE0F\u20E3 Tu touches 5% de commission sur chaque vente \uD83D\uDCB0\n\nC'est 100% gratuit, zéro engagement, et ça prend 30 secondes \uD83D\uDE80\n\n\uD83D\uDC49 ${url}\n\nMême sans projet immo, tu connais sûrement quelqu'un... et ça peut te rapporter gros ! \uD83D\uDCA1\n\n\u00C0 toi de jouer ! \u2728`,
+  },
+  {
+    id: "premium",
+    label: "\uD83C\uDF1F Premium",
+    message: (url: string) =>
+      `Bonjour,\n\nJe me permets de vous contacter car je pense que notre programme d'ambassadeurs pourrait vous intéresser.\n\nEn tant que négociateur chez La Brie Immobilière, je constitue un réseau de partenaires qui recommandent des contacts ayant des projets immobiliers. En retour, chaque transaction aboutie vous donne droit à une commission de 5% sur les honoraires d'agence.\n\nLe programme est entièrement gratuit et sans engagement. L'inscription prend moins d'une minute :\n${url}\n\nN'hésitez pas à me contacter pour toute question.\n\nCordialement`,
+  },
+  {
+    id: "court",
+    label: "\u26A1 Court",
+    message: (url: string) =>
+      `Salut ! Tu veux gagner de l'argent simplement en recommandant des contacts immo ? \uD83C\uDFE0\uD83D\uDCB0\n\nInscris-toi ici, c'est gratuit : ${url}\n\n5% de commission sur chaque vente réalisée. Sans engagement !`,
+  },
+  {
+    id: "pro",
+    label: "\uD83D\uDCBC Pro",
+    message: (url: string) =>
+      `Bonjour,\n\nLa Brie Immobilière lance son programme ambassadeurs. Le principe est simple : vous recommandez des personnes ayant un projet immobilier, et vous percevez une commission de 5% sur les honoraires pour chaque transaction conclue.\n\nPour rejoindre le réseau (gratuit et sans engagement) :\n${url}\n\nUne fois inscrit(e), vous accéderez à votre espace personnel pour suivre vos recommandations en temps réel et vos commissions.\n\nBien cordialement`,
+  },
+];
 
 export function NegociateurParrainagePage({ code, inscriptionUrl, ambassadorCount, recentAmbassadors }: Props) {
   const [copiedLink, setCopiedLink] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
   const [copiedMsg, setCopiedMsg] = useState(false);
+  const [messageStyle, setMessageStyle] = useState("fun");
+  const currentMessage = (MESSAGE_STYLES.find((s) => s.id === messageStyle) || MESSAGE_STYLES[0]).message(inscriptionUrl);
   const [downloading, setDownloading] = useState<"jpg" | "pdf" | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -50,13 +76,13 @@ export function NegociateurParrainagePage({ code, inscriptionUrl, ambassadorCoun
   };
 
   const copyMessage = async () => {
-    await navigator.clipboard.writeText(SMS_MESSAGE(inscriptionUrl));
+    await navigator.clipboard.writeText(currentMessage);
     setCopiedMsg(true);
     setTimeout(() => setCopiedMsg(false), 2000);
   };
 
   const sendSMS = () => {
-    window.open(`sms:?&body=${encodeURIComponent(SMS_MESSAGE(inscriptionUrl))}`, "_self");
+    window.open(`sms:?&body=${encodeURIComponent(currentMessage)}`, "_self");
   };
 
   const shareLink = () => {
@@ -72,22 +98,22 @@ export function NegociateurParrainagePage({ code, inscriptionUrl, ambassadorCoun
   };
 
   const shareWhatsApp = () => {
-    window.open(`https://wa.me/?text=${encodeURIComponent(SMS_MESSAGE(inscriptionUrl))}`, "_blank");
+    window.open(`https://wa.me/?text=${encodeURIComponent(currentMessage)}`, "_blank");
   };
 
   const shareFacebook = () => {
-    window.open(`https://www.facebook.com/sharer/sharer.php?quote=${encodeURIComponent(SMS_MESSAGE(inscriptionUrl))}`, "_blank");
+    window.open(`https://www.facebook.com/sharer/sharer.php?quote=${encodeURIComponent(currentMessage)}`, "_blank");
   };
 
   const shareInstagram = async () => {
-    await navigator.clipboard.writeText(SMS_MESSAGE(inscriptionUrl));
+    await navigator.clipboard.writeText(currentMessage);
     setCopiedMsg(true);
     setTimeout(() => setCopiedMsg(false), 3000);
     window.open("https://www.instagram.com/", "_blank");
   };
 
   const shareTikTok = async () => {
-    await navigator.clipboard.writeText(SMS_MESSAGE(inscriptionUrl));
+    await navigator.clipboard.writeText(currentMessage);
     setCopiedMsg(true);
     setTimeout(() => setCopiedMsg(false), 3000);
     window.open("https://www.tiktok.com/", "_blank");
@@ -98,7 +124,7 @@ export function NegociateurParrainagePage({ code, inscriptionUrl, ambassadorCoun
   };
 
   const shareTelegram = () => {
-    window.open(`https://t.me/share/url?url=${encodeURIComponent(inscriptionUrl)}&text=${encodeURIComponent(SMS_MESSAGE(inscriptionUrl))}`, "_blank");
+    window.open(`https://t.me/share/url?url=${encodeURIComponent(inscriptionUrl)}&text=${encodeURIComponent(currentMessage)}`, "_blank");
   };
 
   const downloadJpg = async () => {
@@ -346,9 +372,26 @@ export function NegociateurParrainagePage({ code, inscriptionUrl, ambassadorCoun
           <p className="text-xs text-gray-400">Envoyez ce message pour recruter des ambassadeurs</p>
         </div>
         <div className="p-4 sm:p-6 space-y-4">
+          {/* Style selector */}
+          <div className="flex flex-wrap gap-2">
+            {MESSAGE_STYLES.map((style) => (
+              <button
+                key={style.id}
+                onClick={() => setMessageStyle(style.id)}
+                className={`px-3 py-1.5 text-xs font-medium border transition-colors ${
+                  messageStyle === style.id
+                    ? "bg-[#030A24] text-white border-[#030A24]"
+                    : "bg-white text-gray-600 border-gray-200 hover:border-gray-400"
+                }`}
+              >
+                {style.label}
+              </button>
+            ))}
+          </div>
+
           {/* Preview */}
-          <div className="bg-gray-50 border border-gray-200 p-4 text-sm text-gray-700 leading-relaxed whitespace-pre-wrap max-h-48 overflow-y-auto">
-            {SMS_MESSAGE(inscriptionUrl)}
+          <div className="bg-gray-50 border border-gray-200 p-4 text-sm text-gray-700 leading-relaxed whitespace-pre-wrap max-h-56 overflow-y-auto">
+            {currentMessage}
           </div>
 
           {/* Primary buttons */}

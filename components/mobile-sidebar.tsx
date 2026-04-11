@@ -3,6 +3,7 @@
 import { useState, useEffect, createContext, useContext } from "react";
 import { Menu, X } from "lucide-react";
 import { NotificationsBell } from "@/components/notifications-bell";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 type SidebarContextType = {
   isOpen: boolean;
@@ -86,7 +87,10 @@ export function MobileHeader({ variant = "admin" }: { variant?: "admin" | "porta
         </div>
       </div>
 
-      <NotificationsBell />
+      <div className="flex items-center gap-1">
+        <ThemeToggle />
+        <NotificationsBell />
+      </div>
     </header>
   );
 }
