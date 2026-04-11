@@ -16,8 +16,23 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const session = await auth();
-  if (!session || (session.user as { role?: string }).role !== "ADMIN") {
+  const userRole = (session?.user as { role?: string })?.role;
+  if (!session || (userRole !== "ADMIN" && userRole !== "NEGOTIATOR")) {
     return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+  }
+
+  // Negotiators can only update status and notes (not other fields)
+  if (userRole === "NEGOTIATOR") {
+    const userId = (session.user as { id?: string }).id;
+    const negotiator = await prisma.negotiator.findUnique({ where: { userId } });
+    if (!negotiator) {
+      return NextResponse.json({ error: "Non autorisé" }, { status: 403 });
+    }
+    const { id } = await params;
+    const lead = await prisma.lead.findUnique({ where: { id } });
+    if (!lead || lead.negotiatorId !== negotiator.id) {
+      return NextResponse.json({ error: "Non autorisé" }, { status: 403 });
+    }
   }
 
   const { id } = await params;

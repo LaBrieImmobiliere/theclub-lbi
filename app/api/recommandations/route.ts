@@ -25,6 +25,27 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(leads);
   }
 
+  // Negotiator: leads assigned to their negotiator profile
+  if (user.role === "NEGOTIATOR") {
+    const negotiator = await prisma.negotiator.findUnique({
+      where: { userId: user.id },
+    });
+    if (!negotiator) return NextResponse.json([]);
+
+    const leads = await prisma.lead.findMany({
+      where: {
+        negotiatorId: negotiator.id,
+        ...(status ? { status } : {}),
+      },
+      include: {
+        ambassador: { include: { user: { select: { name: true, email: true } } } },
+        contract: true,
+      },
+      orderBy: { createdAt: "desc" },
+    });
+    return NextResponse.json(leads);
+  }
+
   // Ambassador: only their own leads
   const ambassador = await prisma.ambassador.findUnique({
     where: { userId: user.id },

@@ -1,6 +1,6 @@
 {
   "name": "The Club - La Brie Immobilière",
-  "short_name": "The Club",
+  "short_name": "The Club LBI",
   "description": "Plateforme de gestion des ambassadeurs et apporteurs d'affaire",
   "start_url": "/auth/connexion",
   "display": "standalone",
