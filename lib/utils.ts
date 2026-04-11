@@ -40,19 +40,53 @@ export function formatDate(date: Date | string | null | undefined) {
 
 export const LEAD_STATUS_LABELS: Record<string, string> = {
   NOUVEAU: "Nouveau",
+  PRIS_EN_CHARGE: "Pris en charge",
   CONTACTE: "Contacté",
+  RDV_PLANIFIE: "RDV planifié",
+  EN_NEGOCIATION: "En négociation",
+  MANDAT_SIGNE: "Mandat signé",
+  SOUS_OFFRE: "Sous offre",
+  COMPROMIS_SIGNE: "Compromis signé",
+  ACTE_SIGNE: "Acte signé",
+  COMMISSION_VERSEE: "Commission versée",
+  EN_PAUSE: "En pause",
+  PERDU: "Perdu",
+  // Legacy compatibility
   EN_COURS: "En cours",
   SIGNE: "Signé",
-  PERDU: "Perdu",
 };
 
 export const LEAD_STATUS_COLORS: Record<string, string> = {
   NOUVEAU: "bg-blue-100 text-blue-800",
+  PRIS_EN_CHARGE: "bg-indigo-100 text-indigo-800",
   CONTACTE: "bg-yellow-100 text-yellow-800",
+  RDV_PLANIFIE: "bg-cyan-100 text-cyan-800",
+  EN_NEGOCIATION: "bg-orange-100 text-orange-800",
+  MANDAT_SIGNE: "bg-violet-100 text-violet-800",
+  SOUS_OFFRE: "bg-pink-100 text-pink-800",
+  COMPROMIS_SIGNE: "bg-emerald-100 text-emerald-800",
+  ACTE_SIGNE: "bg-green-100 text-green-800",
+  COMMISSION_VERSEE: "bg-green-200 text-green-900",
+  EN_PAUSE: "bg-gray-100 text-gray-600",
+  PERDU: "bg-red-100 text-red-800",
+  // Legacy
   EN_COURS: "bg-orange-100 text-orange-800",
   SIGNE: "bg-green-100 text-green-800",
-  PERDU: "bg-red-100 text-red-800",
 };
+
+// Ordered steps for timeline display
+export const LEAD_STATUS_STEPS = [
+  "NOUVEAU",
+  "PRIS_EN_CHARGE",
+  "CONTACTE",
+  "RDV_PLANIFIE",
+  "EN_NEGOCIATION",
+  "MANDAT_SIGNE",
+  "SOUS_OFFRE",
+  "COMPROMIS_SIGNE",
+  "ACTE_SIGNE",
+  "COMMISSION_VERSEE",
+];
 
 export const CONTRACT_STATUS_LABELS: Record<string, string> = {
   BROUILLON: "Brouillon",

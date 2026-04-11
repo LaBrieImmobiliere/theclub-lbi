@@ -13,77 +13,7 @@ import {
 } from "@/lib/utils";
 import Link from "next/link";
 
-const TIMELINE_STEPS = [
-  { key: "NOUVEAU", label: "Nouveau" },
-  { key: "CONTACTE", label: "Contacté" },
-  { key: "EN_COURS", label: "En cours" },
-  { key: "SIGNE", label: "Signé" },
-];
-
-function LeadStatusTimeline({ status }: { status: string }) {
-  const isLost = status === "PERDU";
-  const currentIndex = TIMELINE_STEPS.findIndex((s) => s.key === status);
-
-  return (
-    <div className="pt-2">
-      <p className="text-xs text-gray-400 mb-3 font-medium uppercase tracking-wide">Avancement du dossier</p>
-      {isLost ? (
-        <div className="flex items-center gap-2 px-3 py-2 bg-red-50 border border-red-100 rounded-lg">
-          <div className="w-2 h-2 rounded-full bg-red-400 flex-shrink-0" />
-          <span className="text-sm text-red-600 font-medium">Dossier perdu</span>
-        </div>
-      ) : (
-        <div className="relative">
-          {/* Progress bar background */}
-          <div className="absolute top-4 left-4 right-4 h-0.5 bg-gray-100" />
-          {/* Progress bar fill */}
-          <div
-            className="absolute top-4 left-4 h-0.5 bg-brand-gold transition-all duration-500"
-            style={{
-              width: currentIndex <= 0
-                ? "0%"
-                : `${(currentIndex / (TIMELINE_STEPS.length - 1)) * 100}%`,
-            }}
-          />
-          <div className="relative flex justify-between">
-            {TIMELINE_STEPS.map((step, i) => {
-              const isDone = i < currentIndex;
-              const isCurrent = i === currentIndex;
-              return (
-                <div key={step.key} className="flex flex-col items-center gap-1.5" style={{ width: "25%" }}>
-                  <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all ${
-                      isDone
-                        ? "bg-brand-gold border-brand-gold"
-                        : isCurrent
-                        ? "bg-white border-brand-gold shadow-sm"
-                        : "bg-white border-gray-200"
-                    }`}
-                  >
-                    {isDone ? (
-                      <Check className="w-3.5 h-3.5 text-white" />
-                    ) : isCurrent ? (
-                      <div className="w-2.5 h-2.5 rounded-full bg-brand-gold" />
-                    ) : (
-                      <div className="w-2 h-2 rounded-full bg-gray-200" />
-                    )}
-                  </div>
-                  <span
-                    className={`text-[10px] text-center leading-tight ${
-                      isCurrent ? "text-brand-gold font-semibold" : isDone ? "text-gray-500" : "text-gray-300"
-                    }`}
-                  >
-                    {step.label}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
+import { LeadTimeline } from "@/components/lead-timeline";
 
 type Lead = {
   id: string;
@@ -218,7 +148,7 @@ export default function MesRecommandationsPage() {
               </div>
 
               {/* Status timeline */}
-              <LeadStatusTimeline status={selected.status} />
+              <LeadTimeline status={selected.status} compact />
 
               {(selected.location || selected.budget) && (
                 <div className="grid grid-cols-2 gap-3 text-sm">

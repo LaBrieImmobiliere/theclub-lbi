@@ -5,10 +5,67 @@ import { sendNotificationEmail } from "@/lib/email";
 
 const STATUS_LABELS: Record<string, string> = {
   NOUVEAU: "Nouveau",
+  PRIS_EN_CHARGE: "Pris en charge",
   CONTACTE: "Contacté",
+  RDV_PLANIFIE: "RDV planifié",
+  EN_NEGOCIATION: "En négociation",
+  MANDAT_SIGNE: "Mandat signé",
+  SOUS_OFFRE: "Sous offre",
+  COMPROMIS_SIGNE: "Compromis signé",
+  ACTE_SIGNE: "Acte signé",
+  COMMISSION_VERSEE: "Commission versée",
+  EN_PAUSE: "En pause",
+  PERDU: "Perdu",
   EN_COURS: "En cours",
   SIGNE: "Signé",
-  PERDU: "Perdu",
+};
+
+// Fun notification messages like mareco by BSK
+const STATUS_NOTIFICATIONS: Record<string, { title: string; message: (name: string) => string }> = {
+  PRIS_EN_CHARGE: {
+    title: "Reco acceptée ! \u2705",
+    message: (name) => `Bonne nouvelle ! Votre recommandation ${name} a été prise en charge par un négociateur.`,
+  },
+  CONTACTE: {
+    title: "Premier contact ! \uD83D\uDCDE",
+    message: (name) => `Votre recommandation ${name} a été contactée. Le dossier avance !`,
+  },
+  RDV_PLANIFIE: {
+    title: "RDV programmé ! \uD83D\uDCC5",
+    message: (name) => `Super ! Un rendez-vous est planifié pour ${name}. On avance bien !`,
+  },
+  EN_NEGOCIATION: {
+    title: "Négociation en cours ! \uD83E\uDD1D",
+    message: (name) => `Le dossier ${name} entre en négociation. Croisons les doigts !`,
+  },
+  MANDAT_SIGNE: {
+    title: "Le mandat est signé ! \uD83D\uDC90",
+    message: (name) => `Suuuuper nouvelle : un mandat de vente a été signé grâce à votre reco ${name} !`,
+  },
+  SOUS_OFFRE: {
+    title: "Sous offre ! \uD83D\uDCB0",
+    message: (name) => `Une offre a été acceptée pour ${name} ! Le dossier est bien engagé.`,
+  },
+  COMPROMIS_SIGNE: {
+    title: "Champagne ! Le compromis est signé \uD83C\uDF7E",
+    message: (name) => `Pssst, la vente du bien que vous avez recommandé (${name}) avance super bien ! Le compromis a été signé \u270D\uFE0F`,
+  },
+  ACTE_SIGNE: {
+    title: "Transaction réussie ! \uD83C\uDFE0",
+    message: (name) => `Tout est bon ! L'acte de vente pour ${name} est signé chez le notaire.`,
+  },
+  COMMISSION_VERSEE: {
+    title: "Votre gain vous attend ! \uD83E\uDD11",
+    message: (name) => `Tout est bon ! La transaction ${name} est finalisée et votre reco vous a rapporté un joli gain \uD83E\uDD29`,
+  },
+  PERDU: {
+    title: "Dossier non abouti",
+    message: (name) => `Le dossier ${name} n'a malheureusement pas abouti. Ne vous découragez pas, continuez à recommander !`,
+  },
+  EN_PAUSE: {
+    title: "Dossier en pause \u23F8\uFE0F",
+    message: (name) => `Le dossier ${name} est temporairement en pause. On vous tiendra informé de la suite.`,
+  },
 };
 
 export async function PATCH(
@@ -88,18 +145,22 @@ export async function PATCH(
         const leadName = `${leadWithAmbassador.firstName} ${leadWithAmbassador.lastName}`;
         const statusLabel = STATUS_LABELS[body.status] || body.status;
 
+        const funNotif = STATUS_NOTIFICATIONS[body.status];
+        const notifTitle = funNotif?.title || `Recommandation mise à jour`;
+        const notifMessage = funNotif?.message(leadName) || `${leadName} est passé au statut ${statusLabel}.`;
+
         await sendNotificationEmail(
           user.email!,
           user.name || "Ambassadeur",
-          "Votre recommandation a été mise à jour",
-          `${leadName} est passé au statut ${statusLabel}.`
+          notifTitle,
+          notifMessage
         );
 
         await prisma.notification.create({
           data: {
             userId: user.id,
-            title: "Recommandation mise à jour",
-            message: `${leadName} est passé au statut ${statusLabel}.`,
+            title: notifTitle,
+            message: notifMessage,
             type: "LEAD",
             link: "/portail/mes-recommandations",
           },

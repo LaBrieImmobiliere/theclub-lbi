@@ -35,9 +35,16 @@ type Lead = {
 const STATUS_OPTIONS = [
   { value: "", label: "Tous les statuts" },
   { value: "NOUVEAU", label: "Nouveau" },
+  { value: "PRIS_EN_CHARGE", label: "Pris en charge" },
   { value: "CONTACTE", label: "Contacté" },
-  { value: "EN_COURS", label: "En cours" },
-  { value: "SIGNE", label: "Signé" },
+  { value: "RDV_PLANIFIE", label: "RDV planifié" },
+  { value: "EN_NEGOCIATION", label: "En négociation" },
+  { value: "MANDAT_SIGNE", label: "Mandat signé" },
+  { value: "SOUS_OFFRE", label: "Sous offre" },
+  { value: "COMPROMIS_SIGNE", label: "Compromis signé" },
+  { value: "ACTE_SIGNE", label: "Acte signé" },
+  { value: "COMMISSION_VERSEE", label: "Commission versée" },
+  { value: "EN_PAUSE", label: "En pause" },
   { value: "PERDU", label: "Perdu" },
 ];
 

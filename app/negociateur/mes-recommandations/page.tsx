@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Check, ChevronRight, Phone, Mail, MapPin, Euro } from "lucide-react";
 import { formatDate, LEAD_TYPE_LABELS } from "@/lib/utils";
+import { LeadTimeline } from "@/components/lead-timeline";
 
 type Lead = {
   id: string;
@@ -23,26 +24,50 @@ type Lead = {
 
 const STATUS_STEPS = [
   { key: "NOUVEAU", label: "Nouveau", color: "bg-blue-500" },
+  { key: "PRIS_EN_CHARGE", label: "Pris en charge", color: "bg-indigo-500" },
   { key: "CONTACTE", label: "Contacté", color: "bg-yellow-500" },
-  { key: "EN_COURS", label: "En cours", color: "bg-orange-500" },
-  { key: "SIGNE", label: "Signé", color: "bg-green-500" },
+  { key: "RDV_PLANIFIE", label: "RDV planifié", color: "bg-cyan-500" },
+  { key: "EN_NEGOCIATION", label: "Négociation", color: "bg-orange-500" },
+  { key: "MANDAT_SIGNE", label: "Mandat signé", color: "bg-violet-500" },
+  { key: "SOUS_OFFRE", label: "Sous offre", color: "bg-pink-500" },
+  { key: "COMPROMIS_SIGNE", label: "Compromis", color: "bg-emerald-500" },
+  { key: "ACTE_SIGNE", label: "Acte signé", color: "bg-green-500" },
+  { key: "COMMISSION_VERSEE", label: "Commission", color: "bg-green-600" },
 ];
 
 const STATUS_BADGE: Record<string, string> = {
   NOUVEAU: "bg-blue-50 text-blue-700 border-blue-200",
+  PRIS_EN_CHARGE: "bg-indigo-50 text-indigo-700 border-indigo-200",
   CONTACTE: "bg-yellow-50 text-yellow-700 border-yellow-200",
+  RDV_PLANIFIE: "bg-cyan-50 text-cyan-700 border-cyan-200",
+  EN_NEGOCIATION: "bg-orange-50 text-orange-700 border-orange-200",
+  MANDAT_SIGNE: "bg-violet-50 text-violet-700 border-violet-200",
+  SOUS_OFFRE: "bg-pink-50 text-pink-700 border-pink-200",
+  COMPROMIS_SIGNE: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  ACTE_SIGNE: "bg-green-50 text-green-700 border-green-200",
+  COMMISSION_VERSEE: "bg-green-100 text-green-800 border-green-300",
+  EN_PAUSE: "bg-gray-50 text-gray-500 border-gray-200",
+  PERDU: "bg-red-50 text-red-700 border-red-200",
   EN_COURS: "bg-orange-50 text-orange-700 border-orange-200",
   SIGNE: "bg-green-50 text-green-700 border-green-200",
-  PERDU: "bg-red-50 text-red-700 border-red-200",
   ANNULE: "bg-gray-50 text-gray-500 border-gray-200",
 };
 
 const STATUS_LABEL: Record<string, string> = {
   NOUVEAU: "Nouveau",
+  PRIS_EN_CHARGE: "Pris en charge",
   CONTACTE: "Contacté",
+  RDV_PLANIFIE: "RDV planifié",
+  EN_NEGOCIATION: "Négociation",
+  MANDAT_SIGNE: "Mandat signé",
+  SOUS_OFFRE: "Sous offre",
+  COMPROMIS_SIGNE: "Compromis signé",
+  ACTE_SIGNE: "Acte signé",
+  COMMISSION_VERSEE: "Commission versée",
+  EN_PAUSE: "En pause",
+  PERDU: "Perdu",
   EN_COURS: "En cours",
   SIGNE: "Signé",
-  PERDU: "Perdu",
   ANNULE: "Annulé",
 };
 
@@ -186,7 +211,7 @@ export default function NegociateurRecommandationsPage() {
 
       {/* Filters */}
       <div className="flex flex-wrap gap-2">
-        {["ALL", "NOUVEAU", "CONTACTE", "EN_COURS", "SIGNE", "PERDU"].map((s) => (
+        {["ALL", "NOUVEAU", "PRIS_EN_CHARGE", "CONTACTE", "RDV_PLANIFIE", "EN_NEGOCIATION", "MANDAT_SIGNE", "SOUS_OFFRE", "COMPROMIS_SIGNE", "ACTE_SIGNE", "COMMISSION_VERSEE", "EN_PAUSE", "PERDU"].map((s) => (
           <button
             key={s}
             onClick={() => setFilterStatus(s)}
