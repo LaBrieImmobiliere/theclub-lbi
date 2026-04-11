@@ -33,7 +33,8 @@ function ConnexionForm() {
 
     const res = await fetch("/api/me");
     const user = await res.json();
-    router.push(user?.role === "ADMIN" ? "/admin/dashboard" : callbackUrl === "/" ? "/portail/tableau-de-bord" : callbackUrl);
+    const defaultUrl = user?.role === "ADMIN" ? "/admin/dashboard" : user?.role === "NEGOTIATOR" ? "/negociateur/tableau-de-bord" : "/portail/tableau-de-bord";
+    router.push(callbackUrl === "/" ? defaultUrl : callbackUrl);
   };
 
   const handleMagicLink = async (e: React.FormEvent) => {
