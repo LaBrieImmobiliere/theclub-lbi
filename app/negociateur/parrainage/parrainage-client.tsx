@@ -229,8 +229,8 @@ export function NegociateurParrainagePage({ code, inscriptionUrl, ambassadorCoun
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 gap-4">
-        <div className="bg-white border border-gray-100 shadow-sm p-5">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4">
+        <div className="bg-white border border-gray-100 shadow-sm p-4 sm:p-5">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-9 h-9 bg-[#030A24]/10 flex items-center justify-center">
               <Users className="w-5 h-5 text-[#030A24]" />
@@ -239,7 +239,7 @@ export function NegociateurParrainagePage({ code, inscriptionUrl, ambassadorCoun
           <p className="text-2xl sm:text-3xl font-bold text-gray-900">{ambassadorCount}</p>
           <p className="text-sm text-gray-500 mt-1">Ambassadeur{ambassadorCount !== 1 ? "s" : ""} recruté{ambassadorCount !== 1 ? "s" : ""}</p>
         </div>
-        <div className="bg-white border border-[#D1B280]/30 shadow-sm p-5">
+        <div className="bg-white border border-[#D1B280]/30 shadow-sm p-4 sm:p-5">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-9 h-9 bg-[#D1B280]/10 flex items-center justify-center">
               <Link2 className="w-5 h-5 text-[#D1B280]" />
@@ -252,11 +252,11 @@ export function NegociateurParrainagePage({ code, inscriptionUrl, ambassadorCoun
 
       {/* QR Code */}
       <div className="bg-[#030A24] text-white overflow-hidden">
-        <div className="px-6 py-4 border-b border-white/10 flex items-center gap-2">
+        <div className="px-4 sm:px-6 py-4 border-b border-white/10 flex items-center gap-2">
           <QrCode className="w-4 h-4 text-[#D1B280]" />
-          <h2 className="font-semibold text-white">Votre QR Code de recrutement</h2>
+          <h2 className="font-semibold text-white text-sm sm:text-base">Votre QR Code de recrutement</h2>
         </div>
-        <div className="p-6 flex flex-col sm:flex-row items-center gap-6">
+        <div className="p-4 sm:p-6 flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
           <div className="bg-white p-3 flex-shrink-0 max-w-[200px] sm:max-w-none">
             <canvas ref={canvasRef} />
           </div>
@@ -296,16 +296,16 @@ export function NegociateurParrainagePage({ code, inscriptionUrl, ambassadorCoun
           <Link2 className="w-4 h-4 text-[#D1B280]" />
           <h2 className="font-semibold text-gray-900">Votre lien d&apos;inscription</h2>
         </div>
-        <div className="p-6 space-y-5">
+        <div className="p-4 sm:p-6 space-y-5">
           {/* Code */}
           <div>
             <p className="text-xs text-gray-400 mb-2 uppercase tracking-wide font-medium">Code</p>
-            <div className="flex items-center gap-3">
-              <code className="flex-1 bg-[#030A24] text-[#D1B280] px-5 py-3 text-xl font-mono font-bold tracking-widest text-center">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
+              <code className="flex-1 bg-[#030A24] text-[#D1B280] px-4 sm:px-5 py-3 text-lg sm:text-xl font-mono font-bold tracking-widest text-center">
                 {code}
               </code>
               <button onClick={copyCode}
-                className="flex items-center gap-2 px-4 py-3 border border-gray-200 hover:border-[#D1B280] text-sm font-medium text-gray-600 hover:text-[#D1B280] transition-colors">
+                className="flex items-center justify-center gap-2 px-4 py-3 border border-gray-200 hover:border-[#D1B280] text-sm font-medium text-gray-600 hover:text-[#D1B280] transition-colors">
                 {copiedCode ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
                 {copiedCode ? "Copié !" : "Copier"}
               </button>
@@ -315,12 +315,12 @@ export function NegociateurParrainagePage({ code, inscriptionUrl, ambassadorCoun
           {/* Lien */}
           <div>
             <p className="text-xs text-gray-400 mb-2 uppercase tracking-wide font-medium">Lien d&apos;inscription</p>
-            <div className="flex items-center gap-3">
-              <div className="flex-1 bg-gray-50 border border-gray-200 px-4 py-3 text-sm text-gray-600 font-mono truncate">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
+              <div className="flex-1 bg-gray-50 border border-gray-200 px-3 sm:px-4 py-3 text-xs sm:text-sm text-gray-600 font-mono truncate overflow-hidden">
                 {inscriptionUrl}
               </div>
               <button onClick={copyLink}
-                className="flex items-center gap-2 px-4 py-3 border border-gray-200 hover:border-[#D1B280] text-sm font-medium text-gray-600 hover:text-[#D1B280] transition-colors flex-shrink-0">
+                className="flex items-center justify-center gap-2 px-4 py-3 border border-gray-200 hover:border-[#D1B280] text-sm font-medium text-gray-600 hover:text-[#D1B280] transition-colors flex-shrink-0">
                 {copiedLink ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
                 {copiedLink ? "Copié !" : "Copier"}
               </button>
@@ -338,12 +338,14 @@ export function NegociateurParrainagePage({ code, inscriptionUrl, ambassadorCoun
 
       {/* Message SMS */}
       <div className="bg-white border border-[#D1B280]/30 shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
-          <MessageSquare className="w-4 h-4 text-[#D1B280]" />
-          <h2 className="font-semibold text-gray-900">Message d&apos;invitation</h2>
-          <p className="text-xs text-gray-400 ml-1">Envoyez ce message pour recruter des ambassadeurs</p>
+        <div className="px-4 sm:px-6 py-4 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+          <div className="flex items-center gap-2">
+            <MessageSquare className="w-4 h-4 text-[#D1B280]" />
+            <h2 className="font-semibold text-gray-900 text-sm sm:text-base">Message d&apos;invitation</h2>
+          </div>
+          <p className="text-xs text-gray-400">Envoyez ce message pour recruter des ambassadeurs</p>
         </div>
-        <div className="p-6 space-y-4">
+        <div className="p-4 sm:p-6 space-y-4">
           {/* Preview */}
           <div className="bg-gray-50 border border-gray-200 p-4 text-sm text-gray-700 leading-relaxed whitespace-pre-wrap max-h-48 overflow-y-auto">
             {SMS_MESSAGE(inscriptionUrl)}
@@ -405,7 +407,7 @@ export function NegociateurParrainagePage({ code, inscriptionUrl, ambassadorCoun
           </div>
           <div className="divide-y divide-gray-50">
             {recentAmbassadors.map((a, i) => (
-              <div key={i} className="px-6 py-4 flex items-center justify-between">
+              <div key={i} className="px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 bg-[#030A24] text-white flex items-center justify-center text-sm font-bold">
                     {(a.name || a.email)[0].toUpperCase()}
