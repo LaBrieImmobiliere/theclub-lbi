@@ -25,13 +25,12 @@ interface Props {
 
 function buildShareMessage(c: ContactInfo): string {
   const name = c.negotiatorName ?? "notre conseiller";
-  const agency = c.agencyName;
   const city = c.agencyCity;
   const phone = c.negotiatorPhone ?? c.agencyPhone ?? "";
   const email = c.negotiatorEmail ?? c.agencyEmail ?? "";
 
-  let msg = `Bonjour,\n\nJe fais partie du réseau ambassadeurs ${agency} ${city} et je pense que tu pourrais être intéressé(e) par leurs services. \uD83C\uDFE1\n\nSi tu as un projet immobilier (achat, vente, investissement), tu peux contacter directement :\n\n`;
-  msg += `\uD83D\uDC64 ${name} — Conseiller ${city}\n`;
+  let msg = `Bonjour,\n\nJe fais partie du réseau ambassadeurs La Brie Immobilière - ${city} et je pense que tu pourrais être intéressé(e) par leurs services. \uD83C\uDFE1\n\nSi tu as un projet immobilier (achat, vente, investissement), tu peux contacter directement :\n\n`;
+  msg += `\uD83D\uDC64 ${name} — Conseiller La Brie Immobilière - ${city}\n`;
   if (phone) msg += `\uD83D\uDCDE ${phone}\n`;
   if (email) msg += `\u2709\uFE0F ${email}\n`;
   msg += `\n${c.agencyAddress}\n\nN'hésite pas à mentionner mon nom, c'est une équipe top ! \uD83D\uDE0A`;
@@ -151,7 +150,7 @@ export function ContactShareCard({ contact }: Props) {
               )}
               <div>
                 <p className="font-bold text-white text-lg">{contact.negotiatorName}</p>
-                <p className="text-white/60 text-sm">Conseiller immobilier — {contact.agencyCity}</p>
+                <p className="text-white/60 text-sm">Conseiller La Brie Immobilière - {contact.agencyCity}</p>
               </div>
             </div>
           )}
