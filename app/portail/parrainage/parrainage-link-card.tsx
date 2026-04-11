@@ -92,7 +92,8 @@ export function ParrainageLinkCard({ code }: { code: string }) {
   const downloadPdf = async () => {
     setDownloading("pdf");
     try {
-      const { jsPDF } = await import("jspdf");
+      const jsPDFModule = await import("jspdf");
+      const jsPDF = jsPDFModule.default;
       const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
 
       const pageW = doc.internal.pageSize.getWidth();
