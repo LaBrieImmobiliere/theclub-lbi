@@ -95,17 +95,21 @@ export function emailLayout(options: {
 
         <!-- Footer -->
         <tr>
-          <td style="background:#1a2744;padding:30px 40px;text-align:center;">
-            <img src="cid:logo" alt="LBI" width="50" height="50" style="display:block;width:50px;height:50px;margin:0 auto 10px;opacity:0.4;" />
+          <td style="background:#1a2744;padding:30px 40px;text-align:center;" align="center">
+            <table cellpadding="0" cellspacing="0" width="100%"><tr><td align="center">
+              <img src="cid:logo" alt="LBI" width="70" height="70" style="display:block;width:70px;height:70px;margin:0 auto 12px;opacity:0.8;" />
+            </td></tr></table>
             <p style="color:${COLORS.gold};font-size:11px;letter-spacing:3px;margin:0 0 6px;text-transform:uppercase;font-weight:600;font-family:Arial,sans-serif;">La Brie Immobilière</p>
-            <p style="color:rgba(255,255,255,0.3);font-size:10px;margin:0 0 12px;font-family:Arial,sans-serif;">depuis 1969</p>
-            <table cellpadding="0" cellspacing="0" style="margin:0 auto;"><tr>
-              <td style="padding:0 8px;"><a href="${appUrl}" style="color:${COLORS.gold};font-size:11px;text-decoration:none;font-family:Arial,sans-serif;">Accéder à l'app</a></td>
-              <td style="color:rgba(255,255,255,0.2);">|</td>
-              <td style="padding:0 8px;"><a href="${appUrl}/mentions-legales" style="color:rgba(255,255,255,0.3);font-size:11px;text-decoration:none;font-family:Arial,sans-serif;">Mentions légales</a></td>
-              <td style="color:rgba(255,255,255,0.2);">|</td>
-              <td style="padding:0 8px;"><a href="${appUrl}/politique-confidentialite" style="color:rgba(255,255,255,0.3);font-size:11px;text-decoration:none;font-family:Arial,sans-serif;">Confidentialité</a></td>
-            </tr></table>
+            <p style="color:rgba(255,255,255,0.5);font-size:10px;margin:0 0 14px;font-family:Arial,sans-serif;">depuis 1969</p>
+            <table cellpadding="0" cellspacing="0" width="100%"><tr><td align="center">
+              <table cellpadding="0" cellspacing="0"><tr>
+                <td style="padding:0 8px;"><a href="${appUrl}" style="color:${COLORS.gold};font-size:11px;text-decoration:none;font-family:Arial,sans-serif;">Accéder à l'app</a></td>
+                <td style="color:rgba(255,255,255,0.2);">|</td>
+                <td style="padding:0 8px;"><a href="${appUrl}/mentions-legales" style="color:rgba(255,255,255,0.4);font-size:11px;text-decoration:none;font-family:Arial,sans-serif;">Mentions légales</a></td>
+                <td style="color:rgba(255,255,255,0.2);">|</td>
+                <td style="padding:0 8px;"><a href="${appUrl}/politique-confidentialite" style="color:rgba(255,255,255,0.4);font-size:11px;text-decoration:none;font-family:Arial,sans-serif;">Confidentialité</a></td>
+              </tr></table>
+            </td></tr></table>
           </td>
         </tr>
 

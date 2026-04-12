@@ -73,7 +73,7 @@ export async function sendPremiumEmail(options: {
 export async function sendEmailPreview(to: string) {
   const appUrl = process.env.NEXTAUTH_URL || "https://theclub.labrieimmobiliere.fr";
 
-  // 1. Welcome
+  // 1. Welcome ambassadeur
   await sendPremiumEmail({
     to,
     subject: "[PREVIEW] Email de bienvenue",
@@ -85,14 +85,30 @@ export async function sendEmailPreview(to: string) {
         <p style="margin:0 0 5px;font-size:12px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Vos identifiants</p>
         <p style="margin:0;font-size:14px;color:#030A24;"><strong>Email :</strong> ${to}</p>
         <p style="margin:5px 0 0;font-size:14px;color:#030A24;"><strong>Mot de passe :</strong> Abc12345</p>
+        <p style="margin:8px 0 0;font-size:12px;color:#999;font-style:italic;">Pensez à modifier votre mot de passe lors de votre première connexion.</p>
       </div>
+
       <div style="background:#f9f6f1;border-left:3px solid #D1B280;padding:15px 20px;margin:15px 0;">
-        <p style="margin:0 0 5px;font-size:12px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Votre conseiller</p>
-        <p style="margin:0;font-size:14px;color:#030A24;font-weight:bold;">Alexandre BRITES</p>
-        <p style="margin:3px 0 0;font-size:13px;color:#666;">Brie Comte Robert</p>
-        <p style="margin:3px 0 0;font-size:13px;color:#666;">📞 06 24 43 66 94</p>
+        <p style="margin:0 0 10px;font-size:12px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Votre conseiller</p>
+        <table cellpadding="0" cellspacing="0" width="100%"><tr>
+          <td width="60" style="vertical-align:top;padding-right:12px;">
+            <img src="${appUrl}/icons/icon-96x96.png" alt="Photo" width="50" height="50" style="display:block;width:50px;height:50px;border-radius:50%;object-fit:cover;" />
+          </td>
+          <td style="vertical-align:top;">
+            <p style="margin:0;font-size:15px;color:#030A24;font-weight:bold;">Alexandre BRITES</p>
+            <p style="margin:3px 0 0;font-size:13px;color:#666;">La Brie Immobilière — Brie Comte Robert</p>
+            <p style="margin:3px 0 0;font-size:13px;color:#666;">📞 06 24 43 66 94</p>
+            <p style="margin:3px 0 0;font-size:13px;color:#D1B280;">✉️ alexandre.brites@labrieimmobiliere.fr</p>
+          </td>
+        </tr></table>
+        <table cellpadding="0" cellspacing="0" style="margin:12px 0 0;"><tr><td>
+          <a href="${appUrl}/portail/messagerie" style="display:inline-block;background:#030A24;color:#D1B280;text-decoration:none;padding:8px 20px;font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;font-family:Arial,sans-serif;">
+            💬 Envoyer un message
+          </a>
+        </td></tr></table>
       </div>
-      <p style="margin:15px 0 0;font-size:13px;color:#666;">💡 Recommandez vos proches et touchez 5% de commission !</p>
+
+      <p style="margin:15px 0 0;font-size:13px;color:#666;">💡 Recommandez vos proches et touchez 5% de commission sur chaque transaction aboutie !</p>
     `,
     cta: { label: "Accéder à mon espace", url: appUrl },
     footer: "📱 Installez l'app : Safari → Partager → Sur l'écran d'accueil",
@@ -197,8 +213,13 @@ export async function sendEmailPreview(to: string) {
     body: `
       <p style="margin:0 0 15px;">Bonne nouvelle ! Un nouvel ambassadeur vient de rejoindre votre réseau via votre lien de recrutement.</p>
       <div style="background:#f9f6f1;border-left:3px solid #D1B280;padding:15px 20px;margin:0 0 15px;">
-        <p style="margin:0;font-size:14px;color:#030A24;"><strong>Nom :</strong> Sophie MARTIN</p>
+        <p style="margin:0 0 5px;font-size:12px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Nouvel ambassadeur</p>
+        <p style="margin:0;font-size:14px;color:#030A24;"><strong>Prénom :</strong> Sophie</p>
+        <p style="margin:5px 0 0;font-size:14px;color:#030A24;"><strong>Nom :</strong> MARTIN</p>
         <p style="margin:5px 0 0;font-size:14px;color:#030A24;"><strong>Email :</strong> sophie.martin@gmail.com</p>
+        <p style="margin:5px 0 0;font-size:14px;color:#030A24;"><strong>Téléphone :</strong> 06 12 34 56 78</p>
+        <p style="margin:5px 0 0;font-size:14px;color:#030A24;"><strong>Ville :</strong> Brie Comte Robert</p>
+        <p style="margin:5px 0 0;font-size:14px;color:#030A24;"><strong>Code :</strong> AMB-SophieM</p>
       </div>
       <p style="margin:0;font-size:13px;color:#666;">Vous pouvez maintenant échanger avec elle depuis votre messagerie intégrée.</p>
     `,

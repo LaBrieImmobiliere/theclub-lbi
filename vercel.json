@@ -5,7 +5,7 @@
   "crons": [
     {
       "path": "/api/cron/relances",
-      "schedule": "0 9 * * *"
+      "schedule": "0 9 */2 * *"
     },
     {
       "path": "/api/cron/weekly-recap",
