@@ -10,7 +10,7 @@ export default function NouveauNegociateurPage() {
   const params = useParams();
   const agencyId = params.id as string;
 
-  const [form, setForm] = useState({ name: "", email: "", phone: "", password: "" });
+  const [form, setForm] = useState({ name: "", firstName: "", lastName: "", email: "", phone: "", password: "" });
   const [photo, setPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -35,7 +35,7 @@ export default function NouveauNegociateurPage() {
     const res = await fetch("/api/negotiators", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ...form, agencyId }),
+      body: JSON.stringify({ ...form, name: form.firstName + " " + form.lastName, agencyId }),
     });
 
     const data = await res.json();
@@ -79,16 +79,30 @@ export default function NouveauNegociateurPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 space-y-5">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Nom complet *</label>
-            <input
-              type="text"
-              required
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="w-full px-4 py-2.5 border border-gray-300 text-sm focus:outline-none focus:border-brand-gold focus:ring-1 focus:ring-brand-gold"
-              placeholder="Jean Dupont"
-            />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Prénom *</label>
+              <input
+                type="text"
+                required
+                value={form.firstName}
+                onChange={(e) => setForm({ ...form, firstName: e.target.value })}
+                className="w-full px-4 py-2.5 border border-gray-300 text-sm focus:outline-none focus:border-brand-gold focus:ring-1 focus:ring-brand-gold"
+                placeholder="Jean"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Nom *</label>
+              <input
+                type="text"
+                required
+                value={form.lastName}
+                onChange={(e) => setForm({ ...form, lastName: e.target.value.toUpperCase() })}
+                className="w-full px-4 py-2.5 border border-gray-300 text-sm focus:outline-none focus:border-brand-gold focus:ring-1 focus:ring-brand-gold"
+                placeholder="DUPONT"
+                style={{ textTransform: "uppercase" }}
+              />
+            </div>
           </div>
 
           <div>

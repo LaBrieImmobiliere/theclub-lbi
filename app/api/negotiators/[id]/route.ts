@@ -63,6 +63,8 @@ export async function PUT(
   // Update user fields
   const userData: Record<string, unknown> = {};
   if (name) userData.name = name;
+  if (body.firstName) userData.firstName = body.firstName;
+  if (body.lastName) userData.lastName = body.lastName;
   if (email) userData.email = email;
   if (phone !== undefined) userData.phone = phone || null;
   if (password) userData.password = await bcrypt.hash(password, 10);

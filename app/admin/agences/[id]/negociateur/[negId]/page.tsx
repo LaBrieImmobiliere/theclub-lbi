@@ -11,7 +11,7 @@ export default function EditNegociateurPage() {
   const agencyId = params.id as string;
   const negId = params.negId as string;
 
-  const [form, setForm] = useState({ name: "", email: "", phone: "", password: "", status: "ACTIVE" });
+  const [form, setForm] = useState({ name: "", firstName: "", lastName: "", email: "", phone: "", password: "", status: "ACTIVE" });
   const [photo, setPhoto] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [currentPhoto, setCurrentPhoto] = useState<string | null>(null);
@@ -32,6 +32,8 @@ export default function EditNegociateurPage() {
         } else {
           setForm({
             name: data.user?.name || "",
+            firstName: data.user?.firstName || "",
+            lastName: data.user?.lastName || "",
             email: data.user?.email || "",
             phone: data.user?.phone || "",
             password: "",
@@ -63,7 +65,9 @@ export default function EditNegociateurPage() {
     setSuccess("");
 
     const body: Record<string, string> = {
-      name: form.name,
+      name: form.firstName + " " + form.lastName,
+      firstName: form.firstName,
+      lastName: form.lastName,
       email: form.email,
       phone: form.phone,
       status: form.status,
@@ -195,17 +199,30 @@ export default function EditNegociateurPage() {
             </div>
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1.5">Nom complet *</label>
-            <input
-              type="text"
-              required
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="w-full px-4 py-2.5 border border-gray-300 text-sm focus:outline-none focus:border-brand-gold focus:ring-1 focus:ring-brand-gold"
-              placeholder="Jean Dupont"
-            />
-            <p className="text-xs text-gray-400 mt-1">Le code de parrainage sera mis à jour si le nom change.</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Prénom *</label>
+              <input
+                type="text"
+                required
+                value={form.firstName}
+                onChange={(e) => setForm({ ...form, firstName: e.target.value })}
+                className="w-full px-4 py-2.5 border border-gray-300 text-sm focus:outline-none focus:border-brand-gold focus:ring-1 focus:ring-brand-gold"
+                placeholder="Jean"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Nom *</label>
+              <input
+                type="text"
+                required
+                value={form.lastName}
+                onChange={(e) => setForm({ ...form, lastName: e.target.value.toUpperCase() })}
+                className="w-full px-4 py-2.5 border border-gray-300 text-sm focus:outline-none focus:border-brand-gold focus:ring-1 focus:ring-brand-gold"
+                placeholder="DUPONT"
+                style={{ textTransform: "uppercase" }}
+              />
+            </div>
           </div>
 
           <div>
