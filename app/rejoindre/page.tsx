@@ -23,6 +23,8 @@ function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [agencies, setAgencies] = useState<Agency[]>([]);
   const [form, setForm] = useState({
+    firstName: "",
+    lastName: "",
     name: "",
     email: "",
     phone: "",
@@ -50,7 +52,7 @@ function RegisterForm() {
       const res = await fetch("/api/ambassadeurs/inscription", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, referralCode: code }),
+        body: JSON.stringify({ ...form, name: `${form.firstName} ${form.lastName}`, referralCode: code }),
       });
 
       const data = await res.json();
@@ -97,14 +99,26 @@ function RegisterForm() {
         </div>
       )}
 
-      <div className="space-y-1">
-        <label className="text-sm font-medium text-gray-700">Nom complet *</label>
-        <Input
-          required
-          value={form.name}
-          onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-          placeholder="Jean Dupont"
-        />
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-1">
+          <label className="text-sm font-medium text-gray-700">Prénom *</label>
+          <Input
+            required
+            value={form.firstName}
+            onChange={e => setForm(f => ({ ...f, firstName: e.target.value }))}
+            placeholder="Jean"
+          />
+        </div>
+        <div className="space-y-1">
+          <label className="text-sm font-medium text-gray-700">Nom *</label>
+          <Input
+            required
+            value={form.lastName}
+            onChange={e => setForm(f => ({ ...f, lastName: e.target.value.toUpperCase() }))}
+            placeholder="DUPONT"
+            style={{ textTransform: "uppercase" }}
+          />
+        </div>
       </div>
 
       <div className="space-y-1">

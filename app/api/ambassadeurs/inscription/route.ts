@@ -6,7 +6,7 @@ import { sendWelcomeEmail, sendNewAmbassadorEmail } from "@/lib/email";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { name, email, phone, password, referralCode, selectedAgencyId, selectedNegotiatorId, address, postalCode, city } = body;
+  const { name, firstName, lastName, email, phone, password, referralCode, selectedAgencyId, selectedNegotiatorId, address, postalCode, city } = body;
 
   if (!name || !email || !password) {
     return NextResponse.json(
@@ -63,6 +63,8 @@ export async function POST(req: NextRequest) {
   const user = await prisma.user.create({
     data: {
       name,
+      firstName: firstName || null,
+      lastName: lastName || null,
       email,
       phone: phone || null,
       address: address || null,
