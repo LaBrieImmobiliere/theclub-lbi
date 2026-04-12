@@ -14,6 +14,8 @@ export async function GET() {
     select: {
       id: true,
       name: true,
+      firstName: true,
+      lastName: true,
       email: true,
       phone: true,
       image: true,
@@ -36,7 +38,7 @@ export async function PATCH(req: NextRequest) {
   if (!user.id) return NextResponse.json({ error: "Non autoris\u00e9" }, { status: 401 });
 
   const body = await req.json();
-  const { name, phone, image, currentPassword, newPassword } = body;
+  const { name, firstName, lastName, phone, image, currentPassword, newPassword } = body;
 
   // Password change
   if (currentPassword && newPassword) {
@@ -85,6 +87,8 @@ export async function PATCH(req: NextRequest) {
   // Profile update
   const data: Record<string, string | boolean> = {};
   if (typeof name === "string") data.name = name.trim();
+  if (typeof firstName === "string") data.firstName = firstName.trim();
+  if (typeof lastName === "string") data.lastName = lastName.trim();
   if (typeof phone === "string") data.phone = phone.trim();
   if (typeof image === "string") data.image = image;
   if (typeof body.onboarded === "boolean") data.onboarded = body.onboarded;
@@ -99,6 +103,8 @@ export async function PATCH(req: NextRequest) {
     select: {
       id: true,
       name: true,
+      firstName: true,
+      lastName: true,
       email: true,
       phone: true,
       image: true,

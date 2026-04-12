@@ -27,6 +27,8 @@ const BADGE_ICONS: Record<string, string> = {
 interface UserProfile {
   id: string;
   name: string | null;
+  firstName: string | null;
+  lastName: string | null;
   email: string;
   phone: string | null;
   image: string | null;
@@ -66,7 +68,8 @@ export default function ProfilPage() {
   const [loading, setLoading] = useState(true);
 
   // Profile form
-  const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [phone, setPhone] = useState("");
   const [savingProfile, setSavingProfile] = useState(false);
 
@@ -98,7 +101,8 @@ export default function ProfilPage() {
       })
       .then((data: UserProfile) => {
         setProfile(data);
-        setName(data.name || "");
+        setFirstName(data.firstName || "");
+        setLastName(data.lastName || "");
         setPhone(data.phone || "");
       })
       .catch(() => showToast("Erreur lors du chargement du profil", "error"))
@@ -117,7 +121,7 @@ export default function ProfilPage() {
       const res = await fetch("/api/me", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, phone }),
+        body: JSON.stringify({ firstName, lastName, name: firstName + " " + lastName, phone }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -283,13 +287,22 @@ export default function ProfilPage() {
             </div>
           </div>
 
-          {/* Name */}
-          <Input
-            label="Nom complet"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Votre nom"
-          />
+          {/* FirstName / LastName */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input
+              label="Prénom"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              placeholder="Votre prénom"
+            />
+            <Input
+              label="Nom"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value.toUpperCase())}
+              placeholder="Votre nom"
+              style={{ textTransform: "uppercase" }}
+            />
+          </div>
 
           {/* Email (read-only) */}
           <Input

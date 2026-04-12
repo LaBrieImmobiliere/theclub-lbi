@@ -43,6 +43,11 @@ export async function PATCH(
   const { id } = await params;
   const body = await req.json();
 
+  // Compute name from firstName + lastName if provided
+  const userName = body.firstName && body.lastName
+    ? body.firstName + " " + body.lastName
+    : body.name;
+
   const ambassador = await prisma.ambassador.update({
     where: { id },
     data: {
@@ -50,7 +55,9 @@ export async function PATCH(
       notes: body.notes,
       user: {
         update: {
-          name: body.name,
+          name: userName,
+          firstName: body.firstName,
+          lastName: body.lastName,
           phone: body.phone,
         },
       },

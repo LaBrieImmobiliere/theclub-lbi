@@ -39,7 +39,7 @@ interface AmbassadorData {
   code: string;
   status: string;
   notes: string;
-  user: { name: string; email: string; phone: string };
+  user: { name: string; firstName?: string; lastName?: string; email: string; phone: string };
   agency: string | null;
   negotiator: string | null;
   totalCommissions: number;
@@ -58,7 +58,8 @@ export function AmbassadeurDetailClient({ data }: { data: AmbassadorData }) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Editable fields
-  const [name, setName] = useState(data.user.name);
+  const [firstName, setFirstName] = useState(data.user.firstName || "");
+  const [lastName, setLastName] = useState(data.user.lastName || "");
   const [phone, setPhone] = useState(data.user.phone);
   const [status, setStatus] = useState(data.status);
   const [notes, setNotes] = useState(data.notes);
@@ -69,7 +70,7 @@ export function AmbassadeurDetailClient({ data }: { data: AmbassadorData }) {
       const res = await fetch(`/api/ambassadeurs/${data.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, phone, status, notes }),
+        body: JSON.stringify({ firstName, lastName, name: firstName + " " + lastName, phone, status, notes }),
       });
       if (res.ok) {
         setEditing(false);
@@ -132,7 +133,8 @@ export function AmbassadeurDetailClient({ data }: { data: AmbassadorData }) {
               <button
                 onClick={() => {
                   setEditing(false);
-                  setName(data.user.name);
+                  setFirstName(data.user.firstName || "");
+                  setLastName(data.user.lastName || "");
                   setPhone(data.user.phone);
                   setStatus(data.status);
                   setNotes(data.notes);
@@ -202,10 +204,19 @@ export function AmbassadeurDetailClient({ data }: { data: AmbassadorData }) {
             {editing ? (
               <div className="space-y-3">
                 <div>
-                  <label className="text-xs text-gray-500 mb-1 block">Nom complet</label>
+                  <label className="text-xs text-gray-500 mb-1 block">Prénom</label>
                   <input
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+                <div>
+                  <label className="text-xs text-gray-500 mb-1 block">Nom</label>
+                  <input
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value.toUpperCase())}
+                    style={{ textTransform: "uppercase" }}
                     className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-blue-500"
                   />
                 </div>

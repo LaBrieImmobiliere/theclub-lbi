@@ -29,7 +29,13 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { name, email, phone, notes } = body;
+  const { email, phone, notes } = body;
+  const firstName: string | undefined = body.firstName;
+  const lastName: string | undefined = body.lastName;
+  // Compute name from firstName + lastName if provided, otherwise fall back to body.name
+  const name: string | undefined = firstName && lastName
+    ? firstName + " " + lastName
+    : body.name;
 
   if (!name || !email) {
     return NextResponse.json({ error: "Nom et email requis" }, { status: 400 });
@@ -49,6 +55,8 @@ export async function POST(req: NextRequest) {
   const user = await prisma.user.create({
     data: {
       name,
+      firstName: firstName || null,
+      lastName: lastName || null,
       email,
       phone,
       password: hashedPassword,

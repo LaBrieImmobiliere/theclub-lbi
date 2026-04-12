@@ -11,6 +11,8 @@ import { PushSubscribeButton } from "@/components/push-subscribe";
 interface UserProfile {
   id: string;
   name: string | null;
+  firstName: string | null;
+  lastName: string | null;
   email: string;
   phone: string | null;
   image: string | null;
@@ -37,7 +39,8 @@ function Toast({ message, type, onClose }: { message: string; type: ToastType; o
 export default function NegociateurProfilPage() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [phone, setPhone] = useState("");
   const [savingProfile, setSavingProfile] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
@@ -55,7 +58,7 @@ export default function NegociateurProfilPage() {
   useEffect(() => {
     fetch("/api/me")
       .then((r) => r.json())
-      .then((d: UserProfile) => { setProfile(d); setName(d.name || ""); setPhone(d.phone || ""); })
+      .then((d: UserProfile) => { setProfile(d); setFirstName(d.firstName || ""); setLastName(d.lastName || ""); setPhone(d.phone || ""); })
       .catch(() => showToast("Erreur lors du chargement", "error"))
       .finally(() => setLoading(false));
   }, []);
@@ -63,7 +66,7 @@ export default function NegociateurProfilPage() {
   const handleSaveProfile = async () => {
     setSavingProfile(true);
     try {
-      const res = await fetch("/api/me", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name, phone }) });
+      const res = await fetch("/api/me", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ firstName, lastName, name: firstName + " " + lastName, phone }) });
       const data = await res.json();
       if (!res.ok) { showToast(data.error || "Erreur", "error"); return; }
       setProfile(data);
@@ -153,7 +156,10 @@ export default function NegociateurProfilPage() {
             </div>
           </div>
 
-          <Input label="Nom complet" value={name} onChange={(e) => setName(e.target.value)} placeholder="Votre nom" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <Input label="Prénom" value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="Votre prénom" />
+            <Input label="Nom" value={lastName} onChange={(e) => setLastName(e.target.value.toUpperCase())} placeholder="Votre nom" style={{ textTransform: "uppercase" }} />
+          </div>
           <Input label="Email" value={profile.email} disabled className="bg-gray-50 text-gray-500" />
           <Input label="Téléphone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+33 6 XX XX XX XX" />
 
