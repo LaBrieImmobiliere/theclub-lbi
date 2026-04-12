@@ -39,7 +39,7 @@ export function emailLayout(options: {
         <!-- Header -->
         <tr>
           <td align="center" style="background:#1a2744;padding:40px 40px 30px;">
-            <img src="cid:logo" alt="La Brie Immobilière" width="180" height="180" style="display:block;width:180px;height:180px;margin:0 auto 16px;" />
+            <img src="${appUrl}/logo-white.png" alt="La Brie Immobilière" width="180" height="180" style="display:block;width:180px;height:180px;margin:0 auto 16px;" />
             <p style="color:${COLORS.gold};font-size:13px;letter-spacing:5px;margin:0 0 4px;text-transform:uppercase;font-weight:600;font-family:Arial,sans-serif;">The Club</p>
             <p style="color:rgba(255,255,255,0.7);font-size:12px;letter-spacing:1px;margin:0;font-family:Arial,sans-serif;">La Brie Immobilière</p>
           </td>
@@ -97,7 +97,7 @@ export function emailLayout(options: {
         <tr>
           <td style="background:#1a2744;padding:30px 40px;text-align:center;" align="center">
             <table cellpadding="0" cellspacing="0" width="100%"><tr><td align="center">
-              <img src="cid:logo" alt="LBI" width="70" height="70" style="display:block;width:70px;height:70px;margin:0 auto 12px;opacity:0.8;" />
+              <img src="${appUrl}/logo-white.png" alt="LBI" width="70" height="70" style="display:block;width:70px;height:70px;margin:0 auto 12px;opacity:0.8;" />
             </td></tr></table>
             <p style="color:${COLORS.gold};font-size:11px;letter-spacing:3px;margin:0 0 6px;text-transform:uppercase;font-weight:600;font-family:Arial,sans-serif;">La Brie Immobilière</p>
             <p style="color:rgba(255,255,255,0.5);font-size:10px;margin:0 0 14px;font-family:Arial,sans-serif;">depuis 1969</p>

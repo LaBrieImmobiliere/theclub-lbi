@@ -20,6 +20,7 @@ export async function GET() {
       phone: true,
       image: true,
       role: true,
+      rib: true,
       onboarded: true,
       createdAt: true,
     },
@@ -91,6 +92,7 @@ export async function PATCH(req: NextRequest) {
   if (typeof lastName === "string") data.lastName = lastName.trim();
   if (typeof phone === "string") data.phone = phone.trim();
   if (typeof image === "string") data.image = image;
+  if (typeof body.rib === "string") data.rib = body.rib;
   if (typeof body.onboarded === "boolean") data.onboarded = body.onboarded;
 
   if (Object.keys(data).length === 0) {
@@ -109,6 +111,7 @@ export async function PATCH(req: NextRequest) {
       phone: true,
       image: true,
       role: true,
+      rib: true,
       onboarded: true,
       createdAt: true,
     },

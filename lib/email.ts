@@ -122,36 +122,17 @@ export async function sendWelcomeEmail(to: string, name: string, password: strin
   // Legacy HTML removed — using emailLayout above
 
   try {
-    // Build attachments safely (logo may not exist in serverless)
-    const attachments: { filename: string; path?: string; cid: string }[] = [];
-    try {
-      const logoPath = findFile("logo-white.png");
-      const fs = require("fs");
-      if (fs.existsSync(logoPath)) {
-        attachments.push({ filename: "logo.png", path: logoPath, cid: "logo" });
-      }
-    } catch { /* logo not found, send without */ }
-
     await transporter.sendMail({
       from: fromAddress,
       to,
       subject: `Bienvenue sur The Club : La Brie Immobilière — Votre espace ${roleLabel}`,
       html,
-      attachments,
     });
     console.log(`[email] Welcome email sent to ${to}`);
     return true;
   } catch (error) {
     console.error("[email] Failed to send welcome email:", error);
-    // Try sending without attachments as fallback
-    try {
-      await transporter.sendMail({ from: fromAddress, to, subject: `Bienvenue sur The Club — Votre espace ${roleLabel}`, html });
-      console.log(`[email] Welcome email sent (no logo) to ${to}`);
-      return true;
-    } catch (e2) {
-      console.error("[email] Fallback also failed:", e2);
-      return false;
-    }
+    return false;
   }
 }
 
@@ -168,7 +149,7 @@ export async function sendNewLeadEmail(to: string, ambassadorName: string, leadN
   <tr>
     <td align="center" style="background:#030A24; padding: 25px 40px; text-align: center;">
       <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td align="center">
-        <img src="cid:logo" alt="La Brie Immobilière" width="140" height="140" style="display:block; width:140px; height:140px; margin:0 auto 10px auto; border:0;" />
+        <img src="https://theclub.labrieimmobiliere.fr/logo-white.png" alt="La Brie Immobilière" width="140" height="140" style="display:block; width:140px; height:140px; margin:0 auto 10px auto; border:0;" />
       </td></tr></table>
       <p style="color:#D1B280; font-size:11px; letter-spacing:3px; margin:0; text-transform:uppercase; font-family: Arial, sans-serif;">The Club : La Brie Immobilière</p>
     </td>
@@ -330,7 +311,7 @@ export async function sendNegotiatorWelcomeEmail(
   <tr>
     <td align="center" style="background:#030A24; padding: 35px 40px; text-align: center;">
       <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td align="center">
-        <img src="cid:logo" alt="La Brie Immobilière" width="200" height="200" style="display:block; width:200px; height:200px; margin:0 auto 15px auto; border:0;" />
+        <img src="https://theclub.labrieimmobiliere.fr/logo-white.png" alt="La Brie Immobilière" width="200" height="200" style="display:block; width:200px; height:200px; margin:0 auto 15px auto; border:0;" />
       </td></tr></table>
       <p style="color:#D1B280; font-size:12px; letter-spacing:4px; margin:0 0 4px 0; text-transform:uppercase; font-family: Arial, sans-serif;">The Club</p>
       <p style="color:#ffffff; font-size:16px; margin:0; font-weight:bold; font-family: Arial, sans-serif;">La Brie Immobilière</p>
@@ -540,15 +521,7 @@ export async function sendNotificationEmail(to: string, name: string, subject: s
   });
 
   try {
-    // Try with logo, fallback without
-    const attachments: { filename: string; path?: string; cid: string }[] = [];
-    try {
-      const fs = require("fs");
-      const logoPath = findFile("logo-white.png");
-      if (fs.existsSync(logoPath)) attachments.push({ filename: "logo.png", path: logoPath, cid: "logo" });
-    } catch { /* skip */ }
-
-    await transporter.sendMail({ from: fromAddress, to, subject, html, attachments });
+    await transporter.sendMail({ from: fromAddress, to, subject, html });
     return true;
   } catch (error) {
     console.error("[email] Failed to send notification email:", error);
@@ -579,7 +552,7 @@ export async function sendNewAmbassadorEmail(
   <tr>
     <td align="center" style="background:#030A24; padding: 30px 40px; text-align: center;">
       <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td align="center">
-        <img src="cid:logo" alt="La Brie Immobilière" width="140" height="140" style="display:block; width:140px; height:140px; margin:0 auto 10px auto; border:0;" />
+        <img src="https://theclub.labrieimmobiliere.fr/logo-white.png" alt="La Brie Immobilière" width="140" height="140" style="display:block; width:140px; height:140px; margin:0 auto 10px auto; border:0;" />
       </td></tr></table>
       <p style="color:#D1B280; font-size:11px; letter-spacing:3px; margin:0; text-transform:uppercase; font-family: Arial, sans-serif;">The Club : La Brie Immobilière</p>
     </td>

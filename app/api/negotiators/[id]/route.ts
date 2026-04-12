@@ -121,10 +121,37 @@ export async function DELETE(
     return NextResponse.json({ error: "Négociateur introuvable" }, { status: 404 });
   }
 
+  // Check for reassignment parameter
+  const url = new URL(req.url);
+  const reassignTo = url.searchParams.get("reassignTo");
+
+  if (reassignTo) {
+    // Reassign all ambassadors to the new negotiator
+    await prisma.ambassador.updateMany({
+      where: { negotiatorId: id },
+      data: { negotiatorId: reassignTo },
+    });
+    // Reassign all leads too
+    await prisma.lead.updateMany({
+      where: { negotiatorId: id },
+      data: { negotiatorId: reassignTo },
+    });
+  } else {
+    // Detach ambassadors (set negotiatorId to null)
+    await prisma.ambassador.updateMany({
+      where: { negotiatorId: id },
+      data: { negotiatorId: null },
+    });
+    await prisma.lead.updateMany({
+      where: { negotiatorId: id },
+      data: { negotiatorId: null },
+    });
+  }
+
   // Delete user (cascades to negotiator)
   await prisma.user.delete({ where: { id: negotiator.userId } });
 
-  return NextResponse.json({ success: true });
+  return NextResponse.json({ success: true, reassignedTo: reassignTo || null });
 }
 
 function generateNegCode(name: string): string {

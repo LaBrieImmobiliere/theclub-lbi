@@ -54,11 +54,6 @@ export async function sendPremiumEmail(options: {
       to: options.to,
       subject: options.subject,
       html,
-      attachments: [{
-        filename: "logo.png",
-        path: findFile("logo-white.png"),
-        cid: "logo",
-      }],
     });
     return true;
   } catch (error) {

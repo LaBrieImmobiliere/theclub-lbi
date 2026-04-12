@@ -33,6 +33,7 @@ interface UserProfile {
   phone: string | null;
   image: string | null;
   role: string;
+  rib: string | null;
   onboarded: boolean;
   createdAt: string;
 }
@@ -400,6 +401,46 @@ export default function ProfilPage() {
           </CardContent>
         </Card>
       )}
+
+      {/* RIB */}
+      <Card>
+        <CardHeader>
+          <h2 className="text-lg font-bold text-gray-900">Mon RIB</h2>
+          <p className="text-xs text-gray-500">Pour recevoir vos commissions</p>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <Input
+            label="IBAN"
+            value={profile.rib || ""}
+            onChange={() => {}}
+            disabled
+            placeholder="Non renseign&eacute;"
+            className="bg-gray-50 font-mono text-sm"
+          />
+          <div className="flex flex-col sm:flex-row gap-2">
+            <button
+              onClick={async () => {
+                const iban = prompt("Entrez votre IBAN :");
+                if (iban) {
+                  const res = await fetch("/api/me", {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ rib: iban.replace(/\s/g, "").toUpperCase() }),
+                  });
+                  if (res.ok) {
+                    const data = await res.json();
+                    setProfile(data);
+                    showToast("RIB enregistr\u00e9", "success");
+                  }
+                }
+              }}
+              className="flex items-center justify-center gap-2 px-4 py-2.5 border border-gray-300 text-sm font-medium text-gray-700 hover:border-[#D1B280] hover:text-[#D1B280] transition-colors"
+            >
+              {profile.rib ? "Modifier mon IBAN" : "Ajouter mon IBAN"}
+            </button>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Push Notifications */}
       <Card>
