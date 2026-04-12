@@ -97,7 +97,7 @@ export function emailLayout(options: {
         <tr>
           <td style="background:#1a2744;padding:30px 40px;text-align:center;" align="center">
             <table cellpadding="0" cellspacing="0" width="100%"><tr><td align="center">
-              <img src="${appUrl}/logo-white.png" alt="LBI" width="40" height="40" style="display:block;width:40px;height:40px;margin:0 auto 10px;opacity:0.6;" />
+              <img src="${appUrl}/logo-white.png" alt="LBI" width="55" height="55" style="display:block;width:55px;height:55px;margin:0 auto 10px;opacity:0.7;" />
             </td></tr></table>
             <p style="color:${COLORS.gold};font-size:11px;letter-spacing:3px;margin:0 0 6px;text-transform:uppercase;font-weight:600;font-family:Arial,sans-serif;">La Brie Immobilière</p>
             <p style="color:rgba(255,255,255,0.5);font-size:10px;margin:0 0 14px;font-family:Arial,sans-serif;">depuis 1969</p>
