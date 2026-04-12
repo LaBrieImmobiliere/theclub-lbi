@@ -695,53 +695,16 @@ export async function sendNegotiatorWelcomeEmail(
 }
 
 export async function sendNotificationEmail(to: string, name: string, subject: string, message: string) {
-  const html = `
-<!DOCTYPE html>
-<html lang="fr">
-<head><meta charset="UTF-8"></head>
-<body style="margin:0; padding:0; background:#f4f4f4;">
-<table width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f4; padding: 30px 0;">
-<tr><td align="center">
-<table width="600" cellpadding="0" cellspacing="0" style="background:#ffffff; max-width:600px;">
+  const { emailLayout } = await import("./email-template");
+  const appUrl = process.env.NEXTAUTH_URL || "https://theclub.labrieimmobiliere.fr";
 
-  <tr>
-    <td align="center" style="background:#030A24; padding: 25px 40px; text-align: center;">
-      <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto;"><tr><td align="center">
-        <img src="cid:logo" alt="La Brie Immobilière" width="140" height="140" style="display:block; width:140px; height:140px; margin:0 auto 10px auto; border:0;" />
-      </td></tr></table>
-      <p style="color:#D1B280; font-size:11px; letter-spacing:3px; margin:0; text-transform:uppercase; font-family: Arial, sans-serif;">The Club : La Brie Immobilière</p>
-    </td>
-  </tr>
-
-  <tr>
-    <td style="padding: 35px 40px;">
-      <p style="color:#333; font-size:15px; line-height:1.7; margin:0 0 15px 0; font-family: Arial, sans-serif;">Bonjour ${name},</p>
-      <p style="color:#333; font-size:15px; line-height:1.7; margin:0; font-family: Arial, sans-serif;">${message}</p>
-    </td>
-  </tr>
-
-  <tr>
-    <td style="padding: 0 40px 35px 40px; text-align: center;">
-      <a href="${process.env.NEXTAUTH_URL}" style="display:inline-block; background:#D1B280; color:#ffffff; text-decoration:none; padding:14px 40px; font-size:13px; font-weight:700; letter-spacing:1px; text-transform:uppercase; font-family: Arial, sans-serif;">
-        Accéder à la plateforme
-      </a>
-    </td>
-  </tr>
-
-  <tr>
-    <td style="background:#030A24; padding: 20px 40px; text-align: center;">
-      <p style="color:#ffffff40; font-size:11px; margin:0; font-family: Arial, sans-serif;">
-        ${agency.name} | ${agency.address}, ${agency.postalCode} ${agency.city} | ${agency.phone}
-      </p>
-    </td>
-  </tr>
-
-</table>
-</td></tr>
-</table>
-</body>
-</html>
-  `;
+  const html = emailLayout({
+    preheader: message.substring(0, 100),
+    title: subject,
+    greeting: `Bonjour ${name},`,
+    body: `<p style="margin:0 0 15px;">${message.replace(/\n/g, "<br/>")}</p>`,
+    cta: { label: "Accéder à la plateforme", url: appUrl },
+  });
 
   try {
     await transporter.sendMail({

@@ -24,6 +24,7 @@ import { NotificationsBell } from "@/components/notifications-bell";
 import { PwaInstallButton } from "@/components/pwa-install-button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { ThemedLogo } from "@/components/themed-logo";
+import { LanguageToggle } from "@/components/language-toggle";
 import { SidebarDrawer, MobileOverlay, MobileHeader, useSidebar } from "@/components/mobile-sidebar";
 
 const ambassadorNav = [
@@ -63,6 +64,7 @@ function SidebarContent({ role }: { role: string }) {
       <div className="flex items-center gap-3 px-4 py-4 border-b border-gray-100">
         <ThemedLogo height={60} />
         <div className="flex-1" />
+        <LanguageToggle />
         <ThemeToggle />
         <div className="hidden lg:block">
           <NotificationsBell />

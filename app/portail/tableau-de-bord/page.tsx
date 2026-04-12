@@ -457,6 +457,16 @@ export default async function PortalDashboardPage() {
         </CardContent>
       </Card>
 
+      {/* Rapport mensuel */}
+      <a
+        href="/api/me/rapport"
+        download
+        className="flex items-center justify-center gap-2 py-3 border border-gray-200 text-sm font-medium text-gray-600 hover:border-[#D1B280] hover:text-[#D1B280] transition-colors"
+      >
+        <FileText className="w-4 h-4" />
+        T&eacute;l&eacute;charger mon rapport mensuel
+      </a>
+
       {/* Pending signatures alert */}
       {pendingAcks > 0 && (
         <div className="flex items-center justify-between bg-blue-50 border border-blue-200 rounded-xl px-4 py-3">

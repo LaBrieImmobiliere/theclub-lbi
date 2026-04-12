@@ -13,6 +13,7 @@ import {
 import Link from "next/link";
 import DashboardChart from "@/components/portal/dashboard-chart";
 import { CAGauge } from "@/components/admin/ca-gauge";
+import { KPIComparison } from "@/components/admin/kpi-comparison";
 
 export const dynamic = "force-dynamic";
 
@@ -59,6 +60,25 @@ export default async function AdminDashboardPage() {
     .reduce((s, c) => s + (c.commissionAmount || 0), 0);
 
   const conversionRate = leadCount > 0 ? Math.round((contractCount / leadCount) * 100) : 0;
+
+  // Month-over-month KPIs
+  const currentDate = new Date();
+  const thisMonthStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+  const lastMonthStart = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
+
+  const thisMonthLeads = allLeads.filter(l => new Date(l.createdAt) >= thisMonthStart).length;
+  const lastMonthLeads = allLeads.filter(l => new Date(l.createdAt) >= lastMonthStart && new Date(l.createdAt) < thisMonthStart).length;
+
+  const thisMonthContracts = allContracts.filter(c => new Date(c.createdAt) >= thisMonthStart).length;
+  const lastMonthContracts = allContracts.filter(c => new Date(c.createdAt) >= lastMonthStart && new Date(c.createdAt) < thisMonthStart).length;
+
+  const thisMonthCA = allContracts.filter(c => new Date(c.createdAt) >= thisMonthStart).reduce((s, c) => s + (c.commissionAmount || 0), 0);
+  const lastMonthCA = allContracts.filter(c => new Date(c.createdAt) >= lastMonthStart && new Date(c.createdAt) < thisMonthStart).reduce((s, c) => s + (c.commissionAmount || 0), 0);
+
+  const [thisMonthAmbassadors, lastMonthAmbassadors] = await Promise.all([
+    prisma.ambassador.count({ where: { createdAt: { gte: thisMonthStart } } }),
+    prisma.ambassador.count({ where: { createdAt: { gte: lastMonthStart, lt: thisMonthStart } } }),
+  ]);
 
   // Chart data (6 months)
   const now = new Date();
@@ -199,6 +219,21 @@ export default async function AdminDashboardPage() {
               <p className="text-xs text-gray-500">Validé (payé)</p>
             </div>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* KPIs mois/mois */}
+      <Card>
+        <CardHeader>
+          <h2 className="font-semibold text-gray-900" style={{ fontFamily: "'Fira Sans', sans-serif" }}>
+            Performance mois en cours vs pr&eacute;c&eacute;dent
+          </h2>
+        </CardHeader>
+        <CardContent className="divide-y divide-gray-100">
+          <KPIComparison label="Nouveaux ambassadeurs" current={thisMonthAmbassadors} previous={lastMonthAmbassadors} />
+          <KPIComparison label="Recommandations" current={thisMonthLeads} previous={lastMonthLeads} />
+          <KPIComparison label="Contrats" current={thisMonthContracts} previous={lastMonthContracts} />
+          <KPIComparison label="Commissions" current={thisMonthCA} previous={lastMonthCA} format="currency" />
         </CardContent>
       </Card>
 
