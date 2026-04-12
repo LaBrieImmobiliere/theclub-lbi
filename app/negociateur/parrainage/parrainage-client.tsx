@@ -283,7 +283,7 @@ export function NegociateurParrainagePage({ code, inscriptionUrl, ambassadorCoun
           <h2 className="font-semibold text-white text-sm sm:text-base">Votre QR Code de recrutement</h2>
         </div>
         <div className="p-4 sm:p-6 flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
-          <div className="bg-white p-2 sm:p-3 flex-shrink-0 w-[160px] sm:w-[240px]">
+          <div className="bg-white p-2 sm:p-3 flex-shrink-0 w-[160px] sm:w-[240px] mx-auto sm:mx-0">
             <canvas ref={canvasRef} className="w-full h-auto" />
           </div>
           <div className="space-y-3 flex-1 text-center sm:text-left">

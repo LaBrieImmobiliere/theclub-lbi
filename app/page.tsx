@@ -6,5 +6,6 @@ export default async function HomePage() {
   if (!session) redirect("/auth/connexion");
   const role = (session.user as { role?: string }).role;
   if (role === "ADMIN") redirect("/admin/dashboard");
+  if (role === "NEGOTIATOR") redirect("/negociateur/tableau-de-bord");
   redirect("/portail/tableau-de-bord");
 }

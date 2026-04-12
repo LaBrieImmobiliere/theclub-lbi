@@ -69,10 +69,30 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       name: "authjs.session-token",
       options: {
         httpOnly: true,
-        sameSite: "lax",
+        sameSite: "lax" as const,
         path: "/",
         secure: process.env.NODE_ENV === "production",
         maxAge: 90 * 24 * 60 * 60, // 90 days
+        // Domain not set = cookie valid for exact domain only (best for PWA)
+      },
+    },
+    csrfToken: {
+      name: "authjs.csrf-token",
+      options: {
+        httpOnly: true,
+        sameSite: "lax" as const,
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 90 * 24 * 60 * 60,
+      },
+    },
+    callbackUrl: {
+      name: "authjs.callback-url",
+      options: {
+        sameSite: "lax" as const,
+        path: "/",
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 90 * 24 * 60 * 60,
       },
     },
   },

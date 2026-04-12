@@ -2,7 +2,7 @@
   "name": "The Club - La Brie Immobilière",
   "short_name": "The Club LBI",
   "description": "Plateforme de gestion des ambassadeurs et apporteurs d'affaire",
-  "start_url": "/auth/connexion",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#030A24",
   "theme_color": "#030A24",
