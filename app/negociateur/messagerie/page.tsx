@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { MessageSquare, Send, Search } from "lucide-react";
+import { NewConversationButton } from "@/components/new-conversation";
 
 interface UserInfo { id: string; name: string | null; email: string; role: string; }
 interface Conversation { user: UserInfo; lastMessage: { id: string; content: string; createdAt: string; senderId: string; } | null; unreadCount: number; }
@@ -62,7 +63,10 @@ export default function NegociateurMessageriePage() {
       {/* Conversation list */}
       <div className={`w-full lg:w-80 border-r border-gray-200 flex flex-col bg-white ${showThread ? "hidden lg:flex" : "flex"}`}>
         <div className="px-4 py-3 bg-[#030A24]">
-          <h2 className="text-lg font-semibold text-white">Messagerie</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-white">Messagerie</h2>
+            <NewConversationButton onSelect={(id) => setSelectedUserId(id)} />
+          </div>
           <p className="text-xs text-[#D1B280]">Vos ambassadeurs</p>
         </div>
         <div className="px-3 py-2 border-b border-gray-100">

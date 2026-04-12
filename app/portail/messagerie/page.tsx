@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { MessageSquare, Send, Search } from "lucide-react";
+import { NewConversationButton } from "@/components/new-conversation";
 
 interface UserInfo {
   id: string;
@@ -158,7 +159,10 @@ export default function MessageriePage() {
       {/* Left panel - Conversations list */}
       <div className={`w-full lg:w-80 border-r border-gray-200 flex flex-col bg-white ${showThread ? "hidden lg:flex" : "flex"}`}>
         <div className="px-4 py-3 bg-brand-deep">
-          <h2 className="text-lg font-semibold text-white">Messagerie</h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-white">Messagerie</h2>
+            <NewConversationButton onSelect={(id) => setSelectedUserId(id)} />
+          </div>
           <p className="text-xs text-brand-gold">
             {currentUser?.role === "NEGOTIATOR"
               ? "Vos ambassadeurs"

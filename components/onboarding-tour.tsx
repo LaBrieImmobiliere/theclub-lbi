@@ -115,7 +115,7 @@ export function OnboardingTour({ role }: { role: string }) {
           <div className="flex items-center gap-2 mb-3">
             <Sparkles className="w-5 h-5 text-[#D1B280]" />
             <p className="text-xs text-gray-400 font-medium uppercase tracking-wider">
-              \u00C9tape {step + 1} / {steps.length}
+              Étape {step + 1} / {steps.length}
             </p>
           </div>
           <h3 className="text-lg font-bold text-gray-900 mb-2">{steps[step].title}</h3>
@@ -130,7 +130,7 @@ export function OnboardingTour({ role }: { role: string }) {
             className="flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
-            Pr\u00e9c\u00e9dent
+            Précédent
           </button>
           <div className="flex items-center gap-3">
             <button onClick={handleFinish} className="text-sm text-gray-400 hover:text-gray-600">
