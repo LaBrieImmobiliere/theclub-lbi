@@ -31,7 +31,7 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo.png" alt="La Brie Immobili\u00e8re" style={{ height: 36, width: "auto", objectFit: "contain" }} />
+            <img src="/logo.png" alt="La Brie Immobili\u00e8re" style={{ height: 52, width: "auto", objectFit: "contain" }} />
           </div>
           <div className="flex items-center gap-3 sm:gap-4">
             <Link href="/auth/connexion" className="text-sm text-gray-600 hover:text-gray-900 hidden sm:inline">
