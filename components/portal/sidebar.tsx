@@ -17,6 +17,7 @@ import {
   Users,
   Coins,
   HelpCircle,
+  Star,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { NotificationsBell } from "@/components/notifications-bell";
@@ -36,6 +37,7 @@ const ambassadorNav = [
   { href: "/portail/actualites", label: "Actualités", icon: Megaphone },
   { href: "/portail/profil", label: "Mon profil", icon: UserCircle },
   { href: "/portail/messagerie", label: "Messagerie", icon: MessageSquare },
+  { href: "/portail/avis", label: "Donner mon avis", icon: Star },
   { href: "/portail/aide", label: "Aide & FAQ", icon: HelpCircle },
 ];
 

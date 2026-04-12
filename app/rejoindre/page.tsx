@@ -1,10 +1,17 @@
 "use client";
 
-import { useState, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { CheckCircle2, ArrowRight, Eye, EyeOff, UserPlus, Gift, MessageSquare, TrendingUp } from "lucide-react";
+import { CheckCircle2, ArrowRight, Eye, EyeOff, UserPlus, Gift, MessageSquare, TrendingUp, MapPin, Building2, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+
+interface Agency {
+  id: string;
+  name: string;
+  city: string;
+  negotiators: { id: string; name: string | null }[];
+}
 
 function RegisterForm() {
   const searchParams = useSearchParams();
@@ -14,12 +21,25 @@ function RegisterForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [agencies, setAgencies] = useState<Agency[]>([]);
   const [form, setForm] = useState({
     name: "",
     email: "",
     phone: "",
     password: "",
+    address: "",
+    postalCode: "",
+    city: "",
+    selectedAgencyId: "",
+    selectedNegotiatorId: "",
   });
+
+  // Fetch agencies
+  useEffect(() => {
+    fetch("/api/public/agences").then(r => r.json()).then(setAgencies).catch(() => {});
+  }, []);
+
+  const selectedAgency = agencies.find(a => a.id === form.selectedAgencyId);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -127,6 +147,76 @@ function RegisterForm() {
           </button>
         </div>
       </div>
+
+      {/* Adresse */}
+      <div className="pt-2 border-t border-gray-100">
+        <div className="flex items-center gap-2 mb-3">
+          <MapPin className="w-4 h-4 text-[#D1B280]" />
+          <p className="text-sm font-medium text-gray-700">Votre adresse</p>
+        </div>
+        <div className="space-y-2">
+          <Input
+            value={form.address}
+            onChange={e => setForm(f => ({ ...f, address: e.target.value }))}
+            placeholder="Adresse"
+          />
+          <div className="grid grid-cols-2 gap-2">
+            <Input
+              value={form.postalCode}
+              onChange={e => setForm(f => ({ ...f, postalCode: e.target.value }))}
+              placeholder="Code postal"
+            />
+            <Input
+              value={form.city}
+              onChange={e => setForm(f => ({ ...f, city: e.target.value }))}
+              placeholder="Ville"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Choix agence */}
+      {!code && agencies.length > 0 && (
+        <div className="pt-2 border-t border-gray-100">
+          <div className="flex items-center gap-2 mb-3">
+            <Building2 className="w-4 h-4 text-[#D1B280]" />
+            <p className="text-sm font-medium text-gray-700">Votre agence</p>
+          </div>
+          <select
+            value={form.selectedAgencyId}
+            onChange={e => setForm(f => ({ ...f, selectedAgencyId: e.target.value, selectedNegotiatorId: "" }))}
+            className="w-full px-3 py-2.5 text-sm border border-gray-300 bg-white focus:outline-none focus:border-[#D1B280]"
+          >
+            <option value="">Je ne connais pas d&apos;agence</option>
+            {agencies.map(a => (
+              <option key={a.id} value={a.id}>{a.name} — {a.city}</option>
+            ))}
+          </select>
+
+          {/* Choix négociateur */}
+          {selectedAgency && selectedAgency.negotiators.length > 0 && (
+            <select
+              value={form.selectedNegotiatorId}
+              onChange={e => setForm(f => ({ ...f, selectedNegotiatorId: e.target.value }))}
+              className="w-full mt-2 px-3 py-2.5 text-sm border border-gray-300 bg-white focus:outline-none focus:border-[#D1B280]"
+            >
+              <option value="">Je ne connais pas de conseiller</option>
+              {selectedAgency.negotiators.map(n => (
+                <option key={n.id} value={n.id}>{n.name}</option>
+              ))}
+            </select>
+          )}
+
+          {!form.selectedAgencyId && (
+            <div className="flex items-start gap-2 mt-2 px-3 py-2 bg-blue-50 border border-blue-100">
+              <Info className="w-3.5 h-3.5 text-blue-500 mt-0.5 flex-shrink-0" />
+              <p className="text-xs text-blue-700">
+                Pas de souci ! Un agent vous sera attribué rapidement en fonction de votre lieu de domicile.
+              </p>
+            </div>
+          )}
+        </div>
+      )}
 
       {code && (
         <div className="bg-[#f9f6f1] border-l-3 border-[#D1B280] p-3">

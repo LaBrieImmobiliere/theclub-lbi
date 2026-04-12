@@ -6,7 +6,7 @@ import { sendWelcomeEmail, sendNewAmbassadorEmail } from "@/lib/email";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { name, email, phone, password, referralCode } = body;
+  const { name, email, phone, password, referralCode, selectedAgencyId, selectedNegotiatorId, address, postalCode, city } = body;
 
   if (!name || !email || !password) {
     return NextResponse.json(
@@ -24,10 +24,11 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Find the negotiator from the referral code
+  // Determine agency and negotiator
   let negotiatorId: string | null = null;
   let agencyId: string | null = null;
 
+  // Priority 1: referral code
   if (referralCode) {
     const negotiator = await prisma.negotiator.findUnique({
       where: { code: referralCode },
@@ -38,14 +39,22 @@ export async function POST(req: NextRequest) {
       negotiatorId = negotiator.id;
       agencyId = negotiator.agencyId;
     } else {
-      // Maybe it's an ambassador code for ambassador-to-ambassador referral
       const ambassador = await prisma.ambassador.findUnique({
         where: { code: referralCode },
       });
       if (ambassador) {
         agencyId = ambassador.agencyId;
+        negotiatorId = ambassador.negotiatorId;
       }
     }
+  }
+
+  // Priority 2: selected agency/negotiator from form
+  if (!agencyId && selectedAgencyId) {
+    agencyId = selectedAgencyId;
+  }
+  if (!negotiatorId && selectedNegotiatorId) {
+    negotiatorId = selectedNegotiatorId;
   }
 
   const hashedPassword = await bcrypt.hash(password, 10);
@@ -56,6 +65,9 @@ export async function POST(req: NextRequest) {
       name,
       email,
       phone: phone || null,
+      address: address || null,
+      postalCode: postalCode || null,
+      city: city || null,
       password: hashedPassword,
       role: "AMBASSADOR",
       ambassador: {

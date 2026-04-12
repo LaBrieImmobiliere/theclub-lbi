@@ -15,6 +15,9 @@ model User {
   password      String?
   role          String    @default("AMBASSADOR")
   phone         String?
+  address       String?
+  postalCode    String?
+  city          String?
   onboarded     Boolean   @default(false)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
@@ -29,6 +32,7 @@ model User {
   broadcasts        Broadcast[]
   pushSubscriptions PushSubscription[]
   badges            Badge[]
+  reviews           Review[]
 }
 
 model Account {
@@ -172,6 +176,17 @@ model AuditLog {
   entityId  String?
   details   String?
   createdAt DateTime @default(now())
+}
+
+model Review {
+  id        String   @id @default(cuid())
+  userId    String
+  rating    Int
+  comment   String
+  approved  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Contract {
