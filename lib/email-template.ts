@@ -38,19 +38,20 @@ export function emailLayout(options: {
 
         <!-- Header -->
         <tr>
-          <td align="center" style="background:${COLORS.deep};padding:30px 40px;">
-            <img src="cid:logo" alt="La Brie Immobilière" width="120" height="120" style="display:block;width:120px;height:120px;margin:0 auto 12px;" />
-            <p style="color:${COLORS.gold};font-size:10px;letter-spacing:4px;margin:0;text-transform:uppercase;font-family:Arial,sans-serif;">The Club</p>
+          <td align="center" style="background:${COLORS.deep};padding:40px 40px 30px;">
+            <img src="cid:logo" alt="La Brie Immobilière" width="180" height="180" style="display:block;width:180px;height:180px;margin:0 auto 16px;" />
+            <p style="color:${COLORS.gold};font-size:13px;letter-spacing:5px;margin:0 0 4px;text-transform:uppercase;font-weight:600;font-family:Arial,sans-serif;">The Club</p>
+            <p style="color:rgba(255,255,255,0.5);font-size:11px;letter-spacing:1px;margin:0;font-family:Arial,sans-serif;">La Brie Immobilière</p>
           </td>
         </tr>
 
         <!-- Gold accent line -->
-        <tr><td style="background:${COLORS.gold};height:3px;font-size:0;line-height:0;">&nbsp;</td></tr>
+        <tr><td style="background:${COLORS.gold};height:4px;font-size:0;line-height:0;">&nbsp;</td></tr>
 
         <!-- Title bar -->
         <tr>
-          <td style="background:${COLORS.cream};padding:20px 40px;border-bottom:1px solid #e5e7eb;">
-            <p style="margin:0;font-size:16px;font-weight:700;color:${COLORS.deep};font-family:Arial,sans-serif;">${title}</p>
+          <td style="background:${COLORS.cream};padding:22px 40px;border-bottom:1px solid #e5e7eb;">
+            <p style="margin:0;font-size:18px;font-weight:700;color:${COLORS.deep};font-family:'Fira Sans',Arial,sans-serif;">${title}</p>
           </td>
         </tr>
 
@@ -94,11 +95,17 @@ export function emailLayout(options: {
 
         <!-- Footer -->
         <tr>
-          <td style="background:${COLORS.deep};padding:25px 40px;text-align:center;">
-            <p style="color:${COLORS.gold};font-size:10px;letter-spacing:2px;margin:0 0 8px;text-transform:uppercase;font-family:Arial,sans-serif;">La Brie Immobilière — depuis 1969</p>
-            <p style="margin:0;">
-              <a href="${appUrl}" style="color:rgba(255,255,255,0.4);font-size:11px;text-decoration:none;font-family:Arial,sans-serif;">theclub.labrieimmobiliere.fr</a>
-            </p>
+          <td style="background:${COLORS.deep};padding:30px 40px;text-align:center;">
+            <img src="cid:logo" alt="LBI" width="50" height="50" style="display:block;width:50px;height:50px;margin:0 auto 10px;opacity:0.4;" />
+            <p style="color:${COLORS.gold};font-size:11px;letter-spacing:3px;margin:0 0 6px;text-transform:uppercase;font-weight:600;font-family:Arial,sans-serif;">La Brie Immobilière</p>
+            <p style="color:rgba(255,255,255,0.3);font-size:10px;margin:0 0 12px;font-family:Arial,sans-serif;">depuis 1969</p>
+            <table cellpadding="0" cellspacing="0" style="margin:0 auto;"><tr>
+              <td style="padding:0 8px;"><a href="${appUrl}" style="color:${COLORS.gold};font-size:11px;text-decoration:none;font-family:Arial,sans-serif;">Accéder à l'app</a></td>
+              <td style="color:rgba(255,255,255,0.2);">|</td>
+              <td style="padding:0 8px;"><a href="${appUrl}/mentions-legales" style="color:rgba(255,255,255,0.3);font-size:11px;text-decoration:none;font-family:Arial,sans-serif;">Mentions légales</a></td>
+              <td style="color:rgba(255,255,255,0.2);">|</td>
+              <td style="padding:0 8px;"><a href="${appUrl}/politique-confidentialite" style="color:rgba(255,255,255,0.3);font-size:11px;text-decoration:none;font-family:Arial,sans-serif;">Confidentialité</a></td>
+            </tr></table>
           </td>
         </tr>
 
