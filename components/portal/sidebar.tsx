@@ -62,7 +62,7 @@ function SidebarContent({ role }: { role: string }) {
     <>
       {/* Logo */}
       <div className="flex items-center gap-3 px-4 py-4 border-b border-gray-100">
-        <ThemedLogo height={60} />
+        <ThemedLogo height={70} />
         <div className="flex-1" />
         <LanguageToggle />
         <ThemeToggle />

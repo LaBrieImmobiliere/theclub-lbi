@@ -46,7 +46,7 @@ function SidebarContent() {
       {/* Logo */}
       <div className="flex items-center gap-3 px-4 py-4 border-b border-white/10">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo-white.png" alt="La Brie Immobilière" style={{ height: 60, width: "auto", objectFit: "contain" }} />
+        <img src="/logo-white.png" alt="La Brie Immobilière" style={{ height: 70, width: "auto", objectFit: "contain" }} />
         <div className="flex-1" />
         <ThemeToggle />
         <div className="hidden lg:block">

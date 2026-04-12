@@ -272,7 +272,7 @@ export default function RejoindrePublicPage() {
       <header className="bg-white border-b border-gray-100 px-4 sm:px-6 py-3">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.png" alt="La Brie Immobilière" style={{ height: 44, width: "auto", objectFit: "contain" }} className="sm:h-14" />
+          <img src="/logo.png" alt="La Brie Immobilière" style={{ height: 56, width: "auto", objectFit: "contain" }} className="sm:h-14" />
           <a href="/auth/connexion" className="text-xs sm:text-sm text-[#D1B280] font-medium hover:underline">
             Déjà inscrit ? Se connecter
           </a>

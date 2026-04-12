@@ -77,9 +77,9 @@ export function MobileHeader({ variant = "admin" }: { variant?: "admin" | "porta
       <div className="flex items-center gap-2">
         {isAdmin ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src="/logo-white.png" alt="La Brie Immobilière" style={{ height: 32, width: "auto", objectFit: "contain" }} />
+          <img src="/logo-white.png" alt="La Brie Immobilière" style={{ height: 38, width: "auto", objectFit: "contain" }} />
         ) : (
-          <ThemedLogo height={32} />
+          <ThemedLogo height={38} />
         )}
         <div>
           <p className={`text-[10px] font-medium tracking-widest uppercase ${isAdmin ? "text-brand-gold" : "text-brand-gold"}`}>
