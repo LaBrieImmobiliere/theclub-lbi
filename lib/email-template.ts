@@ -61,7 +61,7 @@ export function emailLayout(options: {
             <p style="color:${COLORS.deep};font-size:16px;line-height:1.7;margin:0 0 20px;font-weight:500;font-family:Arial,sans-serif;">
               ${greeting}
             </p>
-            <div style="background:${COLORS.cream};border-left:3px solid ${COLORS.gold};padding:18px 22px;color:#374151;font-size:14px;line-height:1.8;font-family:Arial,sans-serif;">
+            <div style="color:#374151;font-size:14px;line-height:1.8;font-family:Arial,sans-serif;">
               ${body}
             </div>
           </td>

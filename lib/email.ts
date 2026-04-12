@@ -528,7 +528,7 @@ export async function sendNotificationEmail(to: string, name: string, subject: s
     preheader: message.substring(0, 100),
     title: subject,
     greeting: `Bonjour ${name},`,
-    body: `<p style="margin:0 0 15px;">${message.replace(/\n/g, "<br/>")}</p>`,
+    body: `<div style="background:#f9f6f1;border-left:3px solid #D1B280;padding:15px 20px;margin:0 0 15px;"><p style="margin:0;font-size:14px;color:#030A24;line-height:1.7;">${message.replace(/\n/g, "<br/>")}</p></div>`,
     cta: { label: "Accéder à la plateforme", url: appUrl },
   });
 

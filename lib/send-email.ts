@@ -118,9 +118,17 @@ export async function sendEmailPreview(to: string) {
   await sendPremiumEmail({
     to,
     subject: "[PREVIEW] Nouveau message",
-    title: "Nouveau message",
+    title: "Nouveau message 💬",
     greeting: "Bonjour Alexandre,",
-    body: `<p style="margin:0;">Angela BRITES vous a envoyé un message sur la plateforme The Club.<br/>Connectez-vous pour le lire et y répondre.</p>`,
+    body: `
+      <p style="margin:0 0 15px;">Vous avez reçu un nouveau message sur The Club.</p>
+      <div style="background:#f9f6f1;border-left:3px solid #D1B280;padding:15px 20px;margin:0 0 15px;">
+        <p style="margin:0 0 5px;font-size:12px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Message de</p>
+        <p style="margin:0;font-size:15px;color:#030A24;font-weight:bold;">Angela BRITES</p>
+        <p style="margin:3px 0 0;font-size:13px;color:#666;">Ambassadrice</p>
+      </div>
+      <p style="margin:0;font-size:13px;color:#666;">Connectez-vous pour lire le message et y répondre.</p>
+    `,
     cta: { label: "Ouvrir la messagerie", url: `${appUrl}/portail/messagerie` },
   });
 
@@ -130,7 +138,16 @@ export async function sendEmailPreview(to: string) {
     subject: "[PREVIEW] Champagne ! Le compromis est signé 🍾",
     title: "Champagne ! Le compromis est signé 🍾",
     greeting: "Bonjour Alexandre,",
-    body: `<p style="margin:0;">Pssst, la vente du bien que vous avez recommandé (Jean DUPONT) avance super bien ! Le compromis a été signé ✍️</p>`,
+    body: `
+      <p style="margin:0 0 15px;">Pssst, la vente du bien que vous avez recommandé avance super bien !</p>
+      <div style="background:#f9f6f1;border-left:3px solid #D1B280;padding:15px 20px;margin:0 0 15px;">
+        <p style="margin:0 0 5px;font-size:12px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Recommandation</p>
+        <p style="margin:0;font-size:15px;color:#030A24;font-weight:bold;">Jean DUPONT</p>
+        <p style="margin:5px 0 0;font-size:13px;color:#666;"><strong>Statut :</strong> Compromis signé ✍️</p>
+        <p style="margin:5px 0 0;font-size:13px;color:#666;"><strong>Type :</strong> Achat</p>
+      </div>
+      <p style="margin:0;font-size:13px;color:#666;">Le compromis a été signé ! La prochaine étape est le passage chez le notaire.</p>
+    `,
     cta: { label: "Voir mes recommandations", url: `${appUrl}/portail/mes-recommandations` },
   });
 
@@ -139,8 +156,17 @@ export async function sendEmailPreview(to: string) {
     to,
     subject: "[PREVIEW] Votre gain vous attend ! 🤑",
     title: "Votre gain vous attend ! 🤑",
-    greeting: "Bonjour Alexandre,",
-    body: `<p style="margin:0;">Tout est bon ! La transaction Jean DUPONT est finalisée et votre reco vous a rapporté un joli gain 🤩</p>`,
+    greeting: "Bravo Alexandre !",
+    body: `
+      <p style="margin:0 0 15px;">Tout est bon ! La transaction est finalisée et votre recommandation vous a rapporté un joli gain.</p>
+      <div style="background:#f9f6f1;border-left:3px solid #D1B280;padding:15px 20px;margin:0 0 15px;">
+        <p style="margin:0 0 5px;font-size:12px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Commission</p>
+        <p style="margin:0;font-size:15px;color:#030A24;font-weight:bold;">Jean DUPONT — Achat</p>
+        <p style="margin:8px 0 0;font-size:24px;color:#16A34A;font-weight:bold;">+ 2 400 €</p>
+        <p style="margin:5px 0 0;font-size:13px;color:#666;">Commission versée sur votre cagnotte 🎉</p>
+      </div>
+      <p style="margin:0;font-size:13px;color:#666;">Rendez-vous sur votre tableau de bord pour voir votre cagnotte mise à jour.</p>
+    `,
     cta: { label: "Voir ma cagnotte", url: `${appUrl}/portail/tableau-de-bord` },
   });
 
@@ -152,11 +178,15 @@ export async function sendEmailPreview(to: string) {
     greeting: "Bonjour Alexandre,",
     body: `
       <p style="margin:0 0 15px;">Voici votre récap de la semaine :</p>
-      <div style="background:#f9f6f1;padding:15px 20px;margin:0 0 15px;">
-        <p style="margin:0;font-size:14px;color:#030A24;">📊 Cette semaine : <strong>2 nouvelles recommandations</strong></p>
-        <p style="margin:8px 0 0;font-size:14px;color:#030A24;">📈 Total : <strong>12 recommandations</strong>, <strong>3 contrats</strong></p>
-        <p style="margin:8px 0 0;font-size:14px;color:#030A24;">💰 Commissions cumulées : <strong>2 400 €</strong></p>
-        <p style="margin:8px 0 0;font-size:14px;color:#030A24;">🏆 Classement : <strong>3ème sur 15 ambassadeurs</strong></p>
+      <div style="background:#f9f6f1;border-left:3px solid #D1B280;padding:15px 20px;margin:15px 0;">
+        <p style="margin:0 0 5px;font-size:12px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Cette semaine</p>
+        <p style="margin:0;font-size:14px;color:#030A24;">📊 <strong>2 nouvelles recommandations</strong></p>
+      </div>
+      <div style="background:#f9f6f1;border-left:3px solid #D1B280;padding:15px 20px;margin:15px 0;">
+        <p style="margin:0 0 5px;font-size:12px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Total cumulé</p>
+        <p style="margin:0;font-size:14px;color:#030A24;">📈 <strong>12 recommandations</strong>, <strong>3 contrats</strong></p>
+        <p style="margin:5px 0 0;font-size:14px;color:#030A24;">💰 Commissions : <strong>2 400 €</strong></p>
+        <p style="margin:5px 0 0;font-size:14px;color:#030A24;">🏆 Classement : <strong>3ème sur 15 ambassadeurs</strong></p>
       </div>
       <p style="margin:0;font-size:13px;color:#666;">Continuez à recommander pour monter dans le classement !</p>
     `,
@@ -233,11 +263,12 @@ export async function sendEmailPreview(to: string) {
     title: "Leads en attente de contact",
     greeting: "Bonjour Alexandre,",
     body: `
-      <p style="margin:0 0 15px;">Vous avez <strong>3 leads</strong> qui n'ont pas encore été contactés depuis plus de 7 jours :</p>
-      <div style="background:#FEF3C7;border-left:3px solid #F59E0B;padding:15px 20px;margin:0 0 15px;">
-        <p style="margin:0;font-size:14px;color:#92400E;">⏰ Jean DUPONT — soumis le 05/04/2026</p>
-        <p style="margin:8px 0 0;font-size:14px;color:#92400E;">⏰ Marie GARCIA — soumis le 03/04/2026</p>
-        <p style="margin:8px 0 0;font-size:14px;color:#92400E;">⏰ Paul BERNARD — soumis le 01/04/2026</p>
+      <p style="margin:0 0 15px;">Vous avez <strong>3 leads</strong> qui n'ont pas encore été contactés depuis plus de 7 jours.</p>
+      <div style="background:#f9f6f1;border-left:3px solid #D1B280;padding:15px 20px;margin:15px 0;">
+        <p style="margin:0 0 5px;font-size:12px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Leads en attente</p>
+        <p style="margin:0;font-size:14px;color:#030A24;">⏰ <strong>Jean DUPONT</strong> — soumis le 05/04/2026</p>
+        <p style="margin:8px 0 0;font-size:14px;color:#030A24;">⏰ <strong>Marie GARCIA</strong> — soumis le 03/04/2026</p>
+        <p style="margin:8px 0 0;font-size:14px;color:#030A24;">⏰ <strong>Paul BERNARD</strong> — soumis le 01/04/2026</p>
       </div>
       <p style="margin:0;font-size:13px;color:#666;">Pensez à les contacter rapidement pour ne pas perdre ces opportunités !</p>
     `,
@@ -251,13 +282,14 @@ export async function sendEmailPreview(to: string) {
     title: "Badge débloqué ! 🔥",
     greeting: "Bravo Alexandre !",
     body: `
-      <p style="margin:0 0 15px;">Vous venez de débloquer un nouveau badge :</p>
-      <div style="text-align:center;padding:20px 0;">
-        <span style="font-size:48px;">🔥</span>
-        <p style="margin:10px 0 0;font-size:18px;font-weight:bold;color:#030A24;">5 recommandations</p>
+      <p style="margin:0 0 15px;">Vous venez de débloquer un nouveau badge !</p>
+      <div style="background:#f9f6f1;border-left:3px solid #D1B280;padding:15px 20px;margin:15px 0;">
+        <p style="margin:0 0 5px;font-size:12px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Nouveau badge</p>
+        <p style="margin:0;font-size:28px;">🔥</p>
+        <p style="margin:5px 0 0;font-size:16px;font-weight:bold;color:#030A24;">5 recommandations</p>
         <p style="margin:5px 0 0;font-size:13px;color:#666;">Vous avez soumis 5 recommandations. Continuez comme ça !</p>
       </div>
-      <p style="margin:15px 0 0;font-size:13px;color:#666;">Rendez-vous sur votre profil pour voir tous vos badges.</p>
+      <p style="margin:0;font-size:13px;color:#666;">Rendez-vous sur votre profil pour voir tous vos badges.</p>
     `,
     cta: { label: "Voir mes badges", url: `${appUrl}/portail/profil` },
   });
@@ -269,9 +301,12 @@ export async function sendEmailPreview(to: string) {
     title: "Réinitialisation du mot de passe",
     greeting: "Bonjour Alexandre,",
     body: `
-      <p style="margin:0 0 15px;">Vous avez demandé la réinitialisation de votre mot de passe sur The Club.</p>
-      <p style="margin:0 0 15px;">Cliquez sur le bouton ci-dessous pour définir un nouveau mot de passe.</p>
-      <p style="margin:0;font-size:12px;color:#999;font-style:italic;">⏱️ Ce lien est valable 1 heure et ne peut être utilisé qu'une seule fois.</p>
+      <p style="margin:0 0 15px;">Vous avez demandé la réinitialisation de votre mot de passe.</p>
+      <div style="background:#f9f6f1;border-left:3px solid #D1B280;padding:15px 20px;margin:15px 0;">
+        <p style="margin:0 0 5px;font-size:12px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Réinitialisation</p>
+        <p style="margin:0;font-size:14px;color:#030A24;">Cliquez sur le bouton ci-dessous pour définir un nouveau mot de passe.</p>
+        <p style="margin:8px 0 0;font-size:12px;color:#999;font-style:italic;">⏱️ Ce lien est valable 1 heure et ne peut être utilisé qu'une seule fois.</p>
+      </div>
     `,
     cta: { label: "Réinitialiser mon mot de passe", url: `${appUrl}/auth/nouveau-mot-de-passe?token=demo` },
     footer: "Si vous n'avez pas demandé cette réinitialisation, ignorez cet email. Votre mot de passe actuel reste inchangé.",
