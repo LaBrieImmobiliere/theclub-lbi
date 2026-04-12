@@ -70,7 +70,7 @@ export function NewConversationButton({ onSelect }: Props) {
       </button>
 
       {open && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-200 shadow-xl z-50 w-72 sm:w-80">
+        <div className="absolute top-full right-0 mt-2 bg-white border border-gray-200 shadow-xl z-50 w-[calc(100vw-2rem)] sm:w-80 max-w-sm">
           {/* Search input */}
           <div className="flex items-center gap-2 px-3 py-2.5 border-b border-gray-100">
             <Search className="w-4 h-4 text-gray-400 flex-shrink-0" />
