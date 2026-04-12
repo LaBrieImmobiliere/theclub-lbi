@@ -109,6 +109,37 @@ export async function POST(req: NextRequest) {
   const ambCode = user.ambassador?.code || code;
   await sendWelcomeEmail(email, name, password, "AMBASSADOR", negotiatorInfo);
 
+  // Auto-generate apporteur d'affaire contract for signature
+  if (user.ambassador) {
+    try {
+      const contractNumber = `CAA-${new Date().getFullYear()}-${Math.floor(Math.random() * 10000).toString().padStart(4, "0")}`;
+      await prisma.contract.create({
+        data: {
+          ambassadorId: user.ambassador.id,
+          number: contractNumber,
+          commissionType: "PERCENTAGE",
+          commissionValue: 5,
+          status: "BROUILLON",
+          notes: "Contrat d'apporteur d'affaire généré automatiquement à l'inscription. En attente de signature.",
+        },
+      });
+
+      // Notify ambassador to sign the contract
+      await prisma.notification.create({
+        data: {
+          userId: user.id,
+          title: "Contrat à signer ✍️",
+          message: "Votre contrat d'apporteur d'affaire est prêt. Signez-le pour activer votre compte ambassadeur.",
+          type: "WARNING",
+          link: "/portail/mes-contrats",
+        },
+      });
+    } catch (e) {
+      console.error("[inscription] Failed to create auto contract:", e);
+      // Don't block inscription if contract creation fails
+    }
+  }
+
   // Notify the negotiator who recruited this ambassador
   if (negotiatorId) {
     const neg = await prisma.negotiator.findUnique({
