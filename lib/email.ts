@@ -122,29 +122,36 @@ export async function sendWelcomeEmail(to: string, name: string, password: strin
   // Legacy HTML removed — using emailLayout above
 
   try {
+    // Build attachments safely (logo may not exist in serverless)
+    const attachments: { filename: string; path?: string; cid: string }[] = [];
+    try {
+      const logoPath = findFile("logo-white.png");
+      const fs = require("fs");
+      if (fs.existsSync(logoPath)) {
+        attachments.push({ filename: "logo.png", path: logoPath, cid: "logo" });
+      }
+    } catch { /* logo not found, send without */ }
+
     await transporter.sendMail({
       from: fromAddress,
       to,
       subject: `Bienvenue sur The Club : La Brie Immobilière — Votre espace ${roleLabel}`,
       html,
-      attachments: [
-        {
-          filename: "logo.png",
-          path: findFile("logo-white.png"),
-          cid: "logo",
-        },
-        ...(negotiator?.photo ? [{
-          filename: "negotiator.jpg",
-          path: findFile(negotiator.photo.replace(/^\//, "")),
-          cid: "negphoto",
-        }] : []),
-      ],
+      attachments,
     });
     console.log(`[email] Welcome email sent to ${to}`);
     return true;
   } catch (error) {
     console.error("[email] Failed to send welcome email:", error);
-    return false;
+    // Try sending without attachments as fallback
+    try {
+      await transporter.sendMail({ from: fromAddress, to, subject: `Bienvenue sur The Club — Votre espace ${roleLabel}`, html });
+      console.log(`[email] Welcome email sent (no logo) to ${to}`);
+      return true;
+    } catch (e2) {
+      console.error("[email] Fallback also failed:", e2);
+      return false;
+    }
   }
 }
 
@@ -533,17 +540,15 @@ export async function sendNotificationEmail(to: string, name: string, subject: s
   });
 
   try {
-    await transporter.sendMail({
-      from: fromAddress,
-      to,
-      subject,
-      html,
-      attachments: [{
-        filename: "logo.png",
-        path: findFile("logo-white.png"),
-        cid: "logo",
-      }],
-    });
+    // Try with logo, fallback without
+    const attachments: { filename: string; path?: string; cid: string }[] = [];
+    try {
+      const fs = require("fs");
+      const logoPath = findFile("logo-white.png");
+      if (fs.existsSync(logoPath)) attachments.push({ filename: "logo.png", path: logoPath, cid: "logo" });
+    } catch { /* skip */ }
+
+    await transporter.sendMail({ from: fromAddress, to, subject, html, attachments });
     return true;
   } catch (error) {
     console.error("[email] Failed to send notification email:", error);
