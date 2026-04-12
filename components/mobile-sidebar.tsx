@@ -4,6 +4,7 @@ import { useState, useEffect, createContext, useContext } from "react";
 import { Menu, X } from "lucide-react";
 import { NotificationsBell } from "@/components/notifications-bell";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { ThemedLogo } from "@/components/themed-logo";
 
 type SidebarContextType = {
   isOpen: boolean;
@@ -74,12 +75,12 @@ export function MobileHeader({ variant = "admin" }: { variant?: "admin" | "porta
       </button>
 
       <div className="flex items-center gap-2">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={isAdmin ? "/logo-white.png" : "/logo.png"}
-          alt="La Brie Immobilière"
-          style={{ height: 32, width: "auto", objectFit: "contain" }}
-        />
+        {isAdmin ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src="/logo-white.png" alt="La Brie Immobilière" style={{ height: 32, width: "auto", objectFit: "contain" }} />
+        ) : (
+          <ThemedLogo height={32} />
+        )}
         <div>
           <p className={`text-[10px] font-medium tracking-widest uppercase ${isAdmin ? "text-brand-gold" : "text-brand-gold"}`}>
             The Club

@@ -4,6 +4,7 @@ import { Providers } from "@/app/providers";
 import { RegisterSW } from "@/components/register-sw";
 import { PwaInstallPrompt } from "@/components/pwa-install-prompt";
 import { CookieBanner } from "@/components/cookie-banner";
+import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   title: {
@@ -51,6 +52,7 @@ export default function RootLayout({
         <RegisterSW />
         <PwaInstallPrompt />
         <CookieBanner />
+        <Analytics />
       </body>
     </html>
   );
