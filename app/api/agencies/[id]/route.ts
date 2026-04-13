@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { auditLog } from "@/lib/audit";
 
 export async function GET(
   _req: NextRequest,
@@ -49,6 +50,9 @@ export async function PUT(
   if (body.email !== undefined) data.email = body.email || "";
 
   const updated = await prisma.agency.update({ where: { id }, data });
+
+  const sessionUser = session.user as { id?: string };
+  await auditLog("UPDATE", "Agency", id, sessionUser.id, `Agence ${updated.name} mise à jour`);
 
   return NextResponse.json(updated);
 }
@@ -111,6 +115,9 @@ export async function DELETE(
       await prisma.user.delete({ where: { id: neg.userId } });
     }
   }
+
+  const delSessionUser = session.user as { id?: string };
+  await auditLog("DELETE", "Agency", id, delSessionUser.id, `Agence ${agency.name} supprimée${reassignTo ? `, réattribuée à ${reassignTo}` : ""}`);
 
   await prisma.agency.delete({ where: { id } });
 

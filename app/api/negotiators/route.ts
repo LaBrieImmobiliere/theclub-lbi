@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { sendNegotiatorWelcomeEmail } from "@/lib/email";
 import bcrypt from "bcryptjs";
+import { auditLog } from "@/lib/audit";
 
 function generateNegCode(name: string): string {
   const parts = name.trim().split(/\s+/);
@@ -96,6 +97,9 @@ export async function POST(req: NextRequest) {
       },
     },
   });
+
+  const sessionUser = session.user as { id?: string };
+  await auditLog("CREATE", "Negotiator", user.negotiator?.id, sessionUser.id, `Négociateur ${name} créé (${agency.name})`);
 
   // Send negotiator welcome email with agency info and QR code
   await sendNegotiatorWelcomeEmail(email, name, password, code, {

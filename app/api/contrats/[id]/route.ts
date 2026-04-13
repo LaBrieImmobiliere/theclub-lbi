@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { sendNotificationEmail, sendRibReminderEmail } from "@/lib/email";
+import { auditLog } from "@/lib/audit";
 
 export async function GET(
   _req: NextRequest,
@@ -113,6 +114,8 @@ export async function PATCH(
       honoraryAcknowledgments: true,
     },
   });
+
+  await auditLog("UPDATE", "Contract", id, user.id, body.status !== contract.status ? `Statut: ${contract.status} → ${body.status}` : "Contrat mis à jour");
 
   // Send notification if status changed
   if (body.status && body.status !== contract.status) {

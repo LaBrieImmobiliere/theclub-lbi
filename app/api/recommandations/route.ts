@@ -5,6 +5,7 @@ import { sendNewLeadEmail, sendNotificationEmail } from "@/lib/email";
 import { sendPushToUser } from "@/lib/push";
 import { createLeadSchema } from "@/lib/validations";
 import { rateLimit } from "@/lib/rate-limit";
+import { auditLog } from "@/lib/audit";
 
 export async function GET(req: NextRequest) {
   const session = await auth();
@@ -107,6 +108,8 @@ export async function POST(req: NextRequest) {
       location,
     },
   });
+
+  await auditLog("CREATE", "Lead", lead.id, user.id, `Recommandation ${firstName} ${lastName} (${type}) par ambassadeur`);
 
   // Fetch ambassador details for notifications
   const ambassador = await prisma.ambassador.findUnique({

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import { auditLog } from "@/lib/audit";
 
 export async function GET(
   req: NextRequest,
@@ -100,6 +101,9 @@ export async function PUT(
     },
   });
 
+  const sessionUser = session.user as { id?: string };
+  await auditLog("UPDATE", "Negotiator", id, sessionUser.id, `Négociateur ${updated?.user?.name} mis à jour`);
+
   return NextResponse.json(updated);
 }
 
@@ -149,6 +153,9 @@ export async function DELETE(
       data: { negotiatorId: null },
     });
   }
+
+  const delSessionUser = session.user as { id?: string };
+  await auditLog("DELETE", "Negotiator", id, delSessionUser.id, `Négociateur supprimé${reassignTo ? `, réattribué à ${reassignTo}` : ""}`);
 
   // Delete user (cascades to negotiator)
   await prisma.user.delete({ where: { id: negotiator.userId } });

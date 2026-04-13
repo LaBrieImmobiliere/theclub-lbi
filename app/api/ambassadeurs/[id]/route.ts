@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { auditLog } from "@/lib/audit";
 
 export async function GET(
   _req: NextRequest,
@@ -98,6 +99,9 @@ export async function PATCH(
     include: { user: true },
   });
 
+  const sessionUser = session.user as { id?: string };
+  await auditLog("UPDATE", "Ambassador", id, sessionUser.id, `Ambassadeur ${ambassador.user?.name} mis à jour`);
+
   return NextResponse.json(ambassador);
 }
 
@@ -111,10 +115,13 @@ export async function DELETE(
   }
 
   const { id } = await params;
-  const ambassador = await prisma.ambassador.findUnique({ where: { id } });
+  const ambassador = await prisma.ambassador.findUnique({ where: { id }, include: { user: true } });
   if (!ambassador) {
     return NextResponse.json({ error: "Introuvable" }, { status: 404 });
   }
+
+  const delSessionUser = session.user as { id?: string };
+  await auditLog("DELETE", "Ambassador", id, delSessionUser.id, `Ambassadeur ${ambassador.user?.name} supprimé`);
 
   await prisma.user.delete({ where: { id: ambassador.userId } });
   return NextResponse.json({ success: true });

@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { generateCode } from "@/lib/utils";
 import bcrypt from "bcryptjs";
 import { sendWelcomeEmail, sendNewAmbassadorEmail } from "@/lib/email";
+import { auditLog } from "@/lib/audit";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
@@ -187,6 +188,8 @@ export async function POST(req: NextRequest) {
       );
     }
   }
+
+  await auditLog("CREATE", "Ambassador", user.ambassador?.id, null, `Inscription ambassadeur ${name} (${email})`);
 
   return NextResponse.json(
     {

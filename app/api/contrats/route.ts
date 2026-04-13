@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { generateContractNumber } from "@/lib/utils";
 import { createContractSchema } from "@/lib/validations";
 import { rateLimit } from "@/lib/rate-limit";
+import { auditLog } from "@/lib/audit";
 
 export async function GET(req: NextRequest) {
   const session = await auth();
@@ -96,6 +97,8 @@ export async function POST(req: NextRequest) {
       lead: true,
     },
   });
+
+  await auditLog("CREATE", "Contract", contract.id, user.id, `Contrat ${contract.number} créé`);
 
   return NextResponse.json(contract, { status: 201 });
 }
