@@ -29,7 +29,7 @@ export default async function Page() {
 
   if (!negotiator) redirect("/auth/connexion");
 
-  const appUrl = process.env.NEXTAUTH_URL || "https://theclub-lbi.vercel.app";
+  const appUrl = process.env.NEXTAUTH_URL || "https://theclub.labrieimmobiliere.fr";
   const inscriptionUrl = `${appUrl}/rejoindre?code=${negotiator.code}`;
 
   return (

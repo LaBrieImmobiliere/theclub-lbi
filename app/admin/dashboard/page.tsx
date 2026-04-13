@@ -23,7 +23,7 @@ export default async function AdminDashboardPage() {
     leadCount,
     contractCount,
     pendingLeads,
-    allContracts,
+    allContractsRaw,
     recentLeads,
     recentContracts,
     allLeads,
@@ -33,7 +33,7 @@ export default async function AdminDashboardPage() {
     prisma.contract.count(),
     prisma.lead.count({ where: { status: "NOUVEAU" } }),
     prisma.contract.findMany({
-      select: { commissionAmount: true, status: true, createdAt: true },
+      select: { commissionAmount: true, honoraires: true, status: true, createdAt: true },
     }),
     prisma.lead.findMany({
       take: 5,
@@ -50,12 +50,21 @@ export default async function AdminDashboardPage() {
     }),
   ]);
 
+  const allContracts = allContractsRaw;
+
   // CA calculations
-  const caPotentiel = allContracts.reduce((s, c) => s + (c.commissionAmount || 0), 0);
-  const caSigne = allContracts
-    .filter((c) => ["SIGNE", "PAYE"].includes(c.status))
-    .reduce((s, c) => s + (c.commissionAmount || 0), 0);
+  // Violet: CA potentiel HT = total honoraires de tous les contrats
+  const caHonorairesPotentiel = allContracts.reduce((s, c) => s + (c.honoraires || 0), 0);
+  // Bleu: CA validé = honoraires des contrats signés/payés (affaires concrétisées)
   const caValide = allContracts
+    .filter((c) => ["SIGNE", "PAYE"].includes(c.status))
+    .reduce((s, c) => s + (c.honoraires || 0), 0);
+  // Orange: Commissions potentielles à verser (contrats en cours, non payés)
+  const commissionsPotentielles = allContracts
+    .filter((c) => ["ENVOYE", "SIGNE"].includes(c.status))
+    .reduce((s, c) => s + (c.commissionAmount || 0), 0);
+  // Vert: Commissions effectivement versées
+  const commissionsVersees = allContracts
     .filter((c) => c.status === "PAYE")
     .reduce((s, c) => s + (c.commissionAmount || 0), 0);
 
@@ -182,41 +191,52 @@ export default async function AdminDashboardPage() {
           </h2>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
             <CAGauge
-              label="CA Potentiel"
-              value={caPotentiel}
-              maxValue={caPotentiel}
+              label="CA Honoraires potentiel"
+              value={caHonorairesPotentiel}
+              maxValue={caHonorairesPotentiel}
               color="#8B5CF6"
               lightColor="#EDE9FE"
             />
             <CAGauge
-              label="CA Signé"
-              value={caSigne}
-              maxValue={caPotentiel}
+              label="CA Validé (apports)"
+              value={caValide}
+              maxValue={caHonorairesPotentiel}
               color="#2563EB"
               lightColor="#DBEAFE"
             />
             <CAGauge
-              label="CA Validé / Payé"
-              value={caValide}
-              maxValue={caPotentiel}
+              label="Commissions à verser"
+              value={commissionsPotentielles}
+              maxValue={commissionsPotentielles + commissionsVersees}
+              color="#F59E0B"
+              lightColor="#FEF3C7"
+            />
+            <CAGauge
+              label="Commissions versées"
+              value={commissionsVersees}
+              maxValue={commissionsPotentielles + commissionsVersees}
               color="#16A34A"
               lightColor="#DCFCE7"
             />
           </div>
-          <div className="grid grid-cols-3 gap-2 sm:gap-6 mt-4 pt-4 border-t border-gray-100">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-6 mt-4 pt-4 border-t border-gray-100">
             <div className="text-center">
-              <p className="text-sm sm:text-lg font-bold text-gray-900">{formatCurrency(caPotentiel)}</p>
-              <p className="text-xs text-gray-500">Total tous contrats</p>
+              <p className="text-sm sm:text-lg font-bold text-purple-600">{formatCurrency(caHonorairesPotentiel)}</p>
+              <p className="text-xs text-gray-500">Honoraires HT potentiels</p>
             </div>
             <div className="text-center">
-              <p className="text-sm sm:text-lg font-bold text-blue-600">{formatCurrency(caSigne)}</p>
-              <p className="text-xs text-gray-500">Signé + Payé</p>
+              <p className="text-sm sm:text-lg font-bold text-blue-600">{formatCurrency(caValide)}</p>
+              <p className="text-xs text-gray-500">CA validé (signé+payé)</p>
             </div>
             <div className="text-center">
-              <p className="text-sm sm:text-lg font-bold text-green-600">{formatCurrency(caValide)}</p>
-              <p className="text-xs text-gray-500">Validé (payé)</p>
+              <p className="text-sm sm:text-lg font-bold text-amber-600">{formatCurrency(commissionsPotentielles)}</p>
+              <p className="text-xs text-gray-500">Commissions en cours</p>
+            </div>
+            <div className="text-center">
+              <p className="text-sm sm:text-lg font-bold text-green-600">{formatCurrency(commissionsVersees)}</p>
+              <p className="text-xs text-gray-500">Commissions versées</p>
             </div>
           </div>
         </CardContent>

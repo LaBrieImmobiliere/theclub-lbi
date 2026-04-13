@@ -318,12 +318,12 @@ export default async function PortalDashboardPage() {
     .filter((c) => new Date(c.createdAt) >= currentMonthStart)
     .reduce((sum, c) => sum + getContractCommission(c), 0);
 
-  // Cagnotte: gains acquis (contrats/reconnaissances payés) vs gains potentiels
+  // Cagnotte: gains acquis (contrats signés ou payés) vs gains potentiels (en cours)
   const gainsAcquis = allContracts.reduce((sum, c) => {
-    if (c.status === "PAYE") return sum + getContractCommission(c);
+    if (c.status === "SIGNE" || c.status === "PAYE") return sum + getContractCommission(c);
     // Also count individually paid acknowledgments
     const paidAcks = c.honoraryAcknowledgments
-      .filter((a) => a.status === "PAYEE")
+      .filter((a) => a.status === "PAYEE" || a.status === "VALIDEE")
       .reduce((s, a) => s + (a.amount || 0), 0);
     return sum + paidAcks;
   }, 0);
