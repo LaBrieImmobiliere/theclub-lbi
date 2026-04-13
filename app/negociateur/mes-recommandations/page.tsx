@@ -256,47 +256,80 @@ export default function NegociateurRecommandationsPage() {
         </div>
       </div>
 
-      <div className={`grid gap-6 ${selected ? "grid-cols-1 xl:grid-cols-2" : "grid-cols-1"}`}>
+      <div className="grid gap-6 grid-cols-1 xl:grid-cols-2">
         {/* Lead list */}
-        <div className="bg-white border border-gray-100 shadow-sm overflow-hidden">
+        <div className="space-y-3">
           {filtered.length === 0 ? (
-            <div className="px-6 py-12 text-center text-gray-400 text-sm">
+            <div className="bg-white border border-gray-100 shadow-sm rounded-lg px-6 py-12 text-center text-gray-400 text-sm">
               Aucune recommandation{filterStatus !== "ALL" ? " dans ce statut" : ""}.
             </div>
           ) : (
-            <div className="divide-y divide-gray-50">
-              {filtered.map((lead) => (
+            filtered.map((lead) => {
+              const isSelected = selected?.id === lead.id;
+              const statusIdx = STATUS_STEPS.findIndex(s => s.key === lead.status);
+              const progress = statusIdx >= 0 ? Math.round(((statusIdx + 1) / STATUS_STEPS.length) * 100) : 0;
+              return (
                 <button
                   key={lead.id}
                   onClick={() => handleSelectLead(lead)}
-                  className={`w-full text-left px-5 py-4 hover:bg-gray-50/70 transition-colors flex items-center justify-between gap-3 ${
-                    selected?.id === lead.id ? "bg-[#030A24]/[0.03] border-l-2 border-[#D1B280]" : ""
+                  className={`w-full text-left bg-white border shadow-sm rounded-lg p-4 transition-all hover:shadow-md ${
+                    isSelected ? "border-[#D1B280] ring-1 ring-[#D1B280]/30" : "border-gray-100"
                   }`}
                 >
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <p className="font-semibold text-gray-900 text-sm truncate">
-                        {lead.firstName} {lead.lastName}
-                      </p>
-                      <span className={`inline-flex items-center px-2 py-0.5 text-[10px] font-medium border ${STATUS_BADGE[lead.status]}`}>
+                  <div className="flex items-start justify-between gap-3 mb-3">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-10 h-10 rounded-full bg-[#030A24] flex items-center justify-center flex-shrink-0">
+                        <span className="text-white text-xs font-bold">
+                          {lead.firstName[0]}{lead.lastName[0]}
+                        </span>
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-semibold text-gray-900 text-sm truncate">
+                          {lead.firstName} {lead.lastName}
+                        </p>
+                        <p className="text-xs text-gray-400 truncate">
+                          {lead.ambassador.user.name} &middot; {LEAD_TYPE_LABELS[lead.type] || lead.type}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex flex-col items-end gap-1 flex-shrink-0">
+                      <span className={`inline-flex items-center px-2 py-0.5 text-[10px] font-medium rounded-full ${STATUS_BADGE[lead.status]}`}>
                         {STATUS_LABEL[lead.status]}
                       </span>
+                      <span className="text-[10px] text-gray-300">{formatDate(lead.createdAt)}</span>
                     </div>
-                    <p className="text-xs text-gray-400 truncate">
-                      {lead.ambassador.user.name} &middot; {LEAD_TYPE_LABELS[lead.type] || lead.type} &middot; {formatDate(lead.createdAt)}
-                    </p>
                   </div>
-                  <ChevronRight className="w-4 h-4 text-gray-300 flex-shrink-0" />
+                  {/* Progress bar */}
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                      <div
+                        className="h-full rounded-full transition-all duration-500"
+                        style={{
+                          width: `${progress}%`,
+                          background: lead.status === "PERDU" ? "#ef4444" : lead.status === "EN_PAUSE" ? "#9ca3af" : "linear-gradient(90deg, #D1B280, #b89a65)",
+                        }}
+                      />
+                    </div>
+                    <span className="text-[10px] text-gray-400 w-8 text-right">{progress}%</span>
+                    <ChevronRight className="w-4 h-4 text-gray-300 flex-shrink-0" />
+                  </div>
                 </button>
-              ))}
-            </div>
+              );
+            })
           )}
         </div>
 
-        {/* Detail panel */}
+        {/* Detail panel — mobile: full-screen overlay, desktop: side panel */}
         {selected && (
-          <div className="bg-white border border-gray-100 shadow-sm overflow-hidden">
-            <div className="px-5 py-4 border-b border-gray-100 flex items-start justify-between">
+          <div className="fixed inset-0 z-40 xl:relative xl:inset-auto xl:z-auto">
+            {/* Backdrop on mobile */}
+            <div className="absolute inset-0 bg-black/40 xl:hidden" onClick={() => setSelected(null)} />
+            <div className="absolute bottom-0 left-0 right-0 max-h-[90vh] xl:relative xl:max-h-none xl:bottom-auto bg-white border border-gray-100 shadow-xl xl:shadow-sm overflow-hidden rounded-t-2xl xl:rounded-t-none xl:rounded-lg">
+            {/* Drag handle on mobile */}
+            <div className="xl:hidden flex justify-center pt-2 pb-1">
+              <div className="w-10 h-1 bg-gray-300 rounded-full" />
+            </div>
+            <div className="px-5 py-3 xl:py-4 border-b border-gray-100 flex items-start justify-between">
               <div>
                 <h2 className="font-bold text-gray-900 text-lg">{selected.firstName} {selected.lastName}</h2>
                 <p className="text-xs text-gray-400 mt-0.5">
@@ -311,7 +344,7 @@ export default function NegociateurRecommandationsPage() {
               </button>
             </div>
 
-            <div className="p-5 space-y-5">
+            <div className="p-5 space-y-5 overflow-y-auto max-h-[70vh] xl:max-h-none">
               {/* Contact info */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <a href={`tel:${selected.phone}`} className="flex items-center gap-2 text-sm text-gray-600 hover:text-[#030A24]">
@@ -407,6 +440,7 @@ export default function NegociateurRecommandationsPage() {
                 )}
               </div>
             </div>
+          </div>
           </div>
         )}
       </div>
