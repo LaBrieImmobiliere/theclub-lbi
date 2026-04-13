@@ -29,6 +29,26 @@ function findFile(filename: string): string {
 
 const fromAddress = `"The Club - La Brie Immobilière" <${process.env.EMAIL_FROM || process.env.EMAIL_SERVER_USER}>`;
 
+/** Strip HTML tags to generate text/plain version (fixes MIME_HTML_ONLY spam flag) */
+function htmlToText(html: string): string {
+  return html
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/p>/gi, "\n\n")
+    .replace(/<\/div>/gi, "\n")
+    .replace(/<\/tr>/gi, "\n")
+    .replace(/<\/li>/gi, "\n")
+    .replace(/<[^>]+>/g, "")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&apos;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&#\d+;/g, "")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
 function pwaInstallBlock(appUrl: string): string {
   return `
   <!-- PWA INSTALL -->
@@ -127,6 +147,7 @@ export async function sendWelcomeEmail(to: string, name: string, password: strin
       to,
       subject: `Bienvenue sur The Club : La Brie Immobilière — Votre espace ${roleLabel}`,
       html,
+      text: htmlToText(html),
     });
     console.log(`[email] Welcome email sent to ${to}`);
     return true;
@@ -158,7 +179,7 @@ export async function sendNewLeadEmail(to: string, ambassadorName: string, leadN
   });
 
   try {
-    await transporter.sendMail({ from: fromAddress, to, subject: `Nouvelle recommandation : ${leadName} — The Club`, html });
+    await transporter.sendMail({ from: fromAddress, to, subject: `Nouvelle recommandation : ${leadName} — The Club`, html, text: htmlToText(html) });
     return true;
   } catch (error) {
     console.error("[email] Failed to send new lead email:", error);
@@ -189,7 +210,7 @@ export async function sendNotificationEmail(to: string, name: string, subject: s
   });
 
   try {
-    await transporter.sendMail({ from: fromAddress, to, subject, html });
+    await transporter.sendMail({ from: fromAddress, to, subject, html, text: htmlToText(html) });
     return true;
   } catch (error) {
     console.error("[email] Failed to send notification email:", error);
@@ -225,7 +246,7 @@ export async function sendRibReminderEmail(to: string, name: string, contractNum
   });
 
   try {
-    await transporter.sendMail({ from: fromAddress, to, subject: `Contrat ${contractNumber} signé — Ajoutez votre RIB | The Club`, html });
+    await transporter.sendMail({ from: fromAddress, to, subject: `Contrat ${contractNumber} signé — Ajoutez votre RIB | The Club`, html, text: htmlToText(html) });
     console.log(`[email] RIB reminder sent to ${to}`);
     return true;
   } catch (error) {
@@ -274,6 +295,7 @@ export async function sendRibAddedNotification(ambassadorName: string, ambassado
         to: admin.email,
         subject: `RIB ajouté : ${ambassadorName} — The Club`,
         html,
+        text: htmlToText(html),
       });
     } catch (error) {
       console.error(`[email] Failed to send RIB notification to ${admin.email}:`, error);
@@ -321,7 +343,7 @@ export async function sendNegotiatorWelcomeEmail(
   });
 
   try {
-    await transporter.sendMail({ from: fromAddress, to, subject: `Bienvenue ${name} — Négociateur | The Club`, html });
+    await transporter.sendMail({ from: fromAddress, to, subject: `Bienvenue ${name} — Négociateur | The Club`, html, text: htmlToText(html) });
     console.log(`[email] Negotiator welcome email sent to ${to}`);
     return true;
   } catch (error) {
@@ -365,6 +387,7 @@ export async function sendContractEmail(
       to,
       subject: `Contrat ${contractNumber} à signer — The Club`,
       html,
+      text: htmlToText(html),
       attachments: [
         {
           filename: `contrat-${contractNumber}.pdf`,
@@ -417,6 +440,7 @@ export async function sendAcknowledgmentEmail(
       to,
       subject: `Reconnaissance d'honoraires ${ackNumber} signée — The Club`,
       html,
+      text: htmlToText(html),
       attachments: [
         {
           filename: `reconnaissance-honoraires-${ackNumber}.pdf`,
@@ -463,7 +487,7 @@ export async function sendNewAmbassadorEmail(
   });
 
   try {
-    await transporter.sendMail({ from: fromAddress, to, subject: `Nouvel ambassadeur recruté : ${ambassadorName} — The Club`, html });
+    await transporter.sendMail({ from: fromAddress, to, subject: `Nouvel ambassadeur recruté : ${ambassadorName} — The Club`, html, text: htmlToText(html) });
     console.log(`[email] New ambassador email sent to ${to}`);
     return true;
   } catch (error) {
