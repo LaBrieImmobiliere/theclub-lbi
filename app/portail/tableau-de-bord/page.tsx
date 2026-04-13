@@ -16,6 +16,7 @@ import {
   Coins,
   Users,
 } from "lucide-react";
+import { OnboardingModal } from "@/components/onboarding-modal";
 import {
   formatCurrency,
   formatDate,
@@ -583,6 +584,8 @@ export default async function PortalDashboardPage() {
           </CardContent>
         </Card>
       </div>
+
+      <OnboardingModal />
     </div>
   );
 }
