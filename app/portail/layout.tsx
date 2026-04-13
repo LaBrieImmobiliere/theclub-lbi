@@ -6,6 +6,7 @@ import { OnboardingWrapper } from "@/components/portal/onboarding-wrapper";
 import { PushPrompt } from "@/components/push-prompt";
 import { OnboardingTour } from "@/components/onboarding-tour";
 import { BottomNav } from "@/components/bottom-nav";
+import { LayoutPullRefresh } from "@/components/layout-pull-refresh";
 
 export default async function PortalLayout({
   children,
@@ -25,7 +26,7 @@ export default async function PortalLayout({
         <PortalSidebar role={role ?? "AMBASSADOR"} />
         <main className="flex-1 lg:ml-64 min-h-screen pt-14 lg:pt-0 pb-20 lg:pb-0">
           <OnboardingWrapper>
-            <div className="p-4 sm:p-6 lg:p-8">{children}</div>
+            <LayoutPullRefresh><div className="p-4 sm:p-6 lg:p-8">{children}</div></LayoutPullRefresh>
           </OnboardingWrapper>
           <PushPrompt />
           <OnboardingTour role="AMBASSADOR" />

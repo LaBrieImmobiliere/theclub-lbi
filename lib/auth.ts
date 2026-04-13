@@ -2,6 +2,8 @@ import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { securityAudit } from "@/lib/audit";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
@@ -17,12 +19,26 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           const password = String(credentials?.password ?? "");
           if (!email || !password) return null;
 
+          // Rate limit: 5 login attempts per email per 15 minutes
+          const { allowed } = checkRateLimit(`login:${email}`, 5, 15 * 60 * 1000);
+          if (!allowed) {
+            await securityAudit({ event: "RATE_LIMITED", email, details: "Login rate limited" });
+            throw new Error("Trop de tentatives. Réessayez dans 15 minutes.");
+          }
+
           const user = await prisma.user.findUnique({ where: { email } });
-          if (!user || !user.password) return null;
+          if (!user || !user.password) {
+            await securityAudit({ event: "LOGIN_FAILED", email, details: "Unknown email" });
+            return null;
+          }
 
           const isValid = await bcrypt.compare(password, user.password);
-          if (!isValid) return null;
+          if (!isValid) {
+            await securityAudit({ event: "LOGIN_FAILED", userId: user.id, email, details: "Invalid password" });
+            return null;
+          }
 
+          await securityAudit({ event: "LOGIN_SUCCESS", userId: user.id, email });
           return { id: user.id, email: user.email, name: user.name, role: user.role };
         } catch (e) {
           console.error("authorize error:", e);
@@ -62,7 +78,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ],
   session: {
     strategy: "jwt",
-    maxAge: 90 * 24 * 60 * 60, // 90 days
+    maxAge: 8 * 60 * 60, // 8 hours
+    updateAge: 60 * 60, // 1 hour
   },
   cookies: {
     sessionToken: {
@@ -72,7 +89,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         sameSite: "lax" as const,
         path: "/",
         secure: process.env.NODE_ENV === "production",
-        maxAge: 90 * 24 * 60 * 60, // 90 days
+        maxAge: 8 * 60 * 60, // 8 hours
         // Domain not set = cookie valid for exact domain only (best for PWA)
       },
     },
@@ -83,7 +100,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         sameSite: "lax" as const,
         path: "/",
         secure: process.env.NODE_ENV === "production",
-        maxAge: 90 * 24 * 60 * 60,
+        maxAge: 8 * 60 * 60, // 8 hours
       },
     },
     callbackUrl: {
@@ -92,7 +109,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         sameSite: "lax" as const,
         path: "/",
         secure: process.env.NODE_ENV === "production",
-        maxAge: 90 * 24 * 60 * 60,
+        maxAge: 8 * 60 * 60, // 8 hours
       },
     },
   },

@@ -4,8 +4,21 @@ import { generateCode } from "@/lib/utils";
 import bcrypt from "bcryptjs";
 import { sendWelcomeEmail, sendNewAmbassadorEmail } from "@/lib/email";
 import { auditLog } from "@/lib/audit";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { sanitize } from "@/lib/sanitize";
 
 export async function POST(req: NextRequest) {
+  // Rate limit: 5 inscription attempts per IP per 15 minutes
+  const ip = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || "unknown";
+  const { allowed } = checkRateLimit(`inscription:${ip}`, 5, 15 * 60 * 1000);
+  if (!allowed) {
+    await auditLog("RATE_LIMITED", "Inscription", null, null, `Inscription rate limited for IP: ${ip}`);
+    return NextResponse.json(
+      { error: "Trop de tentatives. Réessayez dans 15 minutes." },
+      { status: 429 }
+    );
+  }
+
   const body = await req.json();
   const {
     name, firstName, lastName, email, phone, password,
@@ -22,6 +35,14 @@ export async function POST(req: NextRequest) {
       { error: "Nom, email et mot de passe requis" },
       { status: 400 }
     );
+  }
+
+  // Password policy: minimum 8 chars, 1 uppercase, 1 number
+  const passwordRegex = /^(?=.*[A-Z])(?=.*\d).{8,}$/;
+  if (!passwordRegex.test(body.password)) {
+    return NextResponse.json({
+      error: "Le mot de passe doit contenir au moins 8 caractères, une majuscule et un chiffre."
+    }, { status: 400 });
   }
 
   // Check if email already used
@@ -69,13 +90,20 @@ export async function POST(req: NextRequest) {
   const hashedPassword = await bcrypt.hash(password, 10);
   const code = generateCode("AMB");
 
+  // Sanitize user inputs
+  const safeName = sanitize(name);
+  const safeFirstName = firstName ? sanitize(firstName) : null;
+  const safeLastName = lastName ? sanitize(lastName) : null;
+  const safeEmail = email.trim().toLowerCase();
+  const safePhone = phone ? sanitize(phone) : null;
+
   const user = await prisma.user.create({
     data: {
-      name,
-      firstName: firstName || null,
-      lastName: lastName || null,
-      email,
-      phone: phone || null,
+      name: safeName,
+      firstName: safeFirstName,
+      lastName: safeLastName,
+      email: safeEmail,
+      phone: safePhone,
       address: address || null,
       postalCode: postalCode || null,
       city: city || null,

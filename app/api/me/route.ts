@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import { encrypt, decrypt } from "@/lib/crypto";
 
 export async function GET() {
   const session = await auth();
@@ -43,6 +44,11 @@ export async function GET() {
   });
 
   if (!dbUser) return NextResponse.json(null, { status: 404 });
+
+  // Decrypt RIB for reading
+  if (dbUser.rib) {
+    dbUser.rib = decrypt(dbUser.rib);
+  }
 
   return NextResponse.json(dbUser);
 }
@@ -119,7 +125,7 @@ export async function PATCH(req: NextRequest) {
   if (typeof lastName === "string") data.lastName = lastName.trim();
   if (typeof phone === "string") data.phone = phone.trim();
   if (typeof image === "string") data.image = image;
-  if (typeof body.rib === "string") data.rib = body.rib;
+  if (typeof body.rib === "string") data.rib = body.rib.trim() ? encrypt(body.rib.trim()) : body.rib;
   if (typeof body.onboarded === "boolean") data.onboarded = body.onboarded;
 
   // Ambassador legal status update

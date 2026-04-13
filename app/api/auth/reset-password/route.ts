@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { randomBytes } from "crypto";
 import nodemailer from "nodemailer";
 import { rateLimit } from "@/lib/rate-limit";
+import { securityAudit } from "@/lib/audit";
 
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_SERVER_HOST,
@@ -19,6 +20,7 @@ export async function POST(req: NextRequest) {
     const ip = req.headers.get("x-forwarded-for") || "unknown";
     const rl = rateLimit(`reset-password:${ip}`, 5, 15 * 60 * 1000);
     if (!rl.success) {
+      await securityAudit({ event: "RATE_LIMITED", ip, details: "Password reset rate limited" });
       return NextResponse.json({ error: "Trop de tentatives. Réessayez dans quelques minutes." }, { status: 429 });
     }
 
@@ -38,6 +40,8 @@ export async function POST(req: NextRequest) {
     await prisma.verificationToken.create({
       data: { identifier: email, token, expires },
     });
+
+    await securityAudit({ event: "PASSWORD_RESET_REQUESTED", userId: user.id, ip, email });
 
     const resetUrl = `${process.env.NEXTAUTH_URL}/auth/nouveau-mot-de-passe?token=${token}`;
     const firstName = user.name?.split(" ")[0] ?? "Bonjour";
