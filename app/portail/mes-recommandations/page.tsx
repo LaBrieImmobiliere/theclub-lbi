@@ -76,14 +76,12 @@ export default function MesRecommandationsPage() {
           {/* Cards list */}
           <div className="space-y-3">
             {leads.map((lead) => (
-              <Card
+              <div
                 key={lead.id}
-                className={`cursor-pointer hover:shadow-md transition-shadow ${selected?.id === lead.id ? "ring-2 ring-[#D1B280] border-[#D1B280]" : ""}`}
+                onClick={() => setSelected(lead)}
+                className={`bg-white border border-gray-100 rounded-lg shadow-sm cursor-pointer hover:shadow-md transition-shadow ${selected?.id === lead.id ? "ring-2 ring-[#D1B280] border-[#D1B280]" : ""}`}
               >
-                <CardContent
-                  className="p-4"
-                  onClick={() => setSelected(lead)}
-                >
+                <div className="p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-gray-900 truncate">
@@ -110,8 +108,8 @@ export default function MesRecommandationsPage() {
                       </Link>
                     )}
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             ))}
           </div>
 
