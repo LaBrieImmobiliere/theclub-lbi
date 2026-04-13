@@ -10,11 +10,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
 import { SignaturePad } from "@/components/signature-pad";
 import {
-  ArrowLeft, FileText, Plus, CheckCircle2, Download,
+  ArrowLeft, FileText, Plus, CheckCircle2, Download, Pencil,
 } from "lucide-react";
 import {
   formatDate,
   formatCurrency,
+  commissionTTC,
+  commissionTVA,
+  isAssujettTVA,
+  LEGAL_STATUS_LABELS,
   CONTRACT_STATUS_LABELS,
   CONTRACT_STATUS_COLORS,
   HONORAIRE_STATUS_LABELS,
@@ -49,7 +53,7 @@ type Contract = {
   signedAt?: string;
   paidAt?: string;
   createdAt: string;
-  ambassador: { id: string; user: { name: string; email: string; phone?: string } };
+  ambassador: { id: string; legalStatus?: string; companyName?: string; associationName?: string; user: { name: string; email: string; phone?: string } };
   lead?: { id: string; firstName: string; lastName: string; phone: string; type: string } | null;
   honoraryAcknowledgments: HonoraryAck[];
 };
@@ -63,6 +67,15 @@ export default function ContratDetailPage() {
   const [ackForm, setAckForm] = useState({ amount: "", description: "" });
   const [statusUpdating, setStatusUpdating] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [editForm, setEditForm] = useState({
+    propertyAddress: "",
+    propertyPrice: "",
+    honoraires: "",
+    commissionType: "PERCENTAGE",
+    commissionValue: "",
+    notes: "",
+  });
 
   const fetchContract = useCallback(async () => {
     const res = await fetch(`/api/contrats/${id}`);
@@ -115,10 +128,49 @@ export default function ContratDetailPage() {
     fetchContract();
   };
 
+  const startEdit = () => {
+    if (!contract) return;
+    setEditForm({
+      propertyAddress: contract.propertyAddress || "",
+      propertyPrice: contract.propertyPrice?.toString() || "",
+      honoraires: contract.honoraires?.toString() || "",
+      commissionType: contract.commissionType || "PERCENTAGE",
+      commissionValue: contract.commissionValue?.toString() || "5",
+      notes: contract.notes || "",
+    });
+    setEditMode(true);
+  };
+
+  const saveDetails = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
+    await fetch(`/api/contrats/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        propertyAddress: editForm.propertyAddress || undefined,
+        propertyPrice: editForm.propertyPrice ? parseFloat(editForm.propertyPrice) : undefined,
+        honoraires: editForm.honoraires ? parseFloat(editForm.honoraires) : undefined,
+        commissionType: editForm.commissionType,
+        commissionValue: parseFloat(editForm.commissionValue) || 5,
+        notes: editForm.notes || undefined,
+      }),
+    });
+    setSaving(false);
+    setEditMode(false);
+    fetchContract();
+  };
+
   const downloadPDF = async () => {
     if (!contract) return;
     const { generateContractPDF } = await import("@/lib/pdf");
     generateContractPDF(contract);
+  };
+
+  const downloadAckPDF = async (ack: HonoraryAck) => {
+    if (!contract) return;
+    const { generateAcknowledgmentPDF } = await import("@/lib/pdf");
+    generateAcknowledgmentPDF(ack, contract);
   };
 
   if (!contract) {
@@ -167,6 +219,11 @@ export default function ContratDetailPage() {
               <p className="font-medium text-gray-900">{contract.ambassador.user.name}</p>
               <p className="text-gray-500">{contract.ambassador.user.email}</p>
               {contract.ambassador.user.phone && <p className="text-gray-500">{contract.ambassador.user.phone}</p>}
+              <Badge className={contract.ambassador.legalStatus === "SOCIETE" ? "bg-blue-50 text-blue-700" : contract.ambassador.legalStatus === "ASSOCIATION" ? "bg-purple-50 text-purple-700" : "bg-gray-50 text-gray-600"}>
+                {LEGAL_STATUS_LABELS[contract.ambassador.legalStatus || "PARTICULIER"]}
+              </Badge>
+              {contract.ambassador.companyName && <p className="text-gray-500 text-xs">{contract.ambassador.companyName}</p>}
+              {contract.ambassador.associationName && <p className="text-gray-500 text-xs">{contract.ambassador.associationName}</p>}
             </CardContent>
           </Card>
 
@@ -208,63 +265,193 @@ export default function ContratDetailPage() {
         <div className="lg:col-span-2 space-y-6">
           {/* Contract details */}
           <Card>
-            <CardHeader><h2 className="font-semibold text-gray-900">Détails du contrat</h2></CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                {contract.propertyAddress && (
-                  <div className="col-span-2">
-                    <p className="text-gray-500 text-xs mb-1">Adresse du bien</p>
-                    <p className="font-medium">{contract.propertyAddress}</p>
-                  </div>
-                )}
-                {contract.propertyPrice && (
-                  <div>
-                    <p className="text-gray-500 text-xs mb-1">Prix du bien</p>
-                    <p className="font-medium">{formatCurrency(contract.propertyPrice)}</p>
-                  </div>
-                )}
-                {contract.honoraires && (
-                  <div>
-                    <p className="text-gray-500 text-xs mb-1">Honoraires agence</p>
-                    <p className="font-medium">{formatCurrency(contract.honoraires)}</p>
-                  </div>
-                )}
-                <div>
-                  <p className="text-gray-500 text-xs mb-1">Type de commission</p>
-                  <p className="font-medium">
-                    {contract.commissionType === "PERCENTAGE"
-                      ? `${contract.commissionValue}% des honoraires`
-                      : "Montant fixe"}
-                  </p>
-                </div>
-                <div>
-                  <p className="text-gray-500 text-xs mb-1">Commission due</p>
-                  <p className="text-xl font-bold text-green-700">
-                    {contract.commissionAmount
-                      ? formatCurrency(contract.commissionAmount)
-                      : contract.commissionType === "FIXED"
-                      ? formatCurrency(contract.commissionValue)
-                      : "-"}
-                  </p>
-                </div>
-                {contract.signedAt && (
-                  <div>
-                    <p className="text-gray-500 text-xs mb-1">Signé le</p>
-                    <p className="font-medium">{formatDate(contract.signedAt)}</p>
-                  </div>
-                )}
-                {contract.paidAt && (
-                  <div>
-                    <p className="text-gray-500 text-xs mb-1">Payé le</p>
-                    <p className="font-medium">{formatDate(contract.paidAt)}</p>
-                  </div>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <h2 className="font-semibold text-gray-900">Détails du contrat</h2>
+                {!editMode && (
+                  <Button variant="outline" size="sm" onClick={startEdit}>
+                    <Pencil className="w-3 h-3" /> Modifier
+                  </Button>
                 )}
               </div>
-              {contract.notes && (
-                <div className="mt-4 pt-4 border-t border-gray-100">
-                  <p className="text-gray-500 text-xs mb-1">Notes</p>
-                  <p className="text-sm text-gray-700">{contract.notes}</p>
-                </div>
+            </CardHeader>
+            <CardContent>
+              {editMode ? (
+                <form onSubmit={saveDetails} className="space-y-4">
+                  <Input
+                    label="Adresse du bien"
+                    value={editForm.propertyAddress}
+                    onChange={(e) => setEditForm({ ...editForm, propertyAddress: e.target.value })}
+                  />
+                  <div className="grid grid-cols-2 gap-3">
+                    <Input
+                      label="Prix du bien (&euro;)"
+                      type="number"
+                      step="0.01"
+                      value={editForm.propertyPrice}
+                      onChange={(e) => setEditForm({ ...editForm, propertyPrice: e.target.value })}
+                    />
+                    <Input
+                      label="Honoraires agence (&euro;)"
+                      type="number"
+                      step="0.01"
+                      value={editForm.honoraires}
+                      onChange={(e) => setEditForm({ ...editForm, honoraires: e.target.value })}
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Select
+                      label="Type de commission"
+                      value={editForm.commissionType}
+                      onChange={(e) => setEditForm({ ...editForm, commissionType: e.target.value })}
+                      options={[
+                        { value: "PERCENTAGE", label: "Pourcentage (%)" },
+                        { value: "FIXED", label: "Montant fixe (\u20ac)" },
+                      ]}
+                    />
+                    <Input
+                      label={editForm.commissionType === "PERCENTAGE" ? "Commission (%)" : "Montant (\u20ac)"}
+                      type="number"
+                      step="0.01"
+                      value={editForm.commissionValue}
+                      onChange={(e) => setEditForm({ ...editForm, commissionValue: e.target.value })}
+                    />
+                  </div>
+                  {editForm.commissionType === "PERCENTAGE" && editForm.honoraires && editForm.commissionValue && (() => {
+                    const ht = (parseFloat(editForm.honoraires) * parseFloat(editForm.commissionValue)) / 100;
+                    const ls = contract.ambassador.legalStatus;
+                    const hasTVA = isAssujettTVA(ls);
+                    return (
+                      <div className="bg-green-50 border border-green-200 rounded-lg px-4 py-3 space-y-1">
+                        <p className="text-sm text-green-800">
+                          <strong>Commission HT :</strong> {formatCurrency(ht)}
+                          <span className="text-green-600 text-xs ml-2">({editForm.commissionValue}% de {formatCurrency(parseFloat(editForm.honoraires))})</span>
+                        </p>
+                        {hasTVA ? (
+                          <>
+                            <p className="text-sm text-green-700">
+                              <strong>TVA (20%) :</strong> {formatCurrency(commissionTVA(ht, ls))}
+                            </p>
+                            <p className="text-base font-bold text-green-900">
+                              Commission TTC : {formatCurrency(commissionTTC(ht, ls))}
+                            </p>
+                          </>
+                        ) : (
+                          <p className="text-xs text-green-600">
+                            {LEGAL_STATUS_LABELS[ls || "PARTICULIER"]} — pas de TVA applicable
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })()}
+                  <Textarea
+                    label="Notes"
+                    value={editForm.notes}
+                    onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })}
+                    rows={3}
+                  />
+                  <div className="flex gap-2 justify-end">
+                    <Button type="button" variant="outline" size="sm" onClick={() => setEditMode(false)}>Annuler</Button>
+                    <Button type="submit" size="sm" disabled={saving}>
+                      {saving ? "Enregistrement..." : "Enregistrer"}
+                    </Button>
+                  </div>
+                </form>
+              ) : (
+                <>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    {contract.propertyAddress && (
+                      <div className="col-span-2">
+                        <p className="text-gray-500 text-xs mb-1">Adresse du bien</p>
+                        <p className="font-medium">{contract.propertyAddress}</p>
+                      </div>
+                    )}
+                    {contract.propertyPrice && (
+                      <div>
+                        <p className="text-gray-500 text-xs mb-1">Prix du bien</p>
+                        <p className="font-medium">{formatCurrency(contract.propertyPrice)}</p>
+                      </div>
+                    )}
+                    {contract.honoraires && (
+                      <div>
+                        <p className="text-gray-500 text-xs mb-1">Honoraires agence</p>
+                        <p className="font-medium">{formatCurrency(contract.honoraires)}</p>
+                      </div>
+                    )}
+                    <div>
+                      <p className="text-gray-500 text-xs mb-1">Type de commission</p>
+                      <p className="font-medium">
+                        {contract.commissionType === "PERCENTAGE"
+                          ? `${contract.commissionValue}% des honoraires`
+                          : "Montant fixe"}
+                      </p>
+                    </div>
+                    {(() => {
+                      const ht = contract.commissionAmount
+                        || (contract.commissionType === "FIXED" ? contract.commissionValue : 0);
+                      const ls = contract.ambassador.legalStatus;
+                      const hasTVA = isAssujettTVA(ls);
+                      return ht ? (
+                        <>
+                          <div>
+                            <p className="text-gray-500 text-xs mb-1">Commission HT</p>
+                            <p className="text-lg font-bold text-gray-900">{formatCurrency(ht)}</p>
+                          </div>
+                          {hasTVA ? (
+                            <>
+                              <div>
+                                <p className="text-gray-500 text-xs mb-1">TVA (20%)</p>
+                                <p className="font-medium text-gray-600">{formatCurrency(commissionTVA(ht, ls))}</p>
+                              </div>
+                              <div className="col-span-2">
+                                <p className="text-gray-500 text-xs mb-1">Commission TTC</p>
+                                <p className="text-2xl font-bold text-green-700">{formatCurrency(commissionTTC(ht, ls))}</p>
+                              </div>
+                            </>
+                          ) : (
+                            <div>
+                              <p className="text-gray-500 text-xs mb-1">Net &agrave; percevoir</p>
+                              <p className="text-2xl font-bold text-green-700">{formatCurrency(ht)}</p>
+                              <p className="text-xs text-gray-400">Pas de TVA ({LEGAL_STATUS_LABELS[ls || "PARTICULIER"]})</p>
+                            </div>
+                          )}
+                        </>
+                      ) : (
+                        <div>
+                          <p className="text-gray-500 text-xs mb-1">Commission</p>
+                          <p className="font-medium text-gray-400">
+                            {contract.commissionType === "PERCENTAGE" ? `${contract.commissionValue}%` : "-"}
+                          </p>
+                        </div>
+                      );
+                    })()}
+                    {contract.signedAt && (
+                      <div>
+                        <p className="text-gray-500 text-xs mb-1">Sign&eacute; le</p>
+                        <p className="font-medium">{formatDate(contract.signedAt)}</p>
+                      </div>
+                    )}
+                    {contract.paidAt && (
+                      <div>
+                        <p className="text-gray-500 text-xs mb-1">Pay&eacute; le</p>
+                        <p className="font-medium">{formatDate(contract.paidAt)}</p>
+                      </div>
+                    )}
+                  </div>
+                  {!contract.propertyAddress && !contract.honoraires && (
+                    <div className="mt-4 bg-amber-50 border border-amber-200 rounded-lg px-4 py-3">
+                      <p className="text-sm text-amber-800">
+                        Les d&eacute;tails financiers n&apos;ont pas encore &eacute;t&eacute; compl&eacute;t&eacute;s. Cliquez sur &laquo; Modifier &raquo; pour renseigner les honoraires et calculer la commission.
+                      </p>
+                    </div>
+                  )}
+                  {contract.notes && (
+                    <div className="mt-4 pt-4 border-t border-gray-100">
+                      <p className="text-gray-500 text-xs mb-1">Notes</p>
+                      <p className="text-sm text-gray-700">{contract.notes}</p>
+                    </div>
+                  )}
+                </>
               )}
             </CardContent>
           </Card>
@@ -365,6 +552,9 @@ export default function ContratDetailPage() {
                             className="text-xs py-1 h-7"
                           />
                         )}
+                        <Button variant="outline" size="sm" onClick={() => downloadAckPDF(ack)} className="h-7">
+                          <Download className="w-3 h-3" /> PDF
+                        </Button>
                       </div>
                     </div>
                   ))}

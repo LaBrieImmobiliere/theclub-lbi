@@ -6,7 +6,15 @@ import { sendWelcomeEmail, sendNewAmbassadorEmail } from "@/lib/email";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { name, firstName, lastName, email, phone, password, referralCode, selectedAgencyId, selectedNegotiatorId, address, postalCode, city } = body;
+  const {
+    name, firstName, lastName, email, phone, password,
+    referralCode, selectedAgencyId, selectedNegotiatorId,
+    address, postalCode, city,
+    // Statut juridique
+    legalStatus,
+    companyName, companyLegalForm, companySiret, companyTva, companyRcs, companyCapital, companyAddress,
+    associationName, associationRna, associationObject,
+  } = body;
 
   if (!name || !email || !password) {
     return NextResponse.json(
@@ -77,6 +85,17 @@ export async function POST(req: NextRequest) {
           code,
           agencyId,
           negotiatorId,
+          legalStatus: legalStatus || "PARTICULIER",
+          companyName: companyName || null,
+          companyLegalForm: companyLegalForm || null,
+          companySiret: companySiret || null,
+          companyTva: companyTva || null,
+          companyRcs: companyRcs || null,
+          companyCapital: companyCapital || null,
+          companyAddress: companyAddress || null,
+          associationName: associationName || null,
+          associationRna: associationRna || null,
+          associationObject: associationObject || null,
         },
       },
     },

@@ -48,11 +48,44 @@ export async function PATCH(
     ? body.firstName + " " + body.lastName
     : body.name;
 
+  // Build ambassador-level data
+  const ambassadorData: Record<string, unknown> = {};
+  if (body.status !== undefined) ambassadorData.status = body.status;
+  if (body.notes !== undefined) ambassadorData.notes = body.notes;
+
+  // Legal status fields
+  const legalFields = [
+    "legalStatus", "companyName", "companyLegalForm", "companySiret",
+    "companyTva", "companyRcs", "companyCapital", "companyAddress",
+    "associationName", "associationRna", "associationObject",
+  ];
+  for (const field of legalFields) {
+    if (body[field] !== undefined) {
+      ambassadorData[field] = body[field];
+    }
+  }
+  // Clear irrelevant fields when switching legal status
+  if (body.legalStatus) {
+    if (body.legalStatus !== "SOCIETE") {
+      ambassadorData.companyName = null;
+      ambassadorData.companyLegalForm = null;
+      ambassadorData.companySiret = null;
+      ambassadorData.companyTva = null;
+      ambassadorData.companyRcs = null;
+      ambassadorData.companyCapital = null;
+      ambassadorData.companyAddress = null;
+    }
+    if (body.legalStatus !== "ASSOCIATION") {
+      ambassadorData.associationName = null;
+      ambassadorData.associationRna = null;
+      ambassadorData.associationObject = null;
+    }
+  }
+
   const ambassador = await prisma.ambassador.update({
     where: { id },
     data: {
-      status: body.status,
-      notes: body.notes,
+      ...ambassadorData,
       user: {
         update: {
           name: userName,

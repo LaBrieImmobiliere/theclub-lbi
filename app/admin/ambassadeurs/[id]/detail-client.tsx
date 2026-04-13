@@ -34,11 +34,34 @@ function formatCurrency(n: number) {
   return new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR", maximumFractionDigits: 0 }).format(n);
 }
 
+const LEGAL_STATUS_LABELS: Record<string, string> = {
+  PARTICULIER: "Particulier",
+  SOCIETE: "Société",
+  ASSOCIATION: "Association",
+};
+const LEGAL_STATUS_COLORS: Record<string, string> = {
+  PARTICULIER: "bg-gray-100 text-gray-700",
+  SOCIETE: "bg-amber-50 text-amber-800 border border-amber-200",
+  ASSOCIATION: "bg-purple-50 text-purple-800 border border-purple-200",
+};
+const COMPANY_LEGAL_FORMS = ["SAS", "SARL", "EURL", "Auto-entrepreneur", "SCI", "Autre"];
+
 interface AmbassadorData {
   id: string;
   code: string;
   status: string;
   notes: string;
+  legalStatus: string;
+  companyName: string;
+  companyLegalForm: string;
+  companySiret: string;
+  companyTva: string;
+  companyRcs: string;
+  companyCapital: string;
+  companyAddress: string;
+  associationName: string;
+  associationRna: string;
+  associationObject: string;
   user: { name: string; firstName?: string; lastName?: string; email: string; phone: string };
   agency: string | null;
   negotiator: string | null;
@@ -65,6 +88,17 @@ export function AmbassadeurDetailClient({ data }: { data: AmbassadorData }) {
   const [phone, setPhone] = useState(data.user.phone);
   const [status, setStatus] = useState(data.status);
   const [notes, setNotes] = useState(data.notes);
+  const [legalStatus, setLegalStatus] = useState(data.legalStatus);
+  const [companyName, setCompanyName] = useState(data.companyName);
+  const [companyLegalForm, setCompanyLegalForm] = useState(data.companyLegalForm);
+  const [companySiret, setCompanySiret] = useState(data.companySiret);
+  const [companyTva, setCompanyTva] = useState(data.companyTva);
+  const [companyRcs, setCompanyRcs] = useState(data.companyRcs);
+  const [companyCapital, setCompanyCapital] = useState(data.companyCapital);
+  const [companyAddress, setCompanyAddress] = useState(data.companyAddress);
+  const [associationName, setAssociationName] = useState(data.associationName);
+  const [associationRna, setAssociationRna] = useState(data.associationRna);
+  const [associationObject, setAssociationObject] = useState(data.associationObject);
 
   const handleSave = async () => {
     setSaving(true);
@@ -72,7 +106,12 @@ export function AmbassadeurDetailClient({ data }: { data: AmbassadorData }) {
       const res = await fetch(`/api/ambassadeurs/${data.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ firstName, lastName, name: firstName + " " + lastName, phone, status, notes }),
+        body: JSON.stringify({
+          firstName, lastName, name: firstName + " " + lastName, phone, status, notes,
+          legalStatus, companyName, companyLegalForm, companySiret, companyTva,
+          companyRcs, companyCapital, companyAddress,
+          associationName, associationRna, associationObject,
+        }),
       });
       if (res.ok) {
         setEditing(false);
@@ -161,6 +200,17 @@ export function AmbassadeurDetailClient({ data }: { data: AmbassadorData }) {
                   setPhone(data.user.phone);
                   setStatus(data.status);
                   setNotes(data.notes);
+                  setLegalStatus(data.legalStatus);
+                  setCompanyName(data.companyName);
+                  setCompanyLegalForm(data.companyLegalForm);
+                  setCompanySiret(data.companySiret);
+                  setCompanyTva(data.companyTva);
+                  setCompanyRcs(data.companyRcs);
+                  setCompanyCapital(data.companyCapital);
+                  setCompanyAddress(data.companyAddress);
+                  setAssociationName(data.associationName);
+                  setAssociationRna(data.associationRna);
+                  setAssociationObject(data.associationObject);
                 }}
                 className="flex items-center gap-2 px-3 py-2 border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors"
               >
@@ -290,6 +340,40 @@ export function AmbassadeurDetailClient({ data }: { data: AmbassadorData }) {
                     placeholder="Notes visibles uniquement par l'admin..."
                   />
                 </div>
+                {/* Legal status edit */}
+                <div className="pt-2 border-t border-gray-100">
+                  <label className="text-xs text-gray-500 mb-2 block">Statut juridique</label>
+                  <select
+                    value={legalStatus}
+                    onChange={(e) => setLegalStatus(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-blue-500 mb-3"
+                  >
+                    <option value="PARTICULIER">Particulier</option>
+                    <option value="SOCIETE">Soci&eacute;t&eacute;</option>
+                    <option value="ASSOCIATION">Association</option>
+                  </select>
+                  {legalStatus === "SOCIETE" && (
+                    <div className="space-y-2">
+                      <input value={companyName} onChange={(e) => setCompanyName(e.target.value)} placeholder="Raison sociale" className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-blue-500" />
+                      <select value={companyLegalForm} onChange={(e) => setCompanyLegalForm(e.target.value)} className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-blue-500">
+                        <option value="">Forme juridique</option>
+                        {COMPANY_LEGAL_FORMS.map((f) => <option key={f} value={f}>{f}</option>)}
+                      </select>
+                      <input value={companySiret} onChange={(e) => setCompanySiret(e.target.value)} placeholder="SIRET" className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-blue-500" />
+                      <input value={companyTva} onChange={(e) => setCompanyTva(e.target.value)} placeholder="N&deg; TVA intracommunautaire" className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-blue-500" />
+                      <input value={companyRcs} onChange={(e) => setCompanyRcs(e.target.value)} placeholder="RCS" className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-blue-500" />
+                      <input value={companyCapital} onChange={(e) => setCompanyCapital(e.target.value)} placeholder="Capital social" className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-blue-500" />
+                      <input value={companyAddress} onChange={(e) => setCompanyAddress(e.target.value)} placeholder="Adresse du si&egrave;ge" className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-blue-500" />
+                    </div>
+                  )}
+                  {legalStatus === "ASSOCIATION" && (
+                    <div className="space-y-2">
+                      <input value={associationName} onChange={(e) => setAssociationName(e.target.value)} placeholder="Nom de l'association" className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-blue-500" />
+                      <input value={associationRna} onChange={(e) => setAssociationRna(e.target.value)} placeholder="N&deg; RNA" className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-blue-500" />
+                      <input value={associationObject} onChange={(e) => setAssociationObject(e.target.value)} placeholder="Objet social" className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-blue-500" />
+                    </div>
+                  )}
+                </div>
               </div>
             ) : (
               <>
@@ -319,6 +403,30 @@ export function AmbassadeurDetailClient({ data }: { data: AmbassadorData }) {
                     N&eacute;gociateur : {data.negotiator}
                   </div>
                 )}
+                {/* Legal status display */}
+                <div className="pt-2 border-t border-gray-100">
+                  <div className="flex items-center gap-2 mb-1">
+                    <Badge className={LEGAL_STATUS_COLORS[data.legalStatus] || "bg-gray-100 text-gray-700"}>
+                      {LEGAL_STATUS_LABELS[data.legalStatus] || data.legalStatus}
+                    </Badge>
+                    {data.legalStatus === "SOCIETE" && (
+                      <span className="text-[10px] text-blue-600">TVA 20%</span>
+                    )}
+                  </div>
+                  {data.legalStatus === "SOCIETE" && data.companyName && (
+                    <div className="text-xs text-gray-500 space-y-0.5 mt-1.5">
+                      <p>{data.companyName}{data.companyLegalForm ? ` (${data.companyLegalForm})` : ""}</p>
+                      {data.companySiret && <p>SIRET : {data.companySiret}</p>}
+                      {data.companyTva && <p>TVA : {data.companyTva}</p>}
+                    </div>
+                  )}
+                  {data.legalStatus === "ASSOCIATION" && data.associationName && (
+                    <div className="text-xs text-gray-500 space-y-0.5 mt-1.5">
+                      <p>{data.associationName}</p>
+                      {data.associationRna && <p>RNA : {data.associationRna}</p>}
+                    </div>
+                  )}
+                </div>
                 <div className="pt-2 border-t border-gray-100 space-y-2">
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-500">Recommandations</span>

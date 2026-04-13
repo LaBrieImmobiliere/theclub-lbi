@@ -117,6 +117,21 @@ model Ambassador {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
+  // Statut juridique : PARTICULIER (défaut), SOCIETE, ASSOCIATION
+  legalStatus       String  @default("PARTICULIER")
+  // Champs société
+  companyName       String?
+  companyLegalForm  String?   // SAS, SARL, EURL, auto-entrepreneur, etc.
+  companySiret      String?
+  companyTva        String?   // N° TVA intracommunautaire
+  companyRcs        String?
+  companyCapital    String?
+  companyAddress    String?
+  // Champs association
+  associationName   String?
+  associationRna    String?   // N° RNA (Répertoire National des Associations)
+  associationObject String?   // Objet social
+
   user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   agency      Agency?     @relation(fields: [agencyId], references: [id])
   negotiator  Negotiator? @relation("recruitedBy", fields: [negotiatorId], references: [id])

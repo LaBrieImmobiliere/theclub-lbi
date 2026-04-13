@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { formatCurrency, formatDate } from "@/lib/utils";
+import { formatCurrency, formatDate, commissionTTC, isAssujettTVA } from "@/lib/utils";
 import { Coins, TrendingUp, Clock, CheckCircle2 } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -28,18 +28,26 @@ export default async function CommissionsPage() {
 
   if (!ambassador) redirect("/auth/connexion");
 
+  const ls = ambassador.legalStatus;
+  const hasTVA = isAssujettTVA(ls);
   const contracts = ambassador.contracts;
+
+  // Helper: commission for a contract = commissionAmount or sum of acknowledgment amounts
+  const getCommission = (c: typeof contracts[0]) => {
+    if (c.commissionAmount) return c.commissionAmount;
+    return c.honoraryAcknowledgments.reduce((s, a) => s + (a.amount || 0), 0);
+  };
 
   // Aggregate totals
   const totalEarned = contracts
     .filter((c) => c.status === "PAYE")
-    .reduce((s, c) => s + (c.commissionAmount || 0), 0);
+    .reduce((s, c) => s + getCommission(c), 0);
 
   const totalPending = contracts
     .filter((c) => c.status === "SIGNE" || c.status === "ENVOYE")
-    .reduce((s, c) => s + (c.commissionAmount || 0), 0);
+    .reduce((s, c) => s + getCommission(c), 0);
 
-  const totalAll = contracts.reduce((s, c) => s + (c.commissionAmount || 0), 0);
+  const totalAll = contracts.reduce((s, c) => s + getCommission(c), 0);
 
   const signedCount = contracts.filter((c) => c.status === "SIGNE" || c.status === "PAYE").length;
 
@@ -47,7 +55,7 @@ export default async function CommissionsPage() {
   const currentYear = new Date().getFullYear();
   const yearTotal = contracts
     .filter((c) => new Date(c.createdAt).getFullYear() === currentYear)
-    .reduce((s, c) => s + (c.commissionAmount || 0), 0);
+    .reduce((s, c) => s + getCommission(c), 0);
 
   const STATUS_LABEL: Record<string, string> = {
     BROUILLON: "Brouillon",
@@ -81,10 +89,10 @@ export default async function CommissionsPage() {
             <div className="w-9 h-9 bg-green-50 flex items-center justify-center">
               <CheckCircle2 className="w-5 h-5 text-green-600" />
             </div>
-            <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">Payé</p>
+            <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">{hasTVA ? "Payé TTC" : "Payé"}</p>
           </div>
-          <p className="text-2xl font-bold text-gray-900">{formatCurrency(totalEarned)}</p>
-          <p className="text-xs text-gray-400 mt-1">Commissions encaissées</p>
+          <p className="text-2xl font-bold text-green-700">{formatCurrency(commissionTTC(totalEarned, ls))}</p>
+          <p className="text-xs text-gray-400 mt-1">HT : {formatCurrency(totalEarned)}</p>
         </div>
 
         <div className="bg-white border border-[#D1B280]/30 shadow-sm p-5">
@@ -92,10 +100,10 @@ export default async function CommissionsPage() {
             <div className="w-9 h-9 bg-[#D1B280]/10 flex items-center justify-center">
               <Clock className="w-5 h-5 text-[#D1B280]" />
             </div>
-            <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">En attente</p>
+            <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">{hasTVA ? "En attente TTC" : "En attente"}</p>
           </div>
-          <p className="text-2xl font-bold text-gray-900">{formatCurrency(totalPending)}</p>
-          <p className="text-xs text-gray-400 mt-1">Contrats signés non payés</p>
+          <p className="text-2xl font-bold text-gray-900">{formatCurrency(commissionTTC(totalPending, ls))}</p>
+          <p className="text-xs text-gray-400 mt-1">HT : {formatCurrency(totalPending)}</p>
         </div>
 
         <div className="bg-white border border-gray-100 shadow-sm p-5">
@@ -103,10 +111,10 @@ export default async function CommissionsPage() {
             <div className="w-9 h-9 bg-blue-50 flex items-center justify-center">
               <TrendingUp className="w-5 h-5 text-blue-600" />
             </div>
-            <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">{currentYear}</p>
+            <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">{hasTVA ? `${currentYear} TTC` : `${currentYear}`}</p>
           </div>
-          <p className="text-2xl font-bold text-gray-900">{formatCurrency(yearTotal)}</p>
-          <p className="text-xs text-gray-400 mt-1">Total cette année</p>
+          <p className="text-2xl font-bold text-gray-900">{formatCurrency(commissionTTC(yearTotal, ls))}</p>
+          <p className="text-xs text-gray-400 mt-1">HT : {formatCurrency(yearTotal)}</p>
         </div>
 
         <div className="bg-white border border-gray-100 shadow-sm p-5">
@@ -114,10 +122,10 @@ export default async function CommissionsPage() {
             <div className="w-9 h-9 bg-purple-50 flex items-center justify-center">
               <Coins className="w-5 h-5 text-purple-600" />
             </div>
-            <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">Total cumulé</p>
+            <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">{hasTVA ? "Total cumulé TTC" : "Total cumulé"}</p>
           </div>
-          <p className="text-2xl font-bold text-gray-900">{formatCurrency(totalAll)}</p>
-          <p className="text-xs text-gray-400 mt-1">{signedCount} transaction{signedCount !== 1 ? "s" : ""}</p>
+          <p className="text-2xl font-bold text-gray-900">{formatCurrency(commissionTTC(totalAll, ls))}</p>
+          <p className="text-xs text-gray-400 mt-1">HT : {formatCurrency(totalAll)} &middot; {signedCount} transaction{signedCount !== 1 ? "s" : ""}</p>
         </div>
       </div>
 
@@ -142,7 +150,8 @@ export default async function CommissionsPage() {
                 <tr className="border-b border-gray-100 text-left">
                   <th className="px-6 py-3 font-medium text-gray-500">Contrat</th>
                   <th className="px-6 py-3 font-medium text-gray-500">Prospect</th>
-                  <th className="px-6 py-3 font-medium text-gray-500">Commission</th>
+                  <th className="px-6 py-3 font-medium text-gray-500">Commission HT</th>
+                  <th className="px-6 py-3 font-medium text-gray-500">{hasTVA ? "Commission TTC" : "Net à percevoir"}</th>
                   <th className="px-6 py-3 font-medium text-gray-500">Statut</th>
                   <th className="px-6 py-3 font-medium text-gray-500">Date</th>
                 </tr>
@@ -155,14 +164,19 @@ export default async function CommissionsPage() {
                       {c.lead ? `${c.lead.firstName} ${c.lead.lastName}` : <span className="text-gray-300">—</span>}
                     </td>
                     <td className="px-6 py-3">
-                      {c.commissionAmount ? (
-                        <span className={`font-semibold ${c.status === "PAYE" ? "text-green-700" : "text-gray-700"}`}>
-                          {formatCurrency(c.commissionAmount)}
-                        </span>
-                      ) : c.commissionType === "FIXED" ? (
-                        <span className="text-gray-500">{formatCurrency(c.commissionValue)}</span>
+                      {getCommission(c) > 0 ? (
+                        <span className="font-medium text-gray-700">{formatCurrency(getCommission(c))}</span>
                       ) : (
-                        <span className="text-gray-500">{c.commissionValue}%</span>
+                        <span className="text-gray-400">{c.commissionValue}%</span>
+                      )}
+                    </td>
+                    <td className="px-6 py-3">
+                      {getCommission(c) > 0 ? (
+                        <span className={`font-bold ${c.status === "PAYE" ? "text-green-700" : "text-gray-900"}`}>
+                          {formatCurrency(commissionTTC(getCommission(c), ls))}
+                        </span>
+                      ) : (
+                        <span className="text-gray-400">-</span>
                       )}
                     </td>
                     <td className="px-6 py-3">

@@ -29,6 +29,7 @@ type Contract = {
   adminSignature?: string;
   ambassadorSignature?: string;
   createdAt: string;
+  ambassador?: { user: { name: string; email: string } };
   lead?: { firstName: string; lastName: string } | null;
   honoraryAcknowledgments: HonoraryAck[];
 };

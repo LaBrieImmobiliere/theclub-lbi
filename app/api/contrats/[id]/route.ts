@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { sendNotificationEmail } from "@/lib/email";
+import { sendNotificationEmail, sendRibReminderEmail } from "@/lib/email";
 
 export async function GET(
   _req: NextRequest,
@@ -63,7 +63,25 @@ export async function PATCH(
         status: body.ambassadorSignature ? "SIGNE" : contract.status,
         signedAt: body.ambassadorSignature ? new Date() : contract.signedAt,
       },
+      include: { ambassador: { include: { user: true } } },
     });
+
+    // Send RIB reminder if ambassador signed and has no RIB
+    if (body.ambassadorSignature && updated.ambassador?.user) {
+      const ambUser = updated.ambassador.user;
+      if (!ambUser.rib) {
+        try {
+          await sendRibReminderEmail(
+            ambUser.email!,
+            ambUser.name || "Ambassadeur",
+            updated.number || id,
+          );
+        } catch (error) {
+          console.error("Failed to send RIB reminder:", error);
+        }
+      }
+    }
+
     return NextResponse.json(updated);
   }
 
@@ -106,6 +124,10 @@ export async function PATCH(
         let message = "";
         let notifTitle = "";
 
+        const fmtAmount = (amt: number) =>
+          new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(amt);
+        const displayAmount = updated.commissionAmount || commissionAmount;
+
         switch (body.status) {
           case "ENVOYE":
             subject = `Votre contrat ${contractNumber} est prêt à signer`;
@@ -118,9 +140,22 @@ export async function PATCH(
             notifTitle = "Contrat validé";
             break;
           case "PAYE":
-            subject = `Votre commission de ${commissionAmount}€ a été versée`;
-            message = `Votre commission de ${commissionAmount}€ pour le contrat ${contractNumber} a été versée.`;
-            notifTitle = "Commission versée";
+            if (displayAmount) {
+              const ambLegalStatus = updated.ambassador?.legalStatus;
+              const isSociete = ambLegalStatus === "SOCIETE";
+              if (isSociete) {
+                const ttc = displayAmount * 1.20;
+                subject = `Votre commission de ${fmtAmount(ttc)} TTC a été versée`;
+                message = `Votre commission pour le contrat ${contractNumber} a été versée.\n\nCommission HT : ${fmtAmount(displayAmount)}\nTVA (20%) : ${fmtAmount(displayAmount * 0.20)}\nCommission TTC : ${fmtAmount(ttc)}`;
+              } else {
+                subject = `Votre commission de ${fmtAmount(displayAmount)} a été versée`;
+                message = `Votre commission de ${fmtAmount(displayAmount)} pour le contrat ${contractNumber} a été versée.`;
+              }
+            } else {
+              subject = `Votre commission pour le contrat ${contractNumber} a été versée`;
+              message = `Votre commission pour le contrat ${contractNumber} a été versée. Consultez votre espace pour plus de détails.`;
+            }
+            notifTitle = "Commission versée 💰";
             break;
           case "ANNULE":
             subject = `Votre contrat ${contractNumber} a été annulé`;

@@ -35,6 +35,7 @@ export async function GET(req: NextRequest) {
       ...(status ? { status } : {}),
     },
     include: {
+      ambassador: { include: { user: { select: { name: true, email: true } } } },
       lead: true,
       honoraryAcknowledgments: true,
     },

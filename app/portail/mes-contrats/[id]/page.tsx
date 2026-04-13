@@ -14,6 +14,10 @@ import {
   CONTRACT_STATUS_COLORS,
   HONORAIRE_STATUS_LABELS,
   HONORAIRE_STATUS_COLORS,
+  commissionTTC,
+  commissionTVA,
+  isAssujettTVA,
+  LEGAL_STATUS_LABELS,
 } from "@/lib/utils";
 import Link from "next/link";
 
@@ -44,7 +48,7 @@ type Contract = {
   signedAt?: string;
   paidAt?: string;
   createdAt: string;
-  ambassador: { user: { name: string } };
+  ambassador: { legalStatus?: string; user: { name: string } };
   lead?: { firstName: string; lastName: string; phone: string; type: string } | null;
   honoraryAcknowledgments: HonoraryAck[];
 };
@@ -91,6 +95,12 @@ export default function ContratPortalDetailPage() {
     if (!contract) return;
     const { generateContractPDF } = await import("@/lib/pdf");
     generateContractPDF(contract);
+  };
+
+  const downloadAckPDF = async (ack: HonoraryAck) => {
+    if (!contract) return;
+    const { generateAcknowledgmentPDF } = await import("@/lib/pdf");
+    generateAcknowledgmentPDF(ack, contract);
   };
 
   if (!contract) {
@@ -167,16 +177,42 @@ export default function ContratPortalDetailPage() {
                 <p className="font-medium">{formatCurrency(contract.honoraires)}</p>
               </div>
             )}
-            <div>
-              <p className="text-xs text-gray-400 mb-1">Votre commission</p>
-              <p className="text-2xl font-bold text-green-700">
-                {contract.commissionAmount
-                  ? formatCurrency(contract.commissionAmount)
-                  : contract.commissionType === "FIXED"
-                  ? formatCurrency(contract.commissionValue)
-                  : `${contract.commissionValue}% des honoraires`}
-              </p>
-            </div>
+            {(() => {
+              const ht = contract.commissionAmount
+                || (contract.commissionType === "FIXED" ? contract.commissionValue : 0);
+              const ls = contract.ambassador?.legalStatus;
+              const hasTVA = isAssujettTVA(ls);
+              return ht ? (
+                <>
+                  <div>
+                    <p className="text-xs text-gray-400 mb-1">Commission HT</p>
+                    <p className="text-lg font-bold text-gray-900">{formatCurrency(ht)}</p>
+                  </div>
+                  {hasTVA ? (
+                    <>
+                      <div>
+                        <p className="text-xs text-gray-400 mb-1">TVA (20%)</p>
+                        <p className="font-medium text-gray-500">{formatCurrency(commissionTVA(ht, ls))}</p>
+                      </div>
+                      <div className="col-span-2">
+                        <p className="text-xs text-gray-400 mb-1">Votre commission TTC</p>
+                        <p className="text-2xl font-bold text-green-700">{formatCurrency(commissionTTC(ht, ls))}</p>
+                      </div>
+                    </>
+                  ) : (
+                    <div>
+                      <p className="text-xs text-gray-400 mb-1">Net &agrave; percevoir</p>
+                      <p className="text-2xl font-bold text-green-700">{formatCurrency(ht)}</p>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div>
+                  <p className="text-xs text-gray-400 mb-1">Votre commission</p>
+                  <p className="font-medium text-gray-500">{contract.commissionValue}% des honoraires</p>
+                </div>
+              );
+            })()}
             {contract.signedAt && (
               <div>
                 <p className="text-xs text-gray-400 mb-1">Signé le</p>
@@ -242,11 +278,16 @@ export default function ContratPortalDetailPage() {
                   <Badge className={HONORAIRE_STATUS_COLORS[ack.status]}>
                     {HONORAIRE_STATUS_LABELS[ack.status]}
                   </Badge>
-                  {ack.status === "VALIDEE" && !ack.ambassadorSignature && (
-                    <Button size="sm" onClick={() => setShowSignAck(ack.id)}>
-                      ✍️ Signer
+                  <div className="flex gap-1">
+                    {ack.status === "VALIDEE" && !ack.ambassadorSignature && (
+                      <Button size="sm" onClick={() => setShowSignAck(ack.id)}>
+                        ✍️ Signer
+                      </Button>
+                    )}
+                    <Button variant="outline" size="sm" onClick={() => downloadAckPDF(ack)}>
+                      <Download className="w-3 h-3" /> PDF
                     </Button>
-                  )}
+                  </div>
                   {ack.ambassadorSignature && (
                     <p className="text-xs text-green-600">✓ Signé</p>
                   )}

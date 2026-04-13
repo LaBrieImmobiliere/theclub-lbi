@@ -3,7 +3,8 @@ import jsPDF from "jspdf";
 import { agency } from "./agency-config";
 
 function fmt(amount: number) {
-  return new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(amount);
+  return new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(amount)
+    .replace(/\u00A0/g, " ").replace(/\u202F/g, " ");
 }
 
 function fmtDate(date: string | Date | null | undefined) {
@@ -104,9 +105,37 @@ export function generateContractPDF(contract: any) {
   doc.text("ET", M, y);
   y += 7;
 
+  const ambLegalStatus = contract.ambassador?.legalStatus || "PARTICULIER";
+
   doc.setFont("helvetica", "normal");
-  doc.text(`Nom : ${ambassadorName}`, M, y);
-  y += 5;
+  if (ambLegalStatus === "SOCIETE" && contract.ambassador?.companyName) {
+    const amb = contract.ambassador;
+    const companyLine = `La soci\u00E9t\u00E9 ${amb.companyName}` +
+      (amb.companyLegalForm ? `, ${amb.companyLegalForm}` : "") +
+      (amb.companyCapital ? ` au capital de ${amb.companyCapital}` : "") +
+      (amb.companySiret ? `, SIRET ${amb.companySiret}` : "") +
+      (amb.companyTva ? `, TVA ${amb.companyTva}` : "") +
+      (amb.companyRcs ? `, RCS ${amb.companyRcs}` : "") +
+      (amb.companyAddress ? `, dont le si\u00E8ge social est situ\u00E9 ${amb.companyAddress}` : "") +
+      `.`;
+    y = writeBlock(doc, companyLine, M, y, W, 4.5, M);
+    y += 2;
+    doc.text(`Repr\u00E9sent\u00E9e par ${ambassadorName}`, M, y);
+    y += 5;
+  } else if (ambLegalStatus === "ASSOCIATION" && contract.ambassador?.associationName) {
+    const amb = contract.ambassador;
+    const assoLine = `L'association ${amb.associationName}` +
+      (amb.associationRna ? `, RNA ${amb.associationRna}` : "") +
+      (amb.associationObject ? `, ayant pour objet : ${amb.associationObject}` : "") +
+      `.`;
+    y = writeBlock(doc, assoLine, M, y, W, 4.5, M);
+    y += 2;
+    doc.text(`Repr\u00E9sent\u00E9e par ${ambassadorName}`, M, y);
+    y += 5;
+  } else {
+    doc.text(`Nom : ${ambassadorName}`, M, y);
+    y += 5;
+  }
   if (ambassadorEmail) { doc.text(`Email : ${ambassadorEmail}`, M, y); y += 5; }
   if (ambassadorPhone) { doc.text(`T\u00E9l\u00E9phone : ${ambassadorPhone}`, M, y); y += 5; }
   y += 3;
@@ -467,7 +496,12 @@ export function generateContractPDF(contract: any) {
   doc.setFont("helvetica", "bold");
   doc.setFontSize(8);
   doc.setTextColor(100, 116, 139);
-  doc.text(`LE PARRAIN \u2014 ${ambassadorName}`, sigX2 + 3, y + 6);
+  const sigLabel = ambLegalStatus === "SOCIETE" && contract.ambassador?.companyName
+    ? `LE PARRAIN \u2014 ${contract.ambassador.companyName}`
+    : ambLegalStatus === "ASSOCIATION" && contract.ambassador?.associationName
+    ? `LE PARRAIN \u2014 ${contract.ambassador.associationName}`
+    : `LE PARRAIN \u2014 ${ambassadorName}`;
+  doc.text(sigLabel.substring(0, 45), sigX2 + 3, y + 6);
   if (contract.ambassadorSignature?.startsWith("data:image")) {
     try { doc.addImage(contract.ambassadorSignature, "PNG", sigX2 + 5, y + 10, sigBoxW - 10, 22); } catch { /* skip */ }
   } else {
@@ -524,19 +558,50 @@ export function generateAcknowledgmentPDF(ack: any, contract: any) {
   y += 20;
   doc.setTextColor(30, 41, 59);
   doc.setFontSize(10);
-  const body = `Je soussign\u00E9(e) ${contract.ambassador?.user?.name}, en qualit\u00E9 d'apporteur d'affaire, reconnais avoir droit au versement de la somme de :`;
-  const lines = doc.splitTextToSize(body, pageW - M * 2);
+  const ambassadorFullName = contract.ambassador?.user?.name || contract.ambassadorName || "_______________";
+  const ackLegalStatus = contract.ambassador?.legalStatus || "PARTICULIER";
+
+  let bodyText: string;
+  if (ackLegalStatus === "SOCIETE" && contract.ambassador?.companyName) {
+    bodyText = `La soci\u00E9t\u00E9 ${contract.ambassador.companyName}` +
+      (contract.ambassador.companyLegalForm ? ` (${contract.ambassador.companyLegalForm})` : "") +
+      (contract.ambassador.companySiret ? `, SIRET ${contract.ambassador.companySiret}` : "") +
+      `, repr\u00E9sent\u00E9e par ${ambassadorFullName}, en qualit\u00E9 d'apporteur d'affaire, reconnait avoir droit au versement de la somme de :`;
+  } else if (ackLegalStatus === "ASSOCIATION" && contract.ambassador?.associationName) {
+    bodyText = `L'association ${contract.ambassador.associationName}` +
+      (contract.ambassador.associationRna ? ` (RNA ${contract.ambassador.associationRna})` : "") +
+      `, repr\u00E9sent\u00E9e par ${ambassadorFullName}, en qualit\u00E9 d'apporteur d'affaire, reconnait avoir droit au versement de la somme de :`;
+  } else {
+    bodyText = `Je soussign\u00E9(e) ${ambassadorFullName}, en qualit\u00E9 d'apporteur d'affaire, reconnais avoir droit au versement de la somme de :`;
+  }
+  const lines = doc.splitTextToSize(bodyText, pageW - M * 2);
   doc.text(lines, M, y);
   y += lines.length * 6 + 10;
 
-  // Amount highlight
+  // Amount highlight — HT / TTC selon statut juridique
+  const amountHT = ack.amount;
+  const legalStatus = contract.ambassador?.legalStatus || "PARTICULIER";
+  const hasTVA = legalStatus === "SOCIETE";
+
+  const boxH = hasTVA ? 38 : 25;
   doc.setFillColor(236, 253, 245);
-  doc.roundedRect(M, y, pageW - M * 2, 20, 3, 3, "F");
+  doc.roundedRect(M, y, pageW - M * 2, boxH, 3, 3, "F");
   doc.setFont("helvetica", "bold");
   doc.setFontSize(20);
   doc.setTextColor(5, 150, 105);
-  doc.text(fmt(ack.amount), pageW / 2, y + 13, { align: "center" });
-  y += 28;
+
+  if (hasTVA) {
+    const tvaAmount = amountHT * 0.20;
+    const amountTTC = amountHT * 1.20;
+    doc.text(fmt(amountTTC), pageW / 2, y + 14, { align: "center" });
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(71, 85, 105);
+    doc.text(`Montant HT : ${fmt(amountHT)}  |  TVA (20%) : ${fmt(tvaAmount)}  |  Montant TTC : ${fmt(amountTTC)}`, pageW / 2, y + 24, { align: "center" });
+  } else {
+    doc.text(fmt(amountHT), pageW / 2, y + 16, { align: "center" });
+  }
+  y += boxH + 8;
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(10);
@@ -574,7 +639,12 @@ export function generateAcknowledgmentPDF(ack: any, contract: any) {
 
   const sigX2 = M + sigBoxW + 10;
   doc.roundedRect(sigX2, y, sigBoxW, 40, 2, 2, "S");
-  doc.text("LE PARRAIN", sigX2 + 3, y + 6);
+  const ackSigLabel = ackLegalStatus === "SOCIETE" && contract.ambassador?.companyName
+    ? `LE PARRAIN \u2014 ${contract.ambassador.companyName}`
+    : ackLegalStatus === "ASSOCIATION" && contract.ambassador?.associationName
+    ? `LE PARRAIN \u2014 ${contract.ambassador.associationName}`
+    : `LE PARRAIN \u2014 ${ambassadorFullName}`;
+  doc.text(ackSigLabel.substring(0, 45), sigX2 + 3, y + 6);
   if (ack.ambassadorSignature?.startsWith("data:image")) {
     try { doc.addImage(ack.ambassadorSignature, "PNG", sigX2 + 5, y + 8, sigBoxW - 10, 25); } catch { /* skip */ }
   }

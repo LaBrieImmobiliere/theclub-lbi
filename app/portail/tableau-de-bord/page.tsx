@@ -19,6 +19,8 @@ import {
 import {
   formatCurrency,
   formatDate,
+  commissionTTC,
+  isAssujettTVA,
   LEAD_STATUS_COLORS,
   LEAD_STATUS_LABELS,
   CONTRACT_STATUS_COLORS,
@@ -258,8 +260,16 @@ export default async function PortalDashboardPage() {
   const allContracts = ambassador.contracts;
   const totalLeads = allLeads.length;
   const totalContracts = allContracts.length;
+
+  // Helper: commission for a contract = commissionAmount or sum of acknowledgment amounts
+  const getContractCommission = (c: typeof allContracts[0]) => {
+    if (c.commissionAmount) return c.commissionAmount;
+    const ackTotal = c.honoraryAcknowledgments.reduce((s, a) => s + (a.amount || 0), 0);
+    return ackTotal;
+  };
+
   const totalCommissions = allContracts.reduce(
-    (sum, c) => sum + (c.commissionAmount || 0),
+    (sum, c) => sum + getContractCommission(c),
     0
   );
   const conversionRate =
@@ -306,12 +316,17 @@ export default async function PortalDashboardPage() {
   const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
   const commissionDuMois = allContracts
     .filter((c) => new Date(c.createdAt) >= currentMonthStart)
-    .reduce((sum, c) => sum + (c.commissionAmount || 0), 0);
+    .reduce((sum, c) => sum + getContractCommission(c), 0);
 
-  // Cagnotte: gains acquis (contrats payés) vs gains potentiels (tous contrats)
-  const gainsAcquis = allContracts
-    .filter((c) => c.status === "PAYE")
-    .reduce((sum, c) => sum + (c.commissionAmount || 0), 0);
+  // Cagnotte: gains acquis (contrats/reconnaissances payés) vs gains potentiels
+  const gainsAcquis = allContracts.reduce((sum, c) => {
+    if (c.status === "PAYE") return sum + getContractCommission(c);
+    // Also count individually paid acknowledgments
+    const paidAcks = c.honoraryAcknowledgments
+      .filter((a) => a.status === "PAYEE")
+      .reduce((s, a) => s + (a.amount || 0), 0);
+    return sum + paidAcks;
+  }, 0);
   const gainsPotentiels = totalCommissions;
 
   return (
@@ -332,7 +347,7 @@ export default async function PortalDashboardPage() {
       {/* Cagnotte Gauge */}
       <Card>
         <CardContent className="py-6">
-          <CagnotteGauge gainsAcquis={gainsAcquis} gainsPotentiels={gainsPotentiels} />
+          <CagnotteGauge gainsAcquis={commissionTTC(gainsAcquis, ambassador.legalStatus)} gainsPotentiels={commissionTTC(gainsPotentiels, ambassador.legalStatus)} />
         </CardContent>
         {allContracts.length > 0 && (
           <>
@@ -350,8 +365,13 @@ export default async function PortalDashboardPage() {
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-bold text-gray-900">
-                      {formatCurrency(contract.commissionAmount || 0)}
+                      {formatCurrency(commissionTTC(getContractCommission(contract), ambassador.legalStatus))}
                     </p>
+                    {isAssujettTVA(ambassador.legalStatus) && (
+                      <p className="text-[10px] text-gray-400">
+                        HT : {formatCurrency(getContractCommission(contract))}
+                      </p>
+                    )}
                     <p className={`text-[10px] font-medium ${
                       contract.status === "PAYE" ? "text-green-600" :
                       contract.status === "SIGNE" ? "text-blue-600" :

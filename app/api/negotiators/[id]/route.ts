@@ -17,7 +17,7 @@ export async function GET(
   const negotiator = await prisma.negotiator.findUnique({
     where: { id },
     include: {
-      user: { select: { id: true, name: true, email: true, phone: true, image: true } },
+      user: { select: { id: true, name: true, firstName: true, lastName: true, email: true, phone: true, image: true } },
       agency: true,
       _count: { select: { leads: true, ambassadors: true } },
     },
@@ -95,7 +95,7 @@ export async function PUT(
   const updated = await prisma.negotiator.findUnique({
     where: { id },
     include: {
-      user: { select: { id: true, name: true, email: true, phone: true, image: true } },
+      user: { select: { id: true, name: true, firstName: true, lastName: true, email: true, phone: true, image: true } },
       agency: true,
     },
   });

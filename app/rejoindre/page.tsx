@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
-import { CheckCircle2, ArrowRight, Eye, EyeOff, UserPlus, Gift, MessageSquare, TrendingUp, MapPin, Building2, Info } from "lucide-react";
+import { CheckCircle2, ArrowRight, Eye, EyeOff, UserPlus, Gift, MessageSquare, TrendingUp, MapPin, Building2, Info, Briefcase } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -34,6 +34,15 @@ function RegisterForm() {
     city: "",
     selectedAgencyId: "",
     selectedNegotiatorId: "",
+    legalStatus: "PARTICULIER",
+    companyName: "",
+    companyLegalForm: "",
+    companySiret: "",
+    companyTva: "",
+    companyAddress: "",
+    associationName: "",
+    associationRna: "",
+    associationObject: "",
   });
 
   // Fetch agencies
@@ -187,6 +196,105 @@ function RegisterForm() {
             />
           </div>
         </div>
+      </div>
+
+      {/* Statut juridique */}
+      <div className="pt-2 border-t border-gray-100">
+        <div className="flex items-center gap-2 mb-3">
+          <Briefcase className="w-4 h-4 text-[#D1B280]" />
+          <p className="text-sm font-medium text-gray-700">Vous &ecirc;tes</p>
+        </div>
+        <div className="grid grid-cols-3 gap-2">
+          {[
+            { value: "PARTICULIER", label: "Particulier" },
+            { value: "SOCIETE", label: "Soci\u00e9t\u00e9" },
+            { value: "ASSOCIATION", label: "Association" },
+          ].map(opt => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => setForm(f => ({ ...f, legalStatus: opt.value }))}
+              className={`px-3 py-2.5 text-sm font-medium border transition-colors ${
+                form.legalStatus === opt.value
+                  ? "border-[#D1B280] bg-[#f9f6f1] text-[#030A24]"
+                  : "border-gray-200 text-gray-500 hover:border-gray-300"
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Champs société */}
+        {form.legalStatus === "SOCIETE" && (
+          <div className="mt-3 space-y-2 bg-gray-50 p-3 rounded-lg">
+            <Input
+              value={form.companyName}
+              onChange={e => setForm(f => ({ ...f, companyName: e.target.value }))}
+              placeholder="Raison sociale *"
+              required
+            />
+            <div className="grid grid-cols-2 gap-2">
+              <select
+                value={form.companyLegalForm}
+                onChange={e => setForm(f => ({ ...f, companyLegalForm: e.target.value }))}
+                className="w-full px-3 py-2.5 text-sm border border-gray-300 bg-white focus:outline-none focus:border-[#D1B280]"
+              >
+                <option value="">Forme juridique</option>
+                <option value="Auto-entrepreneur">Auto-entrepreneur</option>
+                <option value="EURL">EURL</option>
+                <option value="SARL">SARL</option>
+                <option value="SAS">SAS</option>
+                <option value="SASU">SASU</option>
+                <option value="SCI">SCI</option>
+                <option value="Autre">Autre</option>
+              </select>
+              <Input
+                value={form.companySiret}
+                onChange={e => setForm(f => ({ ...f, companySiret: e.target.value }))}
+                placeholder="N&deg; SIRET"
+              />
+            </div>
+            <Input
+              value={form.companyTva}
+              onChange={e => setForm(f => ({ ...f, companyTva: e.target.value }))}
+              placeholder="N&deg; TVA intracommunautaire (si assujetti)"
+            />
+            <Input
+              value={form.companyAddress}
+              onChange={e => setForm(f => ({ ...f, companyAddress: e.target.value }))}
+              placeholder="Adresse du si&egrave;ge social"
+            />
+            <p className="text-xs text-gray-400">
+              En tant que soci&eacute;t&eacute;, la TVA (20%) s&apos;appliquera sur vos commissions.
+            </p>
+          </div>
+        )}
+
+        {/* Champs association */}
+        {form.legalStatus === "ASSOCIATION" && (
+          <div className="mt-3 space-y-2 bg-gray-50 p-3 rounded-lg">
+            <Input
+              value={form.associationName}
+              onChange={e => setForm(f => ({ ...f, associationName: e.target.value }))}
+              placeholder="Nom de l&apos;association *"
+              required
+            />
+            <Input
+              value={form.associationRna}
+              onChange={e => setForm(f => ({ ...f, associationRna: e.target.value }))}
+              placeholder="N&deg; RNA (R&eacute;pertoire National des Associations)"
+            />
+            <Input
+              value={form.associationObject}
+              onChange={e => setForm(f => ({ ...f, associationObject: e.target.value }))}
+              placeholder="Objet social de l&apos;association"
+            />
+            <p className="text-xs text-gray-400">
+              Les associations non assujetties &agrave; la TVA re&ccedil;oivent la commission HT. Si votre association est assujettie, contactez-nous.
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Choix agence */}

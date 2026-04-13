@@ -29,6 +29,29 @@ export function formatCurrency(amount: number) {
   }).format(amount);
 }
 
+export const TVA_RATE = 0.20;
+
+/** TVA s'applique uniquement aux sociétés assujetties */
+export function isAssujettTVA(legalStatus?: string | null) {
+  return legalStatus === "SOCIETE";
+}
+
+export function commissionTTC(ht: number, legalStatus?: string | null) {
+  if (!isAssujettTVA(legalStatus)) return ht; // Particulier/Association = pas de TVA
+  return ht * (1 + TVA_RATE);
+}
+
+export function commissionTVA(ht: number, legalStatus?: string | null) {
+  if (!isAssujettTVA(legalStatus)) return 0;
+  return ht * TVA_RATE;
+}
+
+export const LEGAL_STATUS_LABELS: Record<string, string> = {
+  PARTICULIER: "Particulier",
+  SOCIETE: "Société",
+  ASSOCIATION: "Association",
+};
+
 export function formatDate(date: Date | string | null | undefined) {
   if (!date) return "-";
   return new Intl.DateTimeFormat("fr-FR", {

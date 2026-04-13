@@ -198,6 +198,91 @@ export async function sendNotificationEmail(to: string, name: string, subject: s
 }
 
 
+export async function sendRibReminderEmail(to: string, name: string, contractNumber: string) {
+  const { emailLayout } = await import("./email-template");
+  const appUrl = process.env.NEXTAUTH_URL || "https://theclub.labrieimmobiliere.fr";
+
+  const html = emailLayout({
+    preheader: `Ajoutez votre RIB pour recevoir vos commissions`,
+    title: "Contrat signé — ajoutez votre RIB",
+    greeting: `Bonjour ${name},`,
+    body: `
+      <p style="margin:0 0 15px;font-size:14px;color:#030A24;line-height:1.7;">
+        Votre contrat <strong>${contractNumber}</strong> a bien été signé. Merci !
+      </p>
+      <div style="background:#FEF3C7;border-left:3px solid #D97706;padding:15px 20px;margin:0 0 20px;">
+        <p style="margin:0 0 5px;font-size:12px;color:#92400E;text-transform:uppercase;letter-spacing:1px;font-weight:600;">&#9888;&#65039; Action requise</p>
+        <p style="margin:0;font-size:14px;color:#78350F;line-height:1.6;">
+          Pour recevoir vos commissions, vous devez renseigner votre <strong>RIB (IBAN)</strong> dans votre espace personnel.
+        </p>
+      </div>
+      <p style="margin:0 0 15px;font-size:13px;color:#666;line-height:1.6;">
+        Sans RIB enregistré, nous ne pourrons pas procéder au versement de vos commissions.
+        Cliquez sur le bouton ci-dessous pour l'ajouter en quelques secondes.
+      </p>
+    `,
+    cta: { label: "Ajouter mon RIB", url: `${appUrl}/portail/profil` },
+  });
+
+  try {
+    await transporter.sendMail({ from: fromAddress, to, subject: `Contrat ${contractNumber} signé — Ajoutez votre RIB | The Club`, html });
+    console.log(`[email] RIB reminder sent to ${to}`);
+    return true;
+  } catch (error) {
+    console.error("[email] Failed to send RIB reminder:", error);
+    return false;
+  }
+}
+
+export async function sendRibAddedNotification(ambassadorName: string, ambassadorEmail: string, iban: string) {
+  const { emailLayout } = await import("./email-template");
+  const appUrl = process.env.NEXTAUTH_URL || "https://theclub.labrieimmobiliere.fr";
+  const maskedIban = iban.substring(0, 4) + " **** **** " + iban.substring(iban.length - 4);
+
+  const html = emailLayout({
+    preheader: `${ambassadorName} a renseigné son RIB`,
+    title: "RIB ajouté par un ambassadeur",
+    greeting: `Bonjour,`,
+    body: `
+      <p style="margin:0 0 15px;font-size:14px;color:#030A24;line-height:1.7;">
+        Un ambassadeur vient de renseigner ses coordonnées bancaires.
+      </p>
+      <div style="background:#f9f6f1;border-left:3px solid #D1B280;padding:15px 20px;margin:0 0 20px;">
+        <p style="margin:0 0 5px;font-size:12px;color:#888;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Ambassadeur</p>
+        <p style="margin:0;font-size:15px;color:#030A24;font-weight:bold;">${ambassadorName}</p>
+        <p style="margin:5px 0 0;font-size:13px;color:#666;"><strong>Email :</strong> ${ambassadorEmail}</p>
+        <p style="margin:5px 0 0;font-size:13px;color:#666;"><strong>IBAN :</strong> ${maskedIban}</p>
+      </div>
+      <p style="margin:0;font-size:13px;color:#666;line-height:1.6;">
+        Vous pouvez consulter la fiche de cet ambassadeur pour vérifier les informations.
+      </p>
+    `,
+    cta: { label: "Voir les ambassadeurs", url: `${appUrl}/admin/ambassadeurs` },
+  });
+
+  // Send to all admin users
+  const { prisma } = await import("./prisma");
+  const admins = await prisma.user.findMany({
+    where: { role: "ADMIN" },
+    select: { email: true },
+  });
+
+  for (const admin of admins) {
+    try {
+      await transporter.sendMail({
+        from: fromAddress,
+        to: admin.email,
+        subject: `RIB ajouté : ${ambassadorName} — The Club`,
+        html,
+      });
+    } catch (error) {
+      console.error(`[email] Failed to send RIB notification to ${admin.email}:`, error);
+    }
+  }
+  console.log(`[email] RIB added notification sent to ${admins.length} admin(s)`);
+  return true;
+}
+
 export async function sendNegotiatorWelcomeEmail(
   to: string,
   name: string,
