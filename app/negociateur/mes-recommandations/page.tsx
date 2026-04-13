@@ -71,7 +71,7 @@ const STATUS_LABEL: Record<string, string> = {
   ANNULE: "Annulé",
 };
 
-function StatusTimeline({ status }: { status: string }) {
+function StatusTimeline({ status, onStepClick, disabled }: { status: string; onStepClick?: (key: string) => void; disabled?: boolean }) {
   const currentIndex = STATUS_STEPS.findIndex((s) => s.key === status);
   const isLost = status === "PERDU" || status === "ANNULE";
 
@@ -101,16 +101,21 @@ function StatusTimeline({ status }: { status: string }) {
         {STATUS_STEPS.map((step, i) => {
           const isDone = i < currentIndex;
           const isCurrent = i === currentIndex;
+          const isClickable = onStepClick && !disabled && !isCurrent;
           return (
             <div key={step.key} className="flex flex-col items-center gap-1.5" style={{ width: "25%" }}>
-              <div
+              <button
+                type="button"
+                onClick={() => isClickable && onStepClick(step.key)}
+                disabled={!isClickable}
                 className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all ${
                   isDone
                     ? "bg-[#D1B280] border-[#D1B280]"
                     : isCurrent
                     ? "bg-white border-[#D1B280] shadow-sm"
                     : "bg-white border-gray-200"
-                }`}
+                } ${isClickable ? "cursor-pointer hover:scale-110 hover:shadow-md" : ""}`}
+                title={isClickable ? `Passer en "${step.label}"` : ""}
               >
                 {isDone ? (
                   <Check className="w-3.5 h-3.5 text-white" />
@@ -119,11 +124,12 @@ function StatusTimeline({ status }: { status: string }) {
                 ) : (
                   <div className="w-2 h-2 rounded-full bg-gray-200" />
                 )}
-              </div>
+              </button>
               <span
                 className={`text-[10px] text-center leading-tight ${
                   isCurrent ? "text-[#D1B280] font-semibold" : isDone ? "text-gray-500" : "text-gray-300"
-                }`}
+                } ${isClickable ? "cursor-pointer" : ""}`}
+                onClick={() => isClickable && onStepClick(step.key)}
               >
                 {step.label}
               </span>
@@ -319,35 +325,30 @@ export default function NegociateurRecommandationsPage() {
                 </div>
               )}
 
-              {/* Timeline */}
+              {/* Timeline - clickable */}
               <div>
-                <p className="text-xs text-gray-400 mb-3 font-medium uppercase tracking-wide">Avancement</p>
-                <StatusTimeline status={selected.status} />
+                <p className="text-xs text-gray-400 mb-1 font-medium uppercase tracking-wide">Avancement</p>
+                <p className="text-[10px] text-gray-300 mb-3">Cliquez sur une étape pour avancer ou reculer</p>
+                <StatusTimeline status={selected.status} onStepClick={handleStatusChange} disabled={updatingStatus} />
               </div>
 
-              {/* Status change buttons */}
+              {/* Quick action buttons */}
               {selected.status !== "SIGNE" && selected.status !== "PERDU" && selected.status !== "ANNULE" && (
-                <div>
-                  <p className="text-xs text-gray-400 mb-2 font-medium uppercase tracking-wide">Mettre à jour le statut</p>
-                  <div className="flex flex-wrap gap-2">
-                    {STATUS_STEPS.filter((s) => s.key !== selected.status).map((step) => (
-                      <button
-                        key={step.key}
-                        onClick={() => handleStatusChange(step.key)}
-                        disabled={updatingStatus}
-                        className="px-3 py-1.5 text-xs font-medium border border-gray-200 hover:border-[#D1B280] hover:text-[#D1B280] transition-colors disabled:opacity-50"
-                      >
-                        → {step.label}
-                      </button>
-                    ))}
+                <div className="flex flex-wrap gap-2">
+                    <button
+                      onClick={() => handleStatusChange("EN_PAUSE")}
+                      disabled={updatingStatus || selected.status === "EN_PAUSE"}
+                      className="px-3 py-1.5 text-xs font-medium border border-gray-300 text-gray-500 hover:border-gray-500 hover:text-gray-700 transition-colors disabled:opacity-50"
+                    >
+                      ⏸ En pause
+                    </button>
                     <button
                       onClick={() => handleStatusChange("PERDU")}
                       disabled={updatingStatus}
                       className="px-3 py-1.5 text-xs font-medium border border-red-200 text-red-400 hover:border-red-400 hover:text-red-600 transition-colors disabled:opacity-50"
                     >
-                      → Perdu
+                      ✕ Perdu
                     </button>
-                  </div>
                 </div>
               )}
 

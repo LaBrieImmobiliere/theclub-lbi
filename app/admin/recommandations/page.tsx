@@ -5,13 +5,14 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select } from "@/components/ui/select";
-import { ClipboardList, Search, Plus, X, FileText } from "lucide-react";
+import { ClipboardList, Search, Plus, X, FileText, Check } from "lucide-react";
 import { CsvExport } from "@/components/admin/csv-export";
 import {
   formatDate,
   LEAD_STATUS_LABELS,
   LEAD_STATUS_COLORS,
   LEAD_TYPE_LABELS,
+  LEAD_STATUS_STEPS,
 } from "@/lib/utils";
 import Link from "next/link";
 
@@ -256,24 +257,63 @@ export default function RecommandationsPage() {
                 </div>
               )}
 
-              {/* Status update */}
+              {/* Status timeline - clickable */}
               <div>
-                <p className="text-gray-500 text-xs mb-2">Changer le statut</p>
+                <p className="text-gray-500 text-xs mb-1">Avancement</p>
+                <p className="text-[10px] text-gray-300 mb-3">Cliquez sur une étape pour avancer ou reculer</p>
+                {(() => {
+                  const currentIndex = LEAD_STATUS_STEPS.findIndex((s) => s === selected.status);
+                  const isLost = selected.status === "PERDU" || selected.status === "ANNULE" || selected.status === "EN_PAUSE";
+                  if (isLost) {
+                    return (
+                      <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 border rounded mb-3">
+                        <div className={`w-2 h-2 rounded-full ${selected.status === "PERDU" ? "bg-red-400" : "bg-gray-400"}`} />
+                        <span className={`text-sm font-medium ${selected.status === "PERDU" ? "text-red-600" : "text-gray-600"}`}>
+                          {LEAD_STATUS_LABELS[selected.status]}
+                        </span>
+                      </div>
+                    );
+                  }
+                  return (
+                    <div className="relative pt-1 mb-3">
+                      <div className="absolute top-4 left-4 right-4 h-0.5 bg-gray-100" />
+                      <div className="absolute top-4 left-4 h-0.5 bg-blue-500 transition-all duration-500"
+                        style={{ width: currentIndex <= 0 ? "0%" : `${(currentIndex / (LEAD_STATUS_STEPS.length - 1)) * 100}%` }} />
+                      <div className="relative flex justify-between">
+                        {LEAD_STATUS_STEPS.map((key, i) => {
+                          const isDone = i < currentIndex;
+                          const isCurrent = i === currentIndex;
+                          const isClickable = !updatingStatus && !isCurrent;
+                          return (
+                            <div key={key} className="flex flex-col items-center gap-1.5" style={{ width: "20%" }}>
+                              <button type="button" onClick={() => isClickable && updateStatus(selected.id, key)}
+                                disabled={!isClickable}
+                                className={`w-7 h-7 rounded-full flex items-center justify-center border-2 transition-all ${
+                                  isDone ? "bg-blue-500 border-blue-500" : isCurrent ? "bg-white border-blue-500 shadow-sm" : "bg-white border-gray-200"
+                                } ${isClickable ? "cursor-pointer hover:scale-110 hover:shadow-md" : ""}`}
+                                title={isClickable ? `Passer en "${LEAD_STATUS_LABELS[key]}"` : ""}>
+                                {isDone ? <Check className="w-3 h-3 text-white" /> : isCurrent ? <div className="w-2 h-2 rounded-full bg-blue-500" /> : <div className="w-1.5 h-1.5 rounded-full bg-gray-200" />}
+                              </button>
+                              <span className={`text-[9px] text-center leading-tight ${isCurrent ? "text-blue-600 font-semibold" : isDone ? "text-gray-500" : "text-gray-300"}`}
+                                onClick={() => isClickable && updateStatus(selected.id, key)} style={{ cursor: isClickable ? "pointer" : "default" }}>
+                                {LEAD_STATUS_LABELS[key]?.replace("Commission versée", "Commission")}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })()}
                 <div className="flex flex-wrap gap-2">
-                  {Object.entries(LEAD_STATUS_LABELS).map(([value, label]) => (
-                    <button
-                      key={value}
-                      onClick={() => updateStatus(selected.id, value)}
-                      disabled={!!updatingStatus || selected.status === value}
-                      className={`px-3 py-1.5 text-xs font-medium rounded-full border transition-colors ${
-                        selected.status === value
-                          ? "bg-blue-600 text-white border-blue-600"
-                          : "border-gray-200 text-gray-600 hover:border-blue-400 hover:text-blue-600"
-                      }`}
-                    >
-                      {label}
-                    </button>
-                  ))}
+                  <button onClick={() => updateStatus(selected.id, "EN_PAUSE")} disabled={!!updatingStatus || selected.status === "EN_PAUSE"}
+                    className="px-3 py-1.5 text-xs font-medium rounded-full border border-gray-300 text-gray-500 hover:border-gray-500 hover:text-gray-700 transition-colors disabled:opacity-50">
+                    ⏸ En pause
+                  </button>
+                  <button onClick={() => updateStatus(selected.id, "PERDU")} disabled={!!updatingStatus || selected.status === "PERDU"}
+                    className="px-3 py-1.5 text-xs font-medium rounded-full border border-red-200 text-red-400 hover:border-red-400 hover:text-red-600 transition-colors disabled:opacity-50">
+                    ✕ Perdu
+                  </button>
                 </div>
               </div>
 
