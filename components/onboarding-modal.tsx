@@ -96,7 +96,7 @@ export function OnboardingModal({ onComplete }: OnboardingModalProps) {
         {/* Content */}
         <div className="px-6 py-4 text-center">
           <p className="text-xs text-[#D1B280] font-semibold uppercase tracking-widest mb-2">
-            \u00c9tape {step + 1} sur {STEPS.length}
+            {`ÉTAPE ${step + 1} SUR ${STEPS.length}`}
           </p>
           <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-3">
             {current.title}

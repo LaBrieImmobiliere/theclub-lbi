@@ -256,22 +256,22 @@ export function NegociateurParrainagePage({ code, inscriptionUrl, ambassadorCoun
 
       {/* Stats */}
       <div className="grid grid-cols-2 gap-3 sm:gap-4">
-        <div className="bg-white border border-gray-100 shadow-sm p-3 sm:p-5 min-w-0">
+        <div className="bg-white/5 border border-white/10 shadow-sm rounded-xl p-3 sm:p-5 min-w-0">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-9 h-9 bg-[#030A24]/10 flex items-center justify-center">
               <Users className="w-5 h-5 text-[#030A24]" />
             </div>
           </div>
-          <p className="text-2xl sm:text-3xl font-bold text-gray-900">{ambassadorCount}</p>
+          <p className="text-2xl sm:text-3xl font-bold text-white">{ambassadorCount}</p>
           <p className="text-xs sm:text-sm text-gray-500 mt-1">Ambassadeurs recrutés</p>
         </div>
-        <div className="bg-white border border-[#D1B280]/30 shadow-sm p-3 sm:p-5 min-w-0">
+        <div className="bg-white/5 border border-[#D1B280]/20 shadow-sm rounded-xl p-3 sm:p-5 min-w-0">
           <div className="flex items-center gap-3 mb-3">
             <div className="w-9 h-9 bg-[#D1B280]/10 flex items-center justify-center flex-shrink-0">
               <Link2 className="w-5 h-5 text-[#D1B280]" />
             </div>
           </div>
-          <p className="text-2xl sm:text-3xl font-bold text-gray-900">{recentAmbassadors.reduce((s, a) => s + a.leadsCount, 0)}</p>
+          <p className="text-2xl sm:text-3xl font-bold text-white">{recentAmbassadors.reduce((s, a) => s + a.leadsCount, 0)}</p>
           <p className="text-xs sm:text-sm text-gray-500 mt-1">Recos générées</p>
         </div>
       </div>
@@ -317,7 +317,7 @@ export function NegociateurParrainagePage({ code, inscriptionUrl, ambassadorCoun
       </div>
 
       {/* Code & lien */}
-      <div className="bg-white border border-gray-100 shadow-sm overflow-hidden w-full">
+      <div className="bg-white/5 border border-white/10 shadow-sm rounded-xl overflow-hidden w-full">
         <div className="px-4 sm:px-6 py-4 border-b border-gray-100 flex items-center gap-2">
           <Link2 className="w-4 h-4 text-[#D1B280] flex-shrink-0" />
           <h2 className="font-semibold text-gray-900 text-sm sm:text-base">Votre lien d&apos;inscription</h2>
@@ -440,9 +440,9 @@ export function NegociateurParrainagePage({ code, inscriptionUrl, ambassadorCoun
 
       {/* Derniers ambassadeurs */}
       {recentAmbassadors.length > 0 && (
-        <div className="bg-white border border-gray-100 shadow-sm overflow-hidden">
-          <div className="px-4 sm:px-6 py-4 border-b border-gray-100">
-            <h2 className="font-semibold text-gray-900 text-sm sm:text-base">Derniers ambassadeurs recrutés</h2>
+        <div className="bg-white/5 border border-white/10 shadow-sm rounded-xl overflow-hidden">
+          <div className="px-4 sm:px-6 py-4 border-b border-white/10">
+            <h2 className="font-semibold text-white text-sm sm:text-base">Derniers ambassadeurs recrutés</h2>
           </div>
           <div className="divide-y divide-gray-50">
             {recentAmbassadors.map((a, i) => (

@@ -74,121 +74,100 @@ export default async function CommissionsPage() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Mes commissions</h1>
-        <p className="text-gray-500 mt-1 text-sm">
-          Suivi de vos gains depuis le début de votre activité
-        </p>
+        <h1 className="text-2xl font-bold text-white">Mes commissions</h1>
+        <p className="text-gray-400 mt-1 text-sm">Suivi de vos gains depuis le d&eacute;but de votre activit&eacute;</p>
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white border border-gray-100 shadow-sm p-5">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-9 h-9 bg-green-50 flex items-center justify-center">
-              <CheckCircle2 className="w-5 h-5 text-green-600" />
+      <div className="grid grid-cols-2 gap-3">
+        <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-8 h-8 bg-green-500/10 rounded-lg flex items-center justify-center">
+              <CheckCircle2 className="w-4 h-4 text-green-400" />
             </div>
-            <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">{hasTVA ? "Payé TTC" : "Payé"}</p>
+            <p className="text-[10px] text-gray-500 font-medium uppercase tracking-wide">{hasTVA ? "Pay\u00e9 TTC" : "Pay\u00e9"}</p>
           </div>
-          <p className="text-2xl font-bold text-green-700">{formatCurrency(commissionTTC(totalEarned, ls))}</p>
-          <p className="text-xs text-gray-400 mt-1">HT : {formatCurrency(totalEarned)}</p>
+          <p className="text-xl font-bold text-green-400">{formatCurrency(commissionTTC(totalEarned, ls))}</p>
+          <p className="text-[10px] text-gray-500 mt-1">HT : {formatCurrency(totalEarned)}</p>
         </div>
 
-        <div className="bg-white border border-[#D1B280]/30 shadow-sm p-5">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-9 h-9 bg-[#D1B280]/10 flex items-center justify-center">
-              <Clock className="w-5 h-5 text-[#D1B280]" />
+        <div className="bg-white/5 border border-[#D1B280]/20 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-8 h-8 bg-[#D1B280]/10 rounded-lg flex items-center justify-center">
+              <Clock className="w-4 h-4 text-[#D1B280]" />
             </div>
-            <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">{hasTVA ? "En attente TTC" : "En attente"}</p>
+            <p className="text-[10px] text-gray-500 font-medium uppercase tracking-wide">En attente</p>
           </div>
-          <p className="text-2xl font-bold text-gray-900">{formatCurrency(commissionTTC(totalPending, ls))}</p>
-          <p className="text-xs text-gray-400 mt-1">HT : {formatCurrency(totalPending)}</p>
+          <p className="text-xl font-bold text-white">{formatCurrency(commissionTTC(totalPending, ls))}</p>
+          <p className="text-[10px] text-gray-500 mt-1">HT : {formatCurrency(totalPending)}</p>
         </div>
 
-        <div className="bg-white border border-gray-100 shadow-sm p-5">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-9 h-9 bg-blue-50 flex items-center justify-center">
-              <TrendingUp className="w-5 h-5 text-blue-600" />
+        <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-8 h-8 bg-blue-500/10 rounded-lg flex items-center justify-center">
+              <TrendingUp className="w-4 h-4 text-blue-400" />
             </div>
-            <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">{hasTVA ? `${currentYear} TTC` : `${currentYear}`}</p>
+            <p className="text-[10px] text-gray-500 font-medium uppercase tracking-wide">{currentYear}</p>
           </div>
-          <p className="text-2xl font-bold text-gray-900">{formatCurrency(commissionTTC(yearTotal, ls))}</p>
-          <p className="text-xs text-gray-400 mt-1">HT : {formatCurrency(yearTotal)}</p>
+          <p className="text-xl font-bold text-white">{formatCurrency(commissionTTC(yearTotal, ls))}</p>
+          <p className="text-[10px] text-gray-500 mt-1">HT : {formatCurrency(yearTotal)}</p>
         </div>
 
-        <div className="bg-white border border-gray-100 shadow-sm p-5">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-9 h-9 bg-purple-50 flex items-center justify-center">
-              <Coins className="w-5 h-5 text-purple-600" />
+        <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-8 h-8 bg-purple-500/10 rounded-lg flex items-center justify-center">
+              <Coins className="w-4 h-4 text-purple-400" />
             </div>
-            <p className="text-xs text-gray-400 font-medium uppercase tracking-wide">{hasTVA ? "Total cumulé TTC" : "Total cumulé"}</p>
+            <p className="text-[10px] text-gray-500 font-medium uppercase tracking-wide">Total cumul&eacute;</p>
           </div>
-          <p className="text-2xl font-bold text-gray-900">{formatCurrency(commissionTTC(totalAll, ls))}</p>
-          <p className="text-xs text-gray-400 mt-1">HT : {formatCurrency(totalAll)} &middot; {signedCount} transaction{signedCount !== 1 ? "s" : ""}</p>
+          <p className="text-xl font-bold text-white">{formatCurrency(commissionTTC(totalAll, ls))}</p>
+          <p className="text-[10px] text-gray-500 mt-1">HT : {formatCurrency(totalAll)} &middot; {signedCount} transaction{signedCount !== 1 ? "s" : ""}</p>
         </div>
       </div>
 
-      {/* Commission table */}
-      <div className="bg-white border border-gray-100 shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-100">
-          <h2 className="font-semibold text-gray-900">Détail par contrat</h2>
-        </div>
+      {/* Commission list — mobile cards */}
+      <div>
+        <h2 className="font-semibold text-white mb-3">D&eacute;tail par contrat</h2>
 
         {contracts.length === 0 ? (
-          <div className="px-6 py-16 text-center">
-            <Coins className="w-10 h-10 text-gray-200 mx-auto mb-4" />
-            <p className="text-gray-500 font-medium">Aucune commission pour l&apos;instant</p>
-            <p className="text-sm text-gray-400 mt-1">
-              Les commissions apparaîtront ici dès qu&apos;un contrat est créé pour l&apos;une de vos recommandations.
-            </p>
+          <div className="bg-white/5 border border-white/10 rounded-xl px-6 py-16 text-center">
+            <Coins className="w-10 h-10 text-gray-600 mx-auto mb-4" />
+            <p className="text-gray-400 font-medium">Aucune commission pour l&apos;instant</p>
+            <p className="text-sm text-gray-500 mt-1">Les commissions apparaîtront ici d&egrave;s qu&apos;un contrat est cr&eacute;&eacute;.</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-gray-100 text-left">
-                  <th className="px-6 py-3 font-medium text-gray-500">Contrat</th>
-                  <th className="px-6 py-3 font-medium text-gray-500">Prospect</th>
-                  <th className="px-6 py-3 font-medium text-gray-500">Commission HT</th>
-                  <th className="px-6 py-3 font-medium text-gray-500">{hasTVA ? "Commission TTC" : "Net à percevoir"}</th>
-                  <th className="px-6 py-3 font-medium text-gray-500">Statut</th>
-                  <th className="px-6 py-3 font-medium text-gray-500">Date</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50">
-                {contracts.map((c) => (
-                  <tr key={c.id} className="hover:bg-gray-50/50">
-                    <td className="px-6 py-3 font-mono text-gray-900 text-xs">{c.number}</td>
-                    <td className="px-6 py-3 text-gray-700">
-                      {c.lead ? `${c.lead.firstName} ${c.lead.lastName}` : <span className="text-gray-300">—</span>}
-                    </td>
-                    <td className="px-6 py-3">
-                      {getCommission(c) > 0 ? (
-                        <span className="font-medium text-gray-700">{formatCurrency(getCommission(c))}</span>
-                      ) : (
-                        <span className="text-gray-400">{c.commissionValue}%</span>
-                      )}
-                    </td>
-                    <td className="px-6 py-3">
-                      {getCommission(c) > 0 ? (
-                        <span className={`font-bold ${c.status === "PAYE" ? "text-green-700" : "text-gray-900"}`}>
-                          {formatCurrency(commissionTTC(getCommission(c), ls))}
-                        </span>
-                      ) : (
-                        <span className="text-gray-400">-</span>
-                      )}
-                    </td>
-                    <td className="px-6 py-3">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 text-xs font-medium ${STATUS_CLASS[c.status] || "bg-gray-100 text-gray-600"}`}>
-                        {STATUS_LABEL[c.status] || c.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-3 text-gray-400 text-xs">{formatDate(c.createdAt)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="space-y-3">
+            {contracts.map((c) => (
+              <div key={c.id} className="bg-white/5 border border-white/10 rounded-xl p-4 space-y-3">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="font-mono text-sm text-[#D1B280]">{c.number}</p>
+                    <p className="text-sm text-white mt-0.5">
+                      {c.lead ? `${c.lead.firstName} ${c.lead.lastName}` : "—"}
+                    </p>
+                  </div>
+                  <span className={`inline-flex items-center px-2.5 py-0.5 text-[10px] font-medium rounded-full ${
+                    c.status === "PAYE" ? "bg-green-500/10 text-green-400 border border-green-500/20" :
+                    c.status === "SIGNE" ? "bg-blue-500/10 text-blue-400 border border-blue-500/20" :
+                    c.status === "ENVOYE" ? "bg-yellow-500/10 text-yellow-400 border border-yellow-500/20" :
+                    "bg-white/5 text-gray-400 border border-white/10"
+                  }`}>
+                    {STATUS_LABEL[c.status] || c.status}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between pt-2 border-t border-white/5">
+                  <div>
+                    <p className="text-[10px] text-gray-500">Commission</p>
+                    <p className={`text-lg font-bold ${c.status === "PAYE" ? "text-green-400" : "text-white"}`}>
+                      {getCommission(c) > 0 ? formatCurrency(commissionTTC(getCommission(c), ls)) : `${c.commissionValue}%`}
+                    </p>
+                  </div>
+                  <p className="text-[11px] text-gray-500">{formatDate(c.createdAt)}</p>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </div>
