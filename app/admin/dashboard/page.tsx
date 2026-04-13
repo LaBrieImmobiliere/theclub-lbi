@@ -119,7 +119,7 @@ export default async function AdminDashboardPage() {
         <Link href="/admin/ambassadeurs">
           <Card className="hover:shadow-md transition-shadow cursor-pointer">
             <CardContent className="flex items-center gap-2 sm:gap-3 py-5">
-              <div className="w-9 h-9 sm:w-11 sm:h-11 bg-blue-50 rounded-xl flex items-center justify-center flex-shrink-0">
+              <div className="w-9 h-9 sm:w-11 sm:h-11 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
                 <Users className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
               </div>
               <div>
@@ -132,7 +132,7 @@ export default async function AdminDashboardPage() {
         <Link href="/admin/recommandations">
           <Card className="hover:shadow-md transition-shadow cursor-pointer">
             <CardContent className="flex items-center gap-2 sm:gap-3 py-5">
-              <div className="w-9 h-9 sm:w-11 sm:h-11 bg-purple-50 rounded-xl flex items-center justify-center flex-shrink-0">
+              <div className="w-9 h-9 sm:w-11 sm:h-11 bg-purple-50 rounded-lg flex items-center justify-center flex-shrink-0">
                 <ClipboardList className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
               </div>
               <div>
@@ -145,7 +145,7 @@ export default async function AdminDashboardPage() {
         <Link href="/admin/contrats">
           <Card className="hover:shadow-md transition-shadow cursor-pointer">
             <CardContent className="flex items-center gap-2 sm:gap-3 py-5">
-              <div className="w-9 h-9 sm:w-11 sm:h-11 bg-green-50 rounded-xl flex items-center justify-center flex-shrink-0">
+              <div className="w-9 h-9 sm:w-11 sm:h-11 bg-green-50 rounded-lg flex items-center justify-center flex-shrink-0">
                 <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
               </div>
               <div>
@@ -157,7 +157,7 @@ export default async function AdminDashboardPage() {
         </Link>
         <Card>
           <CardContent className="flex items-center gap-2 sm:gap-3 py-5">
-            <div className="w-9 h-9 sm:w-11 sm:h-11 bg-amber-50 rounded-xl flex items-center justify-center flex-shrink-0">
+            <div className="w-9 h-9 sm:w-11 sm:h-11 bg-amber-50 rounded-lg flex items-center justify-center flex-shrink-0">
               <Percent className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600" />
             </div>
             <div>
@@ -170,7 +170,7 @@ export default async function AdminDashboardPage() {
 
       {/* Alerts */}
       {pendingLeads > 0 && (
-        <div className="flex items-center justify-between bg-amber-50 border border-amber-200 px-5 py-3">
+        <div className="flex items-center justify-between bg-amber-50 border border-amber-200 rounded-lg px-5 py-3">
           <div className="flex items-center gap-2">
             <Bell className="w-4 h-4 text-amber-600 flex-shrink-0" />
             <p className="text-sm text-amber-800">

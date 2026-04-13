@@ -106,7 +106,7 @@ export default function AmbassadeursPage() {
 
       {/* New ambassador credentials */}
       {newAmbInfo && (
-        <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-start justify-between gap-4">
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-start justify-between gap-4">
           <div>
             <p className="font-semibold text-green-800">Ambassadeur créé avec succès !</p>
             <p className="text-sm text-green-700 mt-1">
@@ -180,67 +180,115 @@ export default function AmbassadeursPage() {
         />
       </div>
 
-      {/* Table */}
-      <Card>
-        <CardContent className="p-0">
-          {filtered.length === 0 ? (
+      {filtered.length === 0 ? (
+        <Card>
+          <CardContent>
             <div className="text-center py-12">
               <Users className="w-10 h-10 text-gray-300 mx-auto mb-3" />
               <p className="text-gray-500">Aucun ambassadeur trouvé</p>
             </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-gray-100 text-left">
-                    <th className="px-6 py-3 font-medium text-gray-500">Ambassadeur</th>
-                    <th className="px-6 py-3 font-medium text-gray-500">Code parrainage</th>
-                    <th className="px-6 py-3 font-medium text-gray-500">Recommandations</th>
-                    <th className="px-6 py-3 font-medium text-gray-500">Contrats</th>
-                    <th className="px-6 py-3 font-medium text-gray-500">Statut</th>
-                    <th className="px-6 py-3 font-medium text-gray-500 hidden sm:table-cell">Inscrit le</th>
-                    <th className="px-6 py-3"></th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-50">
-                  {filtered.map((amb) => (
-                    <tr key={amb.id} className="hover:bg-gray-50/50">
-                      <td className="px-6 py-4">
-                        <p className="font-medium text-gray-900">{amb.user.name}</p>
-                        <p className="text-xs text-gray-500">{amb.user.email}</p>
-                        {amb.user.phone && <p className="text-xs text-gray-400">{amb.user.phone}</p>}
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
-                          <code className="text-xs bg-gray-100 px-2 py-1 rounded font-mono">{amb.code}</code>
-                          <button onClick={() => copyCode(amb.code)} className="text-gray-400 hover:text-gray-600">
+          </CardContent>
+        </Card>
+      ) : (
+        <>
+          {/* Mobile cards */}
+          <div className="space-y-3 md:hidden">
+            {filtered.map((amb) => {
+              const initials = amb.user.name
+                ? amb.user.name.split(" ").map((n: string) => n[0]).join("").toUpperCase().slice(0, 2)
+                : "?";
+              return (
+                <Link key={amb.id} href={`/admin/ambassadeurs/${amb.id}`} className="block">
+                  <div className="bg-white border border-gray-100 shadow-sm rounded-lg p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-white flex-shrink-0" style={{ backgroundColor: "#030A24" }}>
+                        {initials}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="font-medium text-gray-900 truncate">{amb.user.name}</p>
+                          <Badge className={amb.status === "ACTIVE" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-600"}>
+                            {amb.status === "ACTIVE" ? "Actif" : amb.status === "INACTIVE" ? "Inactif" : "En attente"}
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-gray-500 truncate mt-0.5">{amb.user.email}</p>
+                        <div className="flex items-center gap-3 mt-2">
+                          <code className="text-xs bg-gray-100 px-2 py-0.5 rounded-lg font-mono text-gray-700">{amb.code}</code>
+                          <button
+                            onClick={(e) => { e.preventDefault(); copyCode(amb.code); }}
+                            className="text-gray-400 hover:text-gray-600"
+                          >
                             {copiedId === amb.code ? <Check className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5" />}
                           </button>
                         </div>
-                      </td>
-                      <td className="px-6 py-4 text-gray-700">{amb._count.leads}</td>
-                      <td className="px-6 py-4 text-gray-700">{amb._count.contracts}</td>
-                      <td className="px-6 py-4">
-                        <Badge className={amb.status === "ACTIVE" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-600"}>
-                          {amb.status === "ACTIVE" ? "Actif" : amb.status === "INACTIVE" ? "Inactif" : "En attente"}
-                        </Badge>
-                      </td>
-                      <td className="px-6 py-4 text-gray-500 hidden sm:table-cell">{formatDate(amb.createdAt)}</td>
-                      <td className="px-6 py-4">
-                        <Link href={`/admin/ambassadeurs/${amb.id}`}>
-                          <Button variant="ghost" size="sm">
-                            <Eye className="w-4 h-4" /> Voir
-                          </Button>
-                        </Link>
-                      </td>
+                        <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                          <span>{amb._count.leads} recommandation{amb._count.leads > 1 ? "s" : ""}</span>
+                          <span>{amb._count.contracts} contrat{amb._count.contracts > 1 ? "s" : ""}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+
+          {/* Desktop table */}
+          <Card className="hidden md:block">
+            <CardContent className="p-0">
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-gray-100 text-left">
+                      <th className="px-6 py-3 font-medium text-gray-500">Ambassadeur</th>
+                      <th className="px-6 py-3 font-medium text-gray-500">Code parrainage</th>
+                      <th className="px-6 py-3 font-medium text-gray-500">Recommandations</th>
+                      <th className="px-6 py-3 font-medium text-gray-500">Contrats</th>
+                      <th className="px-6 py-3 font-medium text-gray-500">Statut</th>
+                      <th className="px-6 py-3 font-medium text-gray-500">Inscrit le</th>
+                      <th className="px-6 py-3"></th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {filtered.map((amb) => (
+                      <tr key={amb.id} className="hover:bg-gray-50/50">
+                        <td className="px-6 py-4">
+                          <p className="font-medium text-gray-900">{amb.user.name}</p>
+                          <p className="text-xs text-gray-500">{amb.user.email}</p>
+                          {amb.user.phone && <p className="text-xs text-gray-400">{amb.user.phone}</p>}
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-2">
+                            <code className="text-xs bg-gray-100 px-2 py-1 rounded-lg font-mono">{amb.code}</code>
+                            <button onClick={() => copyCode(amb.code)} className="text-gray-400 hover:text-gray-600">
+                              {copiedId === amb.code ? <Check className="w-3.5 h-3.5 text-green-500" /> : <Copy className="w-3.5 h-3.5" />}
+                            </button>
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 text-gray-700">{amb._count.leads}</td>
+                        <td className="px-6 py-4 text-gray-700">{amb._count.contracts}</td>
+                        <td className="px-6 py-4">
+                          <Badge className={amb.status === "ACTIVE" ? "bg-green-100 text-green-800" : "bg-gray-100 text-gray-600"}>
+                            {amb.status === "ACTIVE" ? "Actif" : amb.status === "INACTIVE" ? "Inactif" : "En attente"}
+                          </Badge>
+                        </td>
+                        <td className="px-6 py-4 text-gray-500">{formatDate(amb.createdAt)}</td>
+                        <td className="px-6 py-4">
+                          <Link href={`/admin/ambassadeurs/${amb.id}`}>
+                            <Button variant="ghost" size="sm">
+                              <Eye className="w-4 h-4" /> Voir
+                            </Button>
+                          </Link>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
+        </>
+      )}
     </div>
   );
 }

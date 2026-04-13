@@ -48,7 +48,7 @@ export default function MesContratsPage() {
       </div>
 
       {pendingSign.length > 0 && (
-        <div className="bg-blue-50 border border-blue-200 rounded-xl px-4 py-3">
+        <div className="bg-blue-50 border border-blue-200 rounded-lg px-4 py-3">
           <p className="text-sm text-blue-800">
             <strong>{pendingSign.length} contrat{pendingSign.length > 1 ? "s" : ""}</strong> en attente de votre signature.
           </p>
@@ -71,55 +71,58 @@ export default function MesContratsPage() {
             );
             return (
               <Card key={contract.id} className="hover:shadow-md transition-shadow">
-                <CardContent className="p-5">
-                  <div className="flex items-start justify-between gap-4">
-                    <div className="flex-1 space-y-3">
-                      <div className="flex items-center gap-3">
-                        <p className="font-mono font-semibold text-gray-900">{contract.number}</p>
-                        <Badge className={CONTRACT_STATUS_COLORS[contract.status]}>
-                          {CONTRACT_STATUS_LABELS[contract.status]}
-                        </Badge>
-                        {contract.status === "ENVOYE" && (
-                          <Badge className="bg-amber-100 text-amber-700 animate-pulse">
-                            ✍️ Signature requise
-                          </Badge>
-                        )}
-                      </div>
-
-                      {contract.propertyAddress && (
-                        <p className="text-sm text-gray-600">{contract.propertyAddress}</p>
-                      )}
-
-                      <div className="flex items-center gap-6 text-sm">
-                        <div>
-                          <p className="text-xs text-gray-400">Commission</p>
-                          <p className="font-semibold text-green-700">
-                            {contract.commissionAmount
-                              ? formatCurrency(contract.commissionAmount)
-                              : contract.commissionType === "FIXED"
-                              ? formatCurrency(contract.commissionValue)
-                              : `${contract.commissionValue}%`}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-gray-400">Reconnaissances</p>
-                          <p className="font-medium text-gray-700">
-                            {contract.honoraryAcknowledgments.length}
-                            {pendingAcks.length > 0 && (
-                              <span className="ml-1 text-amber-600">({pendingAcks.length} en attente)</span>
-                            )}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-xs text-gray-400">Créé le</p>
-                          <p className="font-medium text-gray-700">{formatDate(contract.createdAt)}</p>
-                        </div>
-                      </div>
+                <CardContent className="p-4 sm:p-5">
+                  {/* Header row: contract number + status */}
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="font-mono font-semibold text-gray-900">{contract.number}</p>
+                      <Badge className={CONTRACT_STATUS_COLORS[contract.status]}>
+                        {CONTRACT_STATUS_LABELS[contract.status]}
+                      </Badge>
                     </div>
+                    {contract.status === "ENVOYE" && (
+                      <Badge className="bg-amber-100 text-amber-700 animate-pulse">
+                        Signature requise
+                      </Badge>
+                    )}
+                  </div>
 
+                  {contract.propertyAddress && (
+                    <p className="text-sm text-gray-600 mt-2">{contract.propertyAddress}</p>
+                  )}
+
+                  {/* Info grid - responsive */}
+                  <div className="grid grid-cols-3 gap-3 mt-3 text-sm">
+                    <div className="bg-gray-50 rounded-lg p-2.5">
+                      <p className="text-xs text-gray-400">Commission</p>
+                      <p className="font-semibold text-green-700 mt-0.5">
+                        {contract.commissionAmount
+                          ? formatCurrency(contract.commissionAmount)
+                          : contract.commissionType === "FIXED"
+                          ? formatCurrency(contract.commissionValue)
+                          : `${contract.commissionValue}%`}
+                      </p>
+                    </div>
+                    <div className="bg-gray-50 rounded-lg p-2.5">
+                      <p className="text-xs text-gray-400">Reconnaissances</p>
+                      <p className="font-medium text-gray-700 mt-0.5">
+                        {contract.honoraryAcknowledgments.length}
+                        {pendingAcks.length > 0 && (
+                          <span className="ml-1 text-amber-600 text-xs">({pendingAcks.length})</span>
+                        )}
+                      </p>
+                    </div>
+                    <div className="bg-gray-50 rounded-lg p-2.5">
+                      <p className="text-xs text-gray-400">Créé le</p>
+                      <p className="font-medium text-gray-700 mt-0.5">{formatDate(contract.createdAt)}</p>
+                    </div>
+                  </div>
+
+                  {/* Action button */}
+                  <div className="mt-3 pt-3 border-t border-gray-100">
                     <Link href={`/portail/mes-contrats/${contract.id}`}>
-                      <Button variant="outline" size="sm">
-                        <Eye className="w-4 h-4" /> Voir
+                      <Button variant="outline" size="sm" className="w-full sm:w-auto rounded-lg">
+                        <Eye className="w-4 h-4" /> Voir le détail
                       </Button>
                     </Link>
                   </div>

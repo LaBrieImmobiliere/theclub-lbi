@@ -67,8 +67,8 @@ export default function NegociateurContratDetailPage() {
     return (
       <div className="max-w-3xl mx-auto">
         <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 w-48" />
-          <div className="h-64 bg-gray-100" />
+          <div className="h-8 bg-gray-200 rounded-lg w-48" />
+          <div className="h-64 bg-gray-100 rounded-lg" />
         </div>
       </div>
     );
@@ -99,8 +99,8 @@ export default function NegociateurContratDetailPage() {
       </Link>
 
       {/* Header */}
-      <Card className="rounded-none">
-        <div className="bg-brand-deep px-6 py-4">
+      <Card>
+        <div className="bg-brand-deep rounded-t-xl px-6 py-4">
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-lg font-semibold text-white flex items-center gap-2" style={{ fontFamily: "'Fira Sans', sans-serif" }}>
@@ -121,7 +121,7 @@ export default function NegociateurContratDetailPage() {
       {/* Contract Info */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Property */}
-        <Card className="rounded-none">
+        <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
               <MapPin className="w-4 h-4 text-brand-gold" />
@@ -144,7 +144,7 @@ export default function NegociateurContratDetailPage() {
         </Card>
 
         {/* Ambassador */}
-        <Card className="rounded-none">
+        <Card>
           <CardHeader>
             <div className="flex items-center gap-2">
               <User className="w-4 h-4 text-brand-gold" />
@@ -152,18 +152,25 @@ export default function NegociateurContratDetailPage() {
             </div>
           </CardHeader>
           <CardContent>
-            <p className="text-sm font-medium text-gray-900">{contract.ambassador?.user?.name || "—"}</p>
-            <p className="text-sm text-gray-500">{contract.ambassador?.user?.email}</p>
-            {contract.ambassador?.user?.phone && (
-              <p className="text-sm text-gray-500">{contract.ambassador.user.phone}</p>
-            )}
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-[#030A24] text-white flex items-center justify-center text-sm font-bold flex-shrink-0">
+                {(contract.ambassador?.user?.name || "?")[0].toUpperCase()}
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-medium text-gray-900">{contract.ambassador?.user?.name || "—"}</p>
+                <p className="text-sm text-gray-500 truncate">{contract.ambassador?.user?.email}</p>
+                {contract.ambassador?.user?.phone && (
+                  <p className="text-sm text-gray-500">{contract.ambassador.user.phone}</p>
+                )}
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
 
       {/* Lead info */}
       {contract.lead && (
-        <Card className="rounded-none">
+        <Card>
           <CardHeader>
             <h2 className="font-semibold text-brand-deep" style={{ fontFamily: "'Fira Sans', sans-serif" }}>Prospect recommandé</h2>
           </CardHeader>
@@ -187,7 +194,7 @@ export default function NegociateurContratDetailPage() {
       )}
 
       {/* Commission */}
-      <Card className="rounded-none">
+      <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
             <Banknote className="w-4 h-4 text-brand-gold" />
@@ -195,7 +202,7 @@ export default function NegociateurContratDetailPage() {
           </div>
         </CardHeader>
         <CardContent>
-          <div className="bg-green-50 border border-green-200 px-4 py-3">
+          <div className="bg-green-50 border border-green-200 rounded-lg px-4 py-3">
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-600">Montant HT</span>
               <span className="text-lg font-bold text-green-700">{formatCurrency(ht)}</span>
@@ -223,13 +230,19 @@ export default function NegociateurContratDetailPage() {
       </Card>
 
       {/* Signatures */}
-      <Card className="rounded-none">
+      <Card>
         <CardHeader>
           <h2 className="font-semibold text-brand-deep" style={{ fontFamily: "'Fira Sans', sans-serif" }}>Signatures</h2>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="border border-gray-200 p-3 min-h-[100px]">
+          {/* Signature progress dots */}
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <div className={`w-3 h-3 rounded-full ${contract.adminSignature ? "bg-green-500" : "bg-gray-200"}`} />
+            <div className="w-8 h-0.5 bg-gray-200" />
+            <div className={`w-3 h-3 rounded-full ${contract.ambassadorSignature ? "bg-green-500" : "bg-gray-200"}`} />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="border border-gray-200 rounded-lg p-4 min-h-[100px]">
               <p className="text-xs text-gray-500 font-medium uppercase tracking-wider mb-2">Agence</p>
               {contract.adminSignature?.startsWith("data:image") ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -240,7 +253,7 @@ export default function NegociateurContratDetailPage() {
                 <p className="text-sm text-gray-300 italic">Non signé</p>
               )}
             </div>
-            <div className="border border-gray-200 p-3 min-h-[100px]">
+            <div className="border border-gray-200 rounded-lg p-4 min-h-[100px]">
               <p className="text-xs text-gray-500 font-medium uppercase tracking-wider mb-2">Ambassadeur</p>
               {contract.ambassadorSignature?.startsWith("data:image") ? (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -257,43 +270,64 @@ export default function NegociateurContratDetailPage() {
 
       {/* Honorary Acknowledgments */}
       {contract.honoraryAcknowledgments.length > 0 && (
-        <Card className="rounded-none">
+        <Card>
           <CardHeader>
             <h2 className="font-semibold text-brand-deep" style={{ fontFamily: "'Fira Sans', sans-serif" }}>
               Reconnaissances d&apos;honoraires ({contract.honoraryAcknowledgments.length})
             </h2>
           </CardHeader>
           <CardContent className="p-0">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-gray-100 text-left bg-brand-cream">
-                  <th className="px-6 py-3 font-medium text-brand-deep">N°</th>
-                  <th className="px-6 py-3 font-medium text-brand-deep">Montant</th>
-                  <th className="px-6 py-3 font-medium text-brand-deep">Description</th>
-                  <th className="px-6 py-3 font-medium text-brand-deep">Statut</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50">
-                {contract.honoraryAcknowledgments.map(ack => (
-                  <tr key={ack.id} className="hover:bg-brand-cream/50">
-                    <td className="px-6 py-3 font-mono text-xs">{ack.number}</td>
-                    <td className="px-6 py-3 font-medium">{formatCurrency(ack.amount)}</td>
-                    <td className="px-6 py-3 text-gray-500">{ack.description || "—"}</td>
-                    <td className="px-6 py-3">
-                      <Badge className={HONORAIRE_STATUS_COLORS[ack.status] || "bg-gray-100 text-gray-600"}>
-                        {HONORAIRE_STATUS_LABELS[ack.status] || ack.status}
-                      </Badge>
-                    </td>
+            {/* Mobile: Card layout */}
+            <div className="flex flex-col gap-3 p-4 md:hidden">
+              {contract.honoraryAcknowledgments.map(ack => (
+                <div key={ack.id} className="bg-gray-50 border border-gray-100 rounded-lg p-4">
+                  <div className="flex items-start justify-between gap-3 mb-2">
+                    <p className="text-xs font-mono text-gray-500">{ack.number}</p>
+                    <Badge className={HONORAIRE_STATUS_COLORS[ack.status] || "bg-gray-100 text-gray-600"}>
+                      {HONORAIRE_STATUS_LABELS[ack.status] || ack.status}
+                    </Badge>
+                  </div>
+                  <p className="text-sm font-semibold text-gray-900">{formatCurrency(ack.amount)}</p>
+                  {ack.description && (
+                    <p className="text-xs text-gray-500 mt-1">{ack.description}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Desktop: Table layout */}
+            <div className="hidden md:block">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-gray-100 text-left bg-brand-cream">
+                    <th className="px-6 py-3 font-medium text-brand-deep">N&deg;</th>
+                    <th className="px-6 py-3 font-medium text-brand-deep">Montant</th>
+                    <th className="px-6 py-3 font-medium text-brand-deep">Description</th>
+                    <th className="px-6 py-3 font-medium text-brand-deep">Statut</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {contract.honoraryAcknowledgments.map(ack => (
+                    <tr key={ack.id} className="hover:bg-brand-cream/50">
+                      <td className="px-6 py-3 font-mono text-xs">{ack.number}</td>
+                      <td className="px-6 py-3 font-medium">{formatCurrency(ack.amount)}</td>
+                      <td className="px-6 py-3 text-gray-500">{ack.description || "—"}</td>
+                      <td className="px-6 py-3">
+                        <Badge className={HONORAIRE_STATUS_COLORS[ack.status] || "bg-gray-100 text-gray-600"}>
+                          {HONORAIRE_STATUS_LABELS[ack.status] || ack.status}
+                        </Badge>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </CardContent>
         </Card>
       )}
 
       {contract.notes && (
-        <Card className="rounded-none">
+        <Card>
           <CardHeader>
             <h2 className="font-semibold text-brand-deep" style={{ fontFamily: "'Fira Sans', sans-serif" }}>Notes</h2>
           </CardHeader>

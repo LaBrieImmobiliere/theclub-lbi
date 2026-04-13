@@ -102,12 +102,12 @@ export default function ContratsPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Contrats d&apos;apporteur d&apos;affaire</h1>
-          <p className="text-gray-500 mt-1">{contracts.length} contrat{contracts.length > 1 ? "s" : ""}</p>
+          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Contrats d&apos;apporteur d&apos;affaire</h1>
+          <p className="text-gray-500 mt-1 text-sm">{contracts.length} contrat{contracts.length > 1 ? "s" : ""}</p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 w-full sm:w-auto">
           <CsvExport
             data={filtered.map(c => ({
               numero: c.number,
@@ -127,7 +127,7 @@ export default function ContratsPage() {
             ]}
             filename="contrats.csv"
           />
-          <Button onClick={() => setShowForm(true)}>
+          <Button onClick={() => setShowForm(true)} className="flex-1 sm:flex-initial">
             <Plus className="w-4 h-4" /> Nouveau contrat
           </Button>
         </div>
@@ -216,7 +216,7 @@ export default function ContratsPage() {
       )}
 
       {/* Filters */}
-      <div className="flex gap-3">
+      <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
           <input
@@ -226,7 +226,7 @@ export default function ContratsPage() {
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <div className="w-48">
+        <div className="w-full sm:w-48">
           <Select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
@@ -235,40 +235,47 @@ export default function ContratsPage() {
         </div>
       </div>
 
-      {/* Table */}
-      <Card>
-        <CardContent className="p-0">
-          {filtered.length === 0 ? (
+      {filtered.length === 0 ? (
+        <Card>
+          <CardContent>
             <div className="text-center py-12">
               <FileText className="w-10 h-10 text-gray-300 mx-auto mb-3" />
               <p className="text-gray-500">Aucun contrat trouvé</p>
             </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-gray-100 text-left">
-                    <th className="px-6 py-3 font-medium text-gray-500">N° Contrat</th>
-                    <th className="px-6 py-3 font-medium text-gray-500">Ambassadeur</th>
-                    <th className="px-6 py-3 font-medium text-gray-500">Bien</th>
-                    <th className="px-6 py-3 font-medium text-gray-500">Commission</th>
-                    <th className="px-6 py-3 font-medium text-gray-500">Statut</th>
-                    <th className="px-6 py-3 font-medium text-gray-500 hidden sm:table-cell">Date</th>
-                    <th className="px-6 py-3"></th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-50">
-                  {filtered.map((contract) => (
-                    <tr key={contract.id} className="hover:bg-gray-50/50">
-                      <td className="px-6 py-4">
-                        <p className="font-mono text-xs font-medium">{contract.number}</p>
-                        {contract.lead && (
-                          <p className="text-xs text-gray-500">{contract.lead.firstName} {contract.lead.lastName}</p>
-                        )}
-                      </td>
-                      <td className="px-6 py-4 text-gray-700">{contract.ambassador.user.name}</td>
-                      <td className="px-6 py-4 text-gray-600 text-xs">{contract.propertyAddress || "-"}</td>
-                      <td className="px-6 py-4 font-medium text-green-700">
+          </CardContent>
+        </Card>
+      ) : (
+        <>
+          {/* Mobile cards */}
+          <div className="space-y-3 md:hidden">
+            {filtered.map((contract) => (
+              <Link key={contract.id} href={`/admin/contrats/${contract.id}`} className="block">
+                <div className="bg-white border border-gray-100 shadow-sm rounded-lg p-4">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <p className="font-mono text-xs font-medium text-gray-900">{contract.number}</p>
+                      {contract.lead && (
+                        <p className="text-xs text-gray-500 mt-0.5">{contract.lead.firstName} {contract.lead.lastName}</p>
+                      )}
+                    </div>
+                    <Badge className={CONTRACT_STATUS_COLORS[contract.status]}>
+                      {CONTRACT_STATUS_LABELS[contract.status]}
+                    </Badge>
+                  </div>
+                  <div className="mt-3 space-y-1.5">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-500">Ambassadeur</span>
+                      <span className="text-gray-900 font-medium truncate ml-2">{contract.ambassador.user.name}</span>
+                    </div>
+                    {contract.propertyAddress && (
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-gray-500">Bien</span>
+                        <span className="text-gray-700 text-xs truncate ml-2 max-w-[60%] text-right">{contract.propertyAddress}</span>
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-500">Commission</span>
+                      <span className="font-medium" style={{ color: "#D1B280" }}>
                         {contract.commissionAmount ? formatCurrency(contract.commissionAmount) : (
                           <span className="text-gray-400">
                             {contract.commissionType === "PERCENTAGE"
@@ -276,28 +283,76 @@ export default function ContratsPage() {
                               : formatCurrency(contract.commissionValue)}
                           </span>
                         )}
-                      </td>
-                      <td className="px-6 py-4">
-                        <Badge className={CONTRACT_STATUS_COLORS[contract.status]}>
-                          {CONTRACT_STATUS_LABELS[contract.status]}
-                        </Badge>
-                      </td>
-                      <td className="px-6 py-4 text-gray-500 hidden sm:table-cell">{formatDate(contract.createdAt)}</td>
-                      <td className="px-6 py-4">
-                        <Link href={`/admin/contrats/${contract.id}`}>
-                          <Button variant="ghost" size="sm">
-                            <Eye className="w-4 h-4" /> Voir
-                          </Button>
-                        </Link>
-                      </td>
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-gray-500">Date</span>
+                      <span className="text-gray-500 text-xs">{formatDate(contract.createdAt)}</span>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+
+          {/* Desktop table */}
+          <Card className="hidden md:block">
+            <CardContent className="p-0">
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-gray-100 text-left">
+                      <th className="px-6 py-3 font-medium text-gray-500">N° Contrat</th>
+                      <th className="px-6 py-3 font-medium text-gray-500">Ambassadeur</th>
+                      <th className="px-6 py-3 font-medium text-gray-500">Bien</th>
+                      <th className="px-6 py-3 font-medium text-gray-500">Commission</th>
+                      <th className="px-6 py-3 font-medium text-gray-500">Statut</th>
+                      <th className="px-6 py-3 font-medium text-gray-500">Date</th>
+                      <th className="px-6 py-3"></th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {filtered.map((contract) => (
+                      <tr key={contract.id} className="hover:bg-gray-50/50">
+                        <td className="px-6 py-4">
+                          <p className="font-mono text-xs font-medium">{contract.number}</p>
+                          {contract.lead && (
+                            <p className="text-xs text-gray-500">{contract.lead.firstName} {contract.lead.lastName}</p>
+                          )}
+                        </td>
+                        <td className="px-6 py-4 text-gray-700">{contract.ambassador.user.name}</td>
+                        <td className="px-6 py-4 text-gray-600 text-xs">{contract.propertyAddress || "-"}</td>
+                        <td className="px-6 py-4 font-medium text-green-700">
+                          {contract.commissionAmount ? formatCurrency(contract.commissionAmount) : (
+                            <span className="text-gray-400">
+                              {contract.commissionType === "PERCENTAGE"
+                                ? `${contract.commissionValue}%`
+                                : formatCurrency(contract.commissionValue)}
+                            </span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4">
+                          <Badge className={CONTRACT_STATUS_COLORS[contract.status]}>
+                            {CONTRACT_STATUS_LABELS[contract.status]}
+                          </Badge>
+                        </td>
+                        <td className="px-6 py-4 text-gray-500">{formatDate(contract.createdAt)}</td>
+                        <td className="px-6 py-4">
+                          <Link href={`/admin/contrats/${contract.id}`}>
+                            <Button variant="ghost" size="sm">
+                              <Eye className="w-4 h-4" /> Voir
+                            </Button>
+                          </Link>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
+        </>
+      )}
     </div>
   );
 }

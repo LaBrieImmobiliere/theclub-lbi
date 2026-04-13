@@ -45,7 +45,7 @@ export function LeadTimeline({ status, history, compact }: LeadTimelineProps) {
 
   if (isLost) {
     return (
-      <div className="flex items-center gap-3 px-4 py-3 bg-red-50 border border-red-200">
+      <div className="flex items-center gap-3 px-4 py-3 bg-red-50 border border-red-200 rounded-lg">
         <XCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
         <div>
           <p className="text-sm font-semibold text-red-700">Dossier perdu</p>
@@ -57,7 +57,7 @@ export function LeadTimeline({ status, history, compact }: LeadTimelineProps) {
 
   if (isPaused) {
     return (
-      <div className="flex items-center gap-3 px-4 py-3 bg-gray-50 border border-gray-200">
+      <div className="flex items-center gap-3 px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg">
         <Pause className="w-5 h-5 text-gray-500 flex-shrink-0" />
         <div>
           <p className="text-sm font-semibold text-gray-700">Dossier en pause</p>
@@ -151,7 +151,7 @@ export function LeadTimeline({ status, history, compact }: LeadTimelineProps) {
 
                 {/* Comment/note */}
                 {noteData && (isDone || isCurrent) && (
-                  <div className="mt-2 bg-gray-50 border-l-2 border-[#D1B280] px-3 py-2">
+                  <div className="mt-2 bg-gray-50 border-l-2 border-[#D1B280] px-3 py-2 rounded-r-lg">
                     <p className="text-xs text-gray-600 italic">{noteData.note}</p>
                     <p className="text-[10px] text-gray-400 mt-0.5">{noteData.by}</p>
                   </div>

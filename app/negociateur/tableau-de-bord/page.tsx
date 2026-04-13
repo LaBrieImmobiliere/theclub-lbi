@@ -92,7 +92,7 @@ export default async function NegociateurDashboardPage() {
         </div>
         {newLeads > 0 && (
           <Link href="/negociateur/mes-recommandations"
-            className="flex items-center gap-2 px-4 py-2 bg-[#D1B280] text-white text-sm font-medium hover:bg-[#b89a65] transition-colors flex-shrink-0">
+            className="flex items-center gap-2 px-4 py-2 bg-[#D1B280] text-white text-sm font-medium rounded-lg hover:bg-[#b89a65] transition-colors flex-shrink-0">
             <Bell className="w-4 h-4" />
             {newLeads} nouvelle{newLeads > 1 ? "s" : ""}
           </Link>
@@ -184,7 +184,7 @@ export default async function NegociateurDashboardPage() {
 
       {/* Alerte leads en attente */}
       {newLeads > 0 && (
-        <div className="flex items-center justify-between bg-amber-50 border border-amber-200 px-5 py-3">
+        <div className="flex items-center justify-between bg-amber-50 border border-amber-200 rounded-lg px-5 py-3">
           <div className="flex items-center gap-2">
             <Bell className="w-4 h-4 text-amber-600 flex-shrink-0" />
             <p className="text-sm text-amber-800">
@@ -229,11 +229,16 @@ export default async function NegociateurDashboardPage() {
               <ul className="divide-y divide-gray-50">
                 {recentLeads.map((lead) => (
                   <li key={lead.id} className="px-6 py-3 flex items-center justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">{lead.firstName} {lead.lastName}</p>
-                      <p className="text-xs text-gray-400 truncate">
-                        {lead.ambassador.user.name} &middot; {formatDate(lead.createdAt)}
-                      </p>
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-10 h-10 rounded-full bg-[#030A24] text-white flex items-center justify-center text-xs font-bold flex-shrink-0">
+                        {(lead.firstName?.[0] || "").toUpperCase()}{(lead.lastName?.[0] || "").toUpperCase()}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-gray-900 truncate">{lead.firstName} {lead.lastName}</p>
+                        <p className="text-xs text-gray-400 truncate">
+                          {lead.ambassador.user.name} &middot; {formatDate(lead.createdAt)}
+                        </p>
+                      </div>
                     </div>
                     <Badge className={`flex-shrink-0 text-xs ${LEAD_STATUS_COLORS[lead.status]}`}>
                       {LEAD_STATUS_LABELS[lead.status] || lead.status}
@@ -269,7 +274,7 @@ export default async function NegociateurDashboardPage() {
                 {activeAmbassadors.slice(0, 5).map((amb) => (
                   <li key={amb.id} className="px-6 py-3 flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-8 h-8 bg-[#030A24] text-white flex items-center justify-center text-xs font-bold flex-shrink-0">
+                      <div className="w-10 h-10 rounded-full bg-[#030A24] text-white flex items-center justify-center text-xs font-bold flex-shrink-0">
                         {(amb.user.name || amb.user.email)[0].toUpperCase()}
                       </div>
                       <div className="min-w-0">
@@ -291,7 +296,7 @@ export default async function NegociateurDashboardPage() {
 
       {/* CTA recrutement */}
       <Link href="/negociateur/parrainage">
-        <div className="bg-gradient-to-r from-[#030A24] to-[#0f1e40] p-6 text-white cursor-pointer hover:from-[#0a1535] transition-colors">
+        <div className="bg-gradient-to-r from-[#030A24] to-[#0f1e40] p-6 rounded-lg text-white cursor-pointer hover:from-[#0a1535] transition-colors">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-lg font-bold">Recruter un ambassadeur</h2>
@@ -299,7 +304,7 @@ export default async function NegociateurDashboardPage() {
                 Partagez votre lien de recrutement pour agrandir votre réseau.
               </p>
             </div>
-            <div className="w-11 h-11 bg-[#D1B280]/20 flex items-center justify-center flex-shrink-0">
+            <div className="w-11 h-11 rounded-lg bg-[#D1B280]/20 flex items-center justify-center flex-shrink-0">
               <FileText className="w-5 h-5 text-[#D1B280]" />
             </div>
           </div>
@@ -317,9 +322,9 @@ export default async function NegociateurDashboardPage() {
               </div>
               <p className="text-sm font-bold text-gray-900">{conversionRate}%</p>
             </div>
-            <div className="w-full bg-gray-100 h-2">
+            <div className="w-full bg-gray-100 h-2 rounded-full">
               <div
-                className="h-2 bg-[#D1B280] transition-all duration-700"
+                className="h-2 bg-[#D1B280] rounded-full transition-all duration-700"
                 style={{ width: `${Math.min(conversionRate, 100)}%` }}
               />
             </div>

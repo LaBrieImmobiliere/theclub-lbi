@@ -10,7 +10,7 @@ export function Card({
   return (
     <div
       className={cn(
-        "bg-white rounded-xl border border-gray-200 shadow-sm",
+        "bg-white rounded-lg border border-gray-100 shadow-sm",
         className
       )}
     >
@@ -51,7 +51,7 @@ export function CardFooter({
   children: React.ReactNode;
 }) {
   return (
-    <div className={cn("px-6 py-4 border-t border-gray-100 bg-gray-50 rounded-b-xl", className)}>
+    <div className={cn("px-6 py-4 border-t border-gray-100 bg-gray-50 rounded-b-lg", className)}>
       {children}
     </div>
   );

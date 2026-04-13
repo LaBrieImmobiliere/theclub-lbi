@@ -170,13 +170,13 @@ export default async function PortalDashboardPage() {
                 </Link>
               </div>
             </CardHeader>
-            <CardContent className="p-0">
+            <CardContent className="px-4 py-3">
               {recentLeads.length === 0 ? (
                 <p className="text-sm text-gray-400 text-center py-8">Aucune recommandation</p>
               ) : (
-                <ul className="divide-y divide-gray-50">
+                <div className="space-y-2">
                   {recentLeads.map((lead) => (
-                    <li key={lead.id} className="px-6 py-3 flex items-center justify-between">
+                    <div key={lead.id} className="flex items-center justify-between bg-gray-50/80 border border-gray-100 rounded-lg px-4 py-3">
                       <div>
                         <p className="text-sm font-medium text-gray-900">
                           {lead.firstName} {lead.lastName}
@@ -186,9 +186,9 @@ export default async function PortalDashboardPage() {
                       <Badge className={LEAD_STATUS_COLORS[lead.status]}>
                         {LEAD_STATUS_LABELS[lead.status]}
                       </Badge>
-                    </li>
+                    </div>
                   ))}
-                </ul>
+                </div>
               )}
             </CardContent>
           </Card>
@@ -200,25 +200,25 @@ export default async function PortalDashboardPage() {
                 <h2 className="font-semibold text-gray-900">Mes ambassadeurs</h2>
               </div>
             </CardHeader>
-            <CardContent className="p-0">
+            <CardContent className="px-4 py-3">
               {negotiator.ambassadors.length === 0 ? (
                 <p className="text-sm text-gray-400 text-center py-8">Aucun ambassadeur recrut&eacute;</p>
               ) : (
-                <ul className="divide-y divide-gray-50">
+                <div className="space-y-2">
                   {negotiator.ambassadors.slice(0, 5).map((amb) => (
-                    <li key={amb.id} className="px-6 py-3 flex items-center justify-between">
+                    <div key={amb.id} className="flex items-center justify-between bg-gray-50/80 border border-gray-100 rounded-lg px-4 py-3">
                       <div>
                         <p className="text-sm font-medium text-gray-900">{amb.user.name}</p>
                         <p className="text-xs text-gray-500">
                           {amb.leads.length} recommandation{amb.leads.length !== 1 ? "s" : ""} &middot; {amb.contracts.length} contrat{amb.contracts.length !== 1 ? "s" : ""}
                         </p>
                       </div>
-                      <code className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded font-mono">
+                      <code className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-mono">
                         {amb.code}
                       </code>
-                    </li>
+                    </div>
                   ))}
-                </ul>
+                </div>
               )}
             </CardContent>
           </Card>
@@ -338,7 +338,7 @@ export default async function PortalDashboardPage() {
         </h1>
         <p className="text-gray-500 mt-1">
           Votre code parrainage :{" "}
-          <code className="bg-blue-50 text-blue-700 px-2 py-0.5 rounded font-mono font-medium">
+          <code className="bg-[#D1B280]/10 text-[#D1B280] px-2.5 py-0.5 rounded-full font-mono font-medium">
             {ambassador.code}
           </code>
         </p>
@@ -447,7 +447,7 @@ export default async function PortalDashboardPage() {
 
       {/* Classement personnel */}
       {totalActiveAmbassadors > 1 && (
-        <div className="flex items-center gap-4 bg-gradient-to-r from-[#030A24] to-[#0f1e40] rounded-xl px-5 py-4 text-white">
+        <div className="flex items-center gap-4 bg-gradient-to-r from-[#030A24] to-[#0f1e40] rounded-lg px-5 py-4 text-white">
           <div className="w-12 h-12 bg-[#D1B280]/20 rounded-xl flex items-center justify-center flex-shrink-0">
             <span className="text-xl font-bold text-[#D1B280]">{myRank > 0 ? `#${myRank}` : "—"}</span>
           </div>
@@ -481,7 +481,7 @@ export default async function PortalDashboardPage() {
       <a
         href="/api/me/rapport"
         download
-        className="flex items-center justify-center gap-2 py-3 border border-gray-200 text-sm font-medium text-gray-600 hover:border-[#D1B280] hover:text-[#D1B280] transition-colors"
+        className="flex items-center justify-center gap-2 py-3 rounded-lg border border-gray-200 text-sm font-medium text-gray-600 hover:border-[#D1B280] hover:text-[#D1B280] transition-colors"
       >
         <FileText className="w-4 h-4" />
         T&eacute;l&eacute;charger mon rapport mensuel
@@ -489,7 +489,7 @@ export default async function PortalDashboardPage() {
 
       {/* Pending signatures alert */}
       {pendingAcks > 0 && (
-        <div className="flex items-center justify-between bg-blue-50 border border-blue-200 rounded-xl px-4 py-3">
+        <div className="flex items-center justify-between bg-blue-50 border border-blue-200 rounded-lg px-4 py-3">
           <p className="text-sm text-blue-800">
             <strong>{pendingAcks} reconnaissance{pendingAcks > 1 ? "s" : ""} d&apos;honoraires</strong> en attente de votre action.
           </p>
@@ -501,7 +501,7 @@ export default async function PortalDashboardPage() {
 
       {/* CTA */}
       <Link href="/portail/recommander">
-        <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl p-6 text-white cursor-pointer hover:from-blue-700 hover:to-blue-800 transition-colors">
+        <div className="bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg p-6 text-white cursor-pointer hover:from-blue-700 hover:to-blue-800 transition-colors">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-lg font-bold">Recommander un proche</h2>
@@ -527,13 +527,13 @@ export default async function PortalDashboardPage() {
               </Link>
             </div>
           </CardHeader>
-          <CardContent className="p-0">
+          <CardContent className="px-4 py-3">
             {recentLeads.length === 0 ? (
               <p className="text-sm text-gray-400 text-center py-8">Aucune recommandation</p>
             ) : (
-              <ul className="divide-y divide-gray-50">
+              <div className="space-y-2">
                 {recentLeads.map((lead) => (
-                  <li key={lead.id} className="px-6 py-3 flex items-center justify-between">
+                  <div key={lead.id} className="flex items-center justify-between bg-gray-50/80 border border-gray-100 rounded-lg px-4 py-3">
                     <div>
                       <p className="text-sm font-medium text-gray-900">
                         {lead.firstName} {lead.lastName}
@@ -543,9 +543,9 @@ export default async function PortalDashboardPage() {
                     <Badge className={LEAD_STATUS_COLORS[lead.status]}>
                       {LEAD_STATUS_LABELS[lead.status]}
                     </Badge>
-                  </li>
+                  </div>
                 ))}
-              </ul>
+              </div>
             )}
           </CardContent>
         </Card>
@@ -560,13 +560,13 @@ export default async function PortalDashboardPage() {
               </Link>
             </div>
           </CardHeader>
-          <CardContent className="p-0">
+          <CardContent className="px-4 py-3">
             {recentContracts.length === 0 ? (
               <p className="text-sm text-gray-400 text-center py-8">Aucun contrat</p>
             ) : (
-              <ul className="divide-y divide-gray-50">
+              <div className="space-y-2">
                 {recentContracts.map((contract) => (
-                  <li key={contract.id} className="px-6 py-3 flex items-center justify-between">
+                  <div key={contract.id} className="flex items-center justify-between bg-gray-50/80 border border-gray-100 rounded-lg px-4 py-3">
                     <div>
                       <p className="text-sm font-medium font-mono text-gray-900">{contract.number}</p>
                       <p className="text-xs text-gray-500">
@@ -576,9 +576,9 @@ export default async function PortalDashboardPage() {
                     <Badge className={CONTRACT_STATUS_COLORS[contract.status]}>
                       {CONTRACT_STATUS_LABELS[contract.status]}
                     </Badge>
-                  </li>
+                  </div>
                 ))}
-              </ul>
+              </div>
             )}
           </CardContent>
         </Card>
