@@ -29,6 +29,9 @@ type HonoraryAck = {
   status: string;
   paidAt?: string;
   ambassadorSignature?: string;
+  adminSignature?: string;
+  signedAt?: string;
+  countersignedAt?: string;
   createdAt: string;
 };
 
@@ -275,31 +278,49 @@ export default function ContratPortalDetailPage() {
           <CardHeader><h2 className="font-semibold text-gray-900">Reconnaissances d&apos;honoraires</h2></CardHeader>
           <CardContent className="space-y-3">
             {contract.honoraryAcknowledgments.map((ack) => (
-              <div key={ack.id} className="flex items-center justify-between p-4 border border-gray-100 rounded-xl">
-                <div>
-                  <p className="font-mono text-sm font-semibold">{ack.number}</p>
-                  <p className="text-sm text-gray-600">{formatCurrency(ack.amount)}</p>
-                  {ack.description && <p className="text-xs text-gray-400">{ack.description}</p>}
-                  {ack.paidAt && <p className="text-xs text-green-600">Payée le {formatDate(ack.paidAt)}</p>}
-                </div>
-                <div className="flex flex-col items-end gap-2">
+              <div key={ack.id} className="p-4 border border-gray-100 rounded-xl space-y-3">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-mono text-sm font-semibold">{ack.number}</p>
+                    <p className="text-sm text-gray-600">{formatCurrency(ack.amount)}</p>
+                    {ack.description && <p className="text-xs text-gray-400">{ack.description}</p>}
+                    {ack.paidAt && <p className="text-xs text-green-600">Payée le {formatDate(ack.paidAt)}</p>}
+                  </div>
                   <Badge className={HONORAIRE_STATUS_COLORS[ack.status]}>
                     {HONORAIRE_STATUS_LABELS[ack.status]}
                   </Badge>
-                  <div className="flex gap-1">
-                    {ack.status === "VALIDEE" && !ack.ambassadorSignature && (
-                      <Button size="sm" onClick={() => setShowSignAck(ack.id)}>
-                        ✍️ Signer
-                      </Button>
-                    )}
-                    <Button variant="outline" size="sm" onClick={() => downloadAckPDF(ack)}>
-                      <Download className="w-3 h-3" /> PDF
-                    </Button>
-                  </div>
-                  {ack.ambassadorSignature && (
-                    <p className="text-xs text-green-600">✓ Signé</p>
-                  )}
                 </div>
+                {/* Signature progress */}
+                <div className="flex gap-4 text-xs">
+                  <div className="flex items-center gap-1.5">
+                    <span className={`w-2 h-2 rounded-full ${ack.ambassadorSignature ? "bg-green-400" : "bg-gray-300"}`} />
+                    <span className={ack.ambassadorSignature ? "text-green-700" : "text-gray-400"}>
+                      {ack.ambassadorSignature ? "Votre signature" : "En attente de votre signature"}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <span className={`w-2 h-2 rounded-full ${ack.adminSignature ? "bg-green-400" : "bg-gray-300"}`} />
+                    <span className={ack.adminSignature ? "text-green-700" : "text-gray-400"}>
+                      {ack.adminSignature ? "Contresignée par l'agence" : "Attente contresignature agence"}
+                    </span>
+                  </div>
+                </div>
+                {/* Actions */}
+                <div className="flex gap-2">
+                  {(ack.status === "EN_ATTENTE" || ack.status === "VALIDEE") && !ack.ambassadorSignature && (
+                    <Button size="sm" onClick={() => setShowSignAck(ack.id)}>
+                      ✍️ Signer la reconnaissance
+                    </Button>
+                  )}
+                  <Button variant="outline" size="sm" onClick={() => downloadAckPDF(ack)}>
+                    <Download className="w-3 h-3" /> PDF
+                  </Button>
+                </div>
+                {ack.status === "CONTRESIGNEE" && (
+                  <div className="bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+                    <p className="text-xs text-green-800">✅ Reconnaissance signée par les deux parties. Le versement de votre commission est en cours.</p>
+                  </div>
+                )}
               </div>
             ))}
           </CardContent>

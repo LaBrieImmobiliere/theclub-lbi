@@ -44,7 +44,9 @@ const STATUS_OPTIONS = [
   { value: "SOUS_OFFRE", label: "Sous offre" },
   { value: "COMPROMIS_SIGNE", label: "Compromis signé" },
   { value: "ACTE_SIGNE", label: "Acte signé" },
+  { value: "RECONNAISSANCE_HONORAIRES", label: "Reconnaissance d'honoraires" },
   { value: "COMMISSION_VERSEE", label: "Commission versée" },
+  { value: "CLOTURE", label: "Clôturé" },
   { value: "EN_PAUSE", label: "En pause" },
   { value: "PERDU", label: "Perdu" },
 ];
@@ -296,7 +298,7 @@ export default function RecommandationsPage() {
                               </button>
                               <span className={`text-[9px] text-center leading-tight ${isCurrent ? "text-blue-600 font-semibold" : isDone ? "text-gray-500" : "text-gray-300"}`}
                                 onClick={() => isClickable && updateStatus(selected.id, key)} style={{ cursor: isClickable ? "pointer" : "default" }}>
-                                {LEAD_STATUS_LABELS[key]?.replace("Commission versée", "Commission")}
+                                {LEAD_STATUS_LABELS[key]?.replace("Commission versée", "Commission").replace("Reconnaissance d'honoraires", "Reco. hon.").replace("Clôturé", "Clos")}
                               </span>
                             </div>
                           );
@@ -306,6 +308,18 @@ export default function RecommandationsPage() {
                   );
                 })()}
                 <div className="flex flex-wrap gap-2">
+                  {selected.status === "COMMISSION_VERSEE" && (
+                    <button onClick={() => updateStatus(selected.id, "CLOTURE")} disabled={!!updatingStatus}
+                      className="px-3 py-1.5 text-xs font-medium rounded-full border border-slate-400 text-slate-600 bg-slate-50 hover:bg-slate-100 hover:border-slate-500 transition-colors disabled:opacity-50">
+                      ✅ Clore le dossier
+                    </button>
+                  )}
+                  {selected.status === "CLOTURE" && (
+                    <button onClick={() => updateStatus(selected.id, "COMMISSION_VERSEE")} disabled={!!updatingStatus}
+                      className="px-3 py-1.5 text-xs font-medium rounded-full border border-blue-300 text-blue-600 bg-blue-50 hover:bg-blue-100 hover:border-blue-400 transition-colors disabled:opacity-50">
+                      🔄 Réouvrir le dossier
+                    </button>
+                  )}
                   <button onClick={() => updateStatus(selected.id, "EN_PAUSE")} disabled={!!updatingStatus || selected.status === "EN_PAUSE"}
                     className="px-3 py-1.5 text-xs font-medium rounded-full border border-gray-300 text-gray-500 hover:border-gray-500 hover:text-gray-700 transition-colors disabled:opacity-50">
                     ⏸ En pause

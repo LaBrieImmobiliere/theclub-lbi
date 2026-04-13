@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { sendNotificationEmail } from "@/lib/email";
+import { sendPushToUser } from "@/lib/push";
+import { generateAcknowledgmentNumber } from "@/lib/utils";
 
 const STATUS_LABELS: Record<string, string> = {
   NOUVEAU: "Nouveau",
@@ -14,6 +16,8 @@ const STATUS_LABELS: Record<string, string> = {
   COMPROMIS_SIGNE: "Compromis signé",
   ACTE_SIGNE: "Acte signé",
   COMMISSION_VERSEE: "Commission versée",
+  RECONNAISSANCE_HONORAIRES: "Reconnaissance d'honoraires",
+  CLOTURE: "Clôturé",
   EN_PAUSE: "En pause",
   PERDU: "Perdu",
   EN_COURS: "En cours",
@@ -66,6 +70,14 @@ const STATUS_NOTIFICATIONS: Record<string, { title: string; message: (name: stri
     title: "Dossier en pause \u23F8\uFE0F",
     message: (name) => `Le dossier ${name} est temporairement en pause. On vous tiendra informé de la suite.`,
   },
+  RECONNAISSANCE_HONORAIRES: {
+    title: "Reconnaissance d'honoraires \uD83D\uDCDD",
+    message: (name) => `La reconnaissance d'honoraires pour ${name} est prête à être signée. Rendez-vous dans votre espace pour la consulter.`,
+  },
+  CLOTURE: {
+    title: "Dossier clôturé \u2705",
+    message: (name) => `Le dossier ${name} est désormais clôturé et archivé. Merci pour votre recommandation !`,
+  },
 };
 
 export async function PATCH(
@@ -114,6 +126,27 @@ export async function PATCH(
       where: { id: lead.contract.id },
       data: { status: "PAYE", paidAt: new Date() },
     });
+  }
+
+  // Auto-generate honorary acknowledgment when lead reaches RECONNAISSANCE_HONORAIRES
+  if (body.status === "RECONNAISSANCE_HONORAIRES" && lead.contract) {
+    // Check if an acknowledgment already exists for this contract
+    const existingAck = await prisma.honoraryAcknowledgment.findFirst({
+      where: { contractId: lead.contract.id },
+    });
+    if (!existingAck) {
+      const commissionAmount = lead.contract.commissionAmount
+        || (lead.contract.commissionType === "FIXED" ? lead.contract.commissionValue : 0);
+      await prisma.honoraryAcknowledgment.create({
+        data: {
+          contractId: lead.contract.id,
+          number: generateAcknowledgmentNumber(),
+          amount: commissionAmount || 0,
+          description: `Commission pour la recommandation ${lead.firstName} ${lead.lastName}`,
+          status: "EN_ATTENTE",
+        },
+      });
+    }
   }
 
   // Record status change history + notifications
@@ -174,6 +207,18 @@ export async function PATCH(
             link: "/portail/mes-recommandations",
           },
         });
+
+        // Send push notification
+        try {
+          await sendPushToUser(
+            user.id,
+            notifTitle,
+            notifMessage,
+            "/portail/mes-recommandations"
+          );
+        } catch (pushErr) {
+          console.error("Failed to send push:", pushErr);
+        }
 
         // Check badges for ambassador
         const leadCount = await prisma.lead.count({ where: { ambassadorId: leadWithAmbassador.ambassadorId } });

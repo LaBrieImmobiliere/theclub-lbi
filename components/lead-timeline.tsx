@@ -12,7 +12,9 @@ const STEPS = [
   { key: "SOUS_OFFRE", label: "Sous offre", emoji: "\uD83D\uDCB0", desc: "Une offre a été acceptée" },
   { key: "COMPROMIS_SIGNE", label: "Compromis signé", emoji: "\uD83C\uDF89", desc: "Le compromis est signé !" },
   { key: "ACTE_SIGNE", label: "Acte signé", emoji: "\uD83C\uDFE0", desc: "Passage chez le notaire effectué" },
+  { key: "RECONNAISSANCE_HONORAIRES", label: "Reconnaissance", emoji: "\uD83D\uDCDD", desc: "Reconnaissance d'honoraires à signer" },
   { key: "COMMISSION_VERSEE", label: "Commission versée", emoji: "\uD83D\uDCB8", desc: "Votre commission a été payée !" },
+  { key: "CLOTURE", label: "Clôturé", emoji: "\u2705", desc: "Dossier clôturé et archivé" },
 ];
 
 // Legacy mapping

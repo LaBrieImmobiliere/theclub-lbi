@@ -638,22 +638,33 @@ export function generateAcknowledgmentPDF(ack: any, contract: any) {
   // Signatures
   const sigBoxW = (pageW - M * 2 - 10) / 2;
   doc.setDrawColor(203, 213, 225);
+
+  // Agency signature box
   doc.roundedRect(M, y, sigBoxW, 40, 2, 2, "S");
   doc.setFont("helvetica", "bold");
   doc.setFontSize(8);
   doc.setTextColor(100, 116, 139);
   doc.text(`L'AGENCE \u2014 ${agency.name}`, M + 3, y + 6);
-  if (contract.adminSignature?.startsWith("data:image")) {
-    try { doc.addImage(contract.adminSignature, "PNG", M + 5, y + 8, sigBoxW - 10, 25); } catch { /* skip */ }
-  } else if (contract.adminSignature) {
+  // Use ack.adminSignature first (dual-sig flow), fallback to contract.adminSignature
+  const ackAdminSig = ack.adminSignature || contract.adminSignature;
+  if (ackAdminSig?.startsWith("data:image")) {
+    try { doc.addImage(ackAdminSig, "PNG", M + 5, y + 8, sigBoxW - 10, 25); } catch { /* skip */ }
+  } else if (ackAdminSig) {
     doc.setFont("helvetica", "italic");
     doc.setFontSize(10);
     doc.setTextColor(30, 64, 175);
-    doc.text(contract.adminSignature, M + 3, y + 22);
+    doc.text(ackAdminSig, M + 3, y + 22);
+  } else {
+    doc.setTextColor(200, 210, 220);
+    doc.text("En attente de contresignature", M + 3, y + 22);
   }
 
+  // Ambassador signature box
   const sigX2 = M + sigBoxW + 10;
   doc.roundedRect(sigX2, y, sigBoxW, 40, 2, 2, "S");
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8);
+  doc.setTextColor(100, 116, 139);
   const ackSigLabel = ackLegalStatus === "SOCIETE" && contract.ambassador?.companyName
     ? `LE PARRAIN \u2014 ${contract.ambassador.companyName}`
     : ackLegalStatus === "ASSOCIATION" && contract.ambassador?.associationName
@@ -662,6 +673,14 @@ export function generateAcknowledgmentPDF(ack: any, contract: any) {
   doc.text(ackSigLabel.substring(0, 45), sigX2 + 3, y + 6);
   if (ack.ambassadorSignature?.startsWith("data:image")) {
     try { doc.addImage(ack.ambassadorSignature, "PNG", sigX2 + 5, y + 8, sigBoxW - 10, 25); } catch { /* skip */ }
+  } else if (ack.ambassadorSignature) {
+    doc.setFont("helvetica", "italic");
+    doc.setFontSize(10);
+    doc.setTextColor(30, 64, 175);
+    doc.text(ack.ambassadorSignature, sigX2 + 3, y + 22);
+  } else {
+    doc.setTextColor(200, 210, 220);
+    doc.text("En attente de signature", sigX2 + 3, y + 22);
   }
 
   y += 48;

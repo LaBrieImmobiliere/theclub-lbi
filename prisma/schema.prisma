@@ -249,6 +249,9 @@ model HonoraryAcknowledgment {
   paidAt     DateTime?
   paymentRef String?
   ambassadorSignature String?
+  adminSignature      String?
+  signedAt            DateTime?
+  countersignedAt     DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

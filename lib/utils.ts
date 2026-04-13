@@ -71,7 +71,9 @@ export const LEAD_STATUS_LABELS: Record<string, string> = {
   SOUS_OFFRE: "Sous offre",
   COMPROMIS_SIGNE: "Compromis signé",
   ACTE_SIGNE: "Acte signé",
+  RECONNAISSANCE_HONORAIRES: "Reconnaissance d'honoraires",
   COMMISSION_VERSEE: "Commission versée",
+  CLOTURE: "Clôturé",
   EN_PAUSE: "En pause",
   PERDU: "Perdu",
   // Legacy compatibility
@@ -89,7 +91,9 @@ export const LEAD_STATUS_COLORS: Record<string, string> = {
   SOUS_OFFRE: "bg-pink-100 text-pink-800",
   COMPROMIS_SIGNE: "bg-emerald-100 text-emerald-800",
   ACTE_SIGNE: "bg-green-100 text-green-800",
+  RECONNAISSANCE_HONORAIRES: "bg-amber-100 text-amber-800",
   COMMISSION_VERSEE: "bg-green-200 text-green-900",
+  CLOTURE: "bg-slate-200 text-slate-800",
   EN_PAUSE: "bg-gray-100 text-gray-600",
   PERDU: "bg-red-100 text-red-800",
   // Legacy
@@ -108,7 +112,9 @@ export const LEAD_STATUS_STEPS = [
   "SOUS_OFFRE",
   "COMPROMIS_SIGNE",
   "ACTE_SIGNE",
+  "RECONNAISSANCE_HONORAIRES",
   "COMMISSION_VERSEE",
+  "CLOTURE",
 ];
 
 export const CONTRACT_STATUS_LABELS: Record<string, string> = {
@@ -128,15 +134,19 @@ export const CONTRACT_STATUS_COLORS: Record<string, string> = {
 };
 
 export const HONORAIRE_STATUS_LABELS: Record<string, string> = {
-  EN_ATTENTE: "En attente",
+  EN_ATTENTE: "En attente de signature",
+  SIGNEE_AMBASSADEUR: "Signée par l'ambassadeur",
+  CONTRESIGNEE: "Contresignée",
   VALIDEE: "Validée",
   PAYEE: "Payée",
 };
 
 export const HONORAIRE_STATUS_COLORS: Record<string, string> = {
   EN_ATTENTE: "bg-yellow-100 text-yellow-800",
-  VALIDEE: "bg-blue-100 text-blue-800",
-  PAYEE: "bg-green-100 text-green-800",
+  SIGNEE_AMBASSADEUR: "bg-blue-100 text-blue-800",
+  CONTRESIGNEE: "bg-emerald-100 text-emerald-800",
+  VALIDEE: "bg-green-100 text-green-800",
+  PAYEE: "bg-green-200 text-green-900",
 };
 
 export const LEAD_TYPE_LABELS: Record<string, string> = {

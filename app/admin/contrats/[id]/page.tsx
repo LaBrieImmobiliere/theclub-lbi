@@ -34,6 +34,9 @@ type HonoraryAck = {
   status: string;
   paidAt?: string;
   ambassadorSignature?: string;
+  adminSignature?: string;
+  signedAt?: string;
+  countersignedAt?: string;
   createdAt: string;
 };
 
@@ -68,6 +71,7 @@ export default function ContratDetailPage() {
   const [statusUpdating, setStatusUpdating] = useState(false);
   const [saving, setSaving] = useState(false);
   const [editMode, setEditMode] = useState(false);
+  const [showCountersign, setShowCountersign] = useState<string | null>(null);
   const [editForm, setEditForm] = useState({
     propertyAddress: "",
     propertyPrice: "",
@@ -125,6 +129,18 @@ export default function ContratDetailPage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ status }),
     });
+    fetchContract();
+  };
+
+  const countersignAck = async (ackId: string, dataUrl: string) => {
+    setSaving(true);
+    await fetch(`/api/contrats/${id}/reconnaissances/${ackId}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ adminSignature: dataUrl }),
+    });
+    setSaving(false);
+    setShowCountersign(null);
     fetchContract();
   };
 
@@ -531,38 +547,56 @@ export default function ContratDetailPage() {
               {contract.honoraryAcknowledgments.length === 0 && !showAckForm ? (
                 <p className="text-sm text-gray-400 text-center py-4">Aucune reconnaissance d&apos;honoraires</p>
               ) : (
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {contract.honoraryAcknowledgments.map((ack) => (
-                    <div key={ack.id} className="flex items-center justify-between p-3 border border-gray-100 rounded-xl">
-                      <div>
-                        <p className="text-sm font-medium font-mono">{ack.number}</p>
-                        <p className="text-xs text-gray-500">
-                          {formatCurrency(ack.amount)}
-                          {ack.description && ` · ${ack.description}`}
-                        </p>
-                        {ack.ambassadorSignature && (
-                          <p className="text-xs text-green-600">✓ Signé par l&apos;ambassadeur</p>
-                        )}
+                    <div key={ack.id} className="p-4 border border-gray-100 rounded-xl space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm font-medium font-mono">{ack.number}</p>
+                          <p className="text-xs text-gray-500">
+                            {formatCurrency(ack.amount)}
+                            {ack.description && ` · ${ack.description}`}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Badge className={HONORAIRE_STATUS_COLORS[ack.status]}>
+                            {HONORAIRE_STATUS_LABELS[ack.status]}
+                          </Badge>
+                          <Button variant="outline" size="sm" onClick={() => downloadAckPDF(ack)} className="h-7">
+                            <Download className="w-3 h-3" /> PDF
+                          </Button>
+                        </div>
                       </div>
+                      {/* Signature status */}
+                      <div className="flex gap-4 text-xs">
+                        <div className="flex items-center gap-1.5">
+                          <span className={`w-2 h-2 rounded-full ${ack.ambassadorSignature ? "bg-green-400" : "bg-gray-300"}`} />
+                          <span className={ack.ambassadorSignature ? "text-green-700" : "text-gray-400"}>
+                            {ack.ambassadorSignature ? "Ambassadeur a signé" : "Attente signature ambassadeur"}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <span className={`w-2 h-2 rounded-full ${ack.adminSignature ? "bg-green-400" : "bg-gray-300"}`} />
+                          <span className={ack.adminSignature ? "text-green-700" : "text-gray-400"}>
+                            {ack.adminSignature ? "Contresigné par l'agence" : "Attente contresignature"}
+                          </span>
+                        </div>
+                      </div>
+                      {/* Actions */}
                       <div className="flex items-center gap-2">
-                        <Badge className={HONORAIRE_STATUS_COLORS[ack.status]}>
-                          {HONORAIRE_STATUS_LABELS[ack.status]}
-                        </Badge>
-                        {ack.status !== "PAYEE" && (
-                          <Select
-                            value={ack.status}
-                            onChange={(e) => updateAckStatus(ack.id, e.target.value)}
-                            options={[
-                              { value: "EN_ATTENTE", label: "En attente" },
-                              { value: "VALIDEE", label: "Valider" },
-                              { value: "PAYEE", label: "Marquer payée" },
-                            ]}
-                            className="text-xs py-1 h-7"
-                          />
+                        {ack.status === "SIGNEE_AMBASSADEUR" && !ack.adminSignature && (
+                          <Button size="sm" onClick={() => setShowCountersign(ack.id)} className="bg-blue-600 hover:bg-blue-700">
+                            <CheckCircle2 className="w-3.5 h-3.5" /> Contresigner
+                          </Button>
                         )}
-                        <Button variant="outline" size="sm" onClick={() => downloadAckPDF(ack)} className="h-7">
-                          <Download className="w-3 h-3" /> PDF
-                        </Button>
+                        {ack.status === "CONTRESIGNEE" && (
+                          <Button size="sm" variant="outline" onClick={() => updateAckStatus(ack.id, "PAYEE")} className="text-green-700 border-green-300 hover:bg-green-50">
+                            Marquer payée
+                          </Button>
+                        )}
+                        {ack.status === "EN_ATTENTE" && (
+                          <span className="text-xs text-amber-600 italic">En attente de signature par l&apos;ambassadeur</span>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -588,6 +622,28 @@ export default function ContratDetailPage() {
             </CardHeader>
             <CardContent>
               <SignaturePad onSave={saveAdminSignature} />
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* Countersign acknowledgment modal */}
+      {showCountersign && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
+          <Card className="w-full max-w-2xl">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="font-semibold text-gray-900">Contresigner la reconnaissance d&apos;honoraires</h2>
+                  <p className="text-sm text-gray-500 mt-1">
+                    L&apos;ambassadeur a signé. Contresignez pour valider la reconnaissance et envoyer le document aux deux parties.
+                  </p>
+                </div>
+                <button onClick={() => setShowCountersign(null)} className="text-gray-400 hover:text-gray-600">✕</button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <SignaturePad onSave={(dataUrl) => countersignAck(showCountersign, dataUrl)} />
             </CardContent>
           </Card>
         </div>

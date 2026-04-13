@@ -32,7 +32,9 @@ const STATUS_STEPS = [
   { key: "SOUS_OFFRE", label: "Sous offre", color: "bg-pink-500" },
   { key: "COMPROMIS_SIGNE", label: "Compromis", color: "bg-emerald-500" },
   { key: "ACTE_SIGNE", label: "Acte signé", color: "bg-green-500" },
+  { key: "RECONNAISSANCE_HONORAIRES", label: "Reco. hon.", color: "bg-amber-500" },
   { key: "COMMISSION_VERSEE", label: "Commission", color: "bg-green-600" },
+  { key: "CLOTURE", label: "Clôturé", color: "bg-slate-500" },
 ];
 
 const STATUS_BADGE: Record<string, string> = {
@@ -45,7 +47,9 @@ const STATUS_BADGE: Record<string, string> = {
   SOUS_OFFRE: "bg-pink-50 text-pink-700 border-pink-200",
   COMPROMIS_SIGNE: "bg-emerald-50 text-emerald-700 border-emerald-200",
   ACTE_SIGNE: "bg-green-50 text-green-700 border-green-200",
+  RECONNAISSANCE_HONORAIRES: "bg-amber-50 text-amber-700 border-amber-200",
   COMMISSION_VERSEE: "bg-green-100 text-green-800 border-green-300",
+  CLOTURE: "bg-slate-100 text-slate-700 border-slate-300",
   EN_PAUSE: "bg-gray-50 text-gray-500 border-gray-200",
   PERDU: "bg-red-50 text-red-700 border-red-200",
   EN_COURS: "bg-orange-50 text-orange-700 border-orange-200",
@@ -63,7 +67,9 @@ const STATUS_LABEL: Record<string, string> = {
   SOUS_OFFRE: "Sous offre",
   COMPROMIS_SIGNE: "Compromis signé",
   ACTE_SIGNE: "Acte signé",
+  RECONNAISSANCE_HONORAIRES: "Reco. honoraires",
   COMMISSION_VERSEE: "Commission versée",
+  CLOTURE: "Clôturé",
   EN_PAUSE: "En pause",
   PERDU: "Perdu",
   EN_COURS: "En cours",
@@ -217,7 +223,7 @@ export default function NegociateurRecommandationsPage() {
 
       {/* Filters */}
       <div className="flex flex-wrap gap-2">
-        {["ALL", "NOUVEAU", "PRIS_EN_CHARGE", "CONTACTE", "RDV_PLANIFIE", "EN_NEGOCIATION", "MANDAT_SIGNE", "SOUS_OFFRE", "COMPROMIS_SIGNE", "ACTE_SIGNE", "COMMISSION_VERSEE", "EN_PAUSE", "PERDU"].map((s) => (
+        {["ALL", "NOUVEAU", "PRIS_EN_CHARGE", "CONTACTE", "RDV_PLANIFIE", "EN_NEGOCIATION", "MANDAT_SIGNE", "SOUS_OFFRE", "COMPROMIS_SIGNE", "ACTE_SIGNE", "RECONNAISSANCE_HONORAIRES", "COMMISSION_VERSEE", "CLOTURE", "EN_PAUSE", "PERDU"].map((s) => (
           <button
             key={s}
             onClick={() => setFilterStatus(s)}
@@ -333,8 +339,17 @@ export default function NegociateurRecommandationsPage() {
               </div>
 
               {/* Quick action buttons */}
-              {selected.status !== "SIGNE" && selected.status !== "PERDU" && selected.status !== "ANNULE" && (
+              {selected.status !== "SIGNE" && selected.status !== "PERDU" && selected.status !== "ANNULE" && selected.status !== "CLOTURE" && (
                 <div className="flex flex-wrap gap-2">
+                    {selected.status === "COMMISSION_VERSEE" && (
+                      <button
+                        onClick={() => handleStatusChange("CLOTURE")}
+                        disabled={updatingStatus}
+                        className="px-3 py-1.5 text-xs font-medium border border-slate-400 text-slate-600 bg-slate-50 hover:bg-slate-100 hover:border-slate-500 transition-colors disabled:opacity-50"
+                      >
+                        ✅ Clore le dossier
+                      </button>
+                    )}
                     <button
                       onClick={() => handleStatusChange("EN_PAUSE")}
                       disabled={updatingStatus || selected.status === "EN_PAUSE"}
