@@ -330,6 +330,57 @@ export async function sendNegotiatorWelcomeEmail(
   }
 }
 
+export async function sendContractEmail(
+  to: string,
+  name: string,
+  contractNumber: string,
+  pdfBuffer: Buffer
+) {
+  const { emailLayout } = await import("./email-template");
+  const appUrl = process.env.NEXTAUTH_URL || "https://theclub.labrieimmobiliere.fr";
+
+  const html = emailLayout({
+    preheader: `Votre contrat ${contractNumber} est prêt à signer`,
+    title: "Votre contrat d'apporteur d'affaire ✍️",
+    greeting: `Bonjour ${name},`,
+    body: `
+      <p style="margin:0 0 15px;font-size:14px;color:#030A24;line-height:1.7;">
+        Votre contrat <strong>${contractNumber}</strong> a été signé par l'agence et vous est envoyé pour signature.
+      </p>
+      <div style="background:#FEF3C7;border-left:3px solid #D97706;padding:15px 20px;margin:0 0 20px;">
+        <p style="margin:0;font-size:14px;color:#78350F;line-height:1.6;">
+          ✍️ Connectez-vous à votre espace pour <strong>signer électroniquement</strong> le contrat.
+        </p>
+      </div>
+      <p style="margin:0;font-size:13px;color:#666;line-height:1.6;">
+        Vous trouverez une copie du contrat en pièce jointe. La version complète des CGU est consultable dans votre espace personnel.
+      </p>
+    `,
+    cta: { label: "Signer mon contrat", url: `${appUrl}/portail/mes-contrats` },
+  });
+
+  try {
+    await transporter.sendMail({
+      from: fromAddress,
+      to,
+      subject: `Contrat ${contractNumber} à signer — The Club`,
+      html,
+      attachments: [
+        {
+          filename: `contrat-${contractNumber}.pdf`,
+          content: pdfBuffer,
+          contentType: "application/pdf",
+        },
+      ],
+    });
+    console.log(`[email] Contract PDF sent to ${to}`);
+    return true;
+  } catch (error) {
+    console.error("[email] Failed to send contract email:", error);
+    return false;
+  }
+}
+
 export async function sendAcknowledgmentEmail(
   to: string,
   name: string,

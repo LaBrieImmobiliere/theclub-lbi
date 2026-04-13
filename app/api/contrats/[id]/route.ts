@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { sendNotificationEmail, sendRibReminderEmail } from "@/lib/email";
+import { sendNotificationEmail, sendRibReminderEmail, sendContractEmail } from "@/lib/email";
+import { generateContractPDFBuffer } from "@/lib/pdf-server";
 import { auditLog } from "@/lib/audit";
 
 export async function GET(
@@ -194,6 +195,21 @@ export async function PATCH(
               type: "CONTRACT_STATUS",
             },
           });
+
+          // Send contract PDF when status → ENVOYE (admin signed and sent)
+          if (body.status === "ENVOYE") {
+            try {
+              const pdfBuffer = generateContractPDFBuffer(updated);
+              await sendContractEmail(
+                ambassadorUser.email!,
+                ambassadorUser.name || "Ambassadeur",
+                contractNumber,
+                pdfBuffer
+              );
+            } catch (pdfErr) {
+              console.error("Failed to send contract PDF:", pdfErr);
+            }
+          }
         }
       }
     } catch (error) {
