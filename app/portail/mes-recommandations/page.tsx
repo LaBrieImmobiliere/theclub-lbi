@@ -5,6 +5,7 @@ import { Phone, Mail, MapPin, Euro, Home, Building, Key, ArrowLeft, Plus, Clipbo
 import { formatDate, LEAD_STATUS_LABELS, LEAD_TYPE_LABELS } from "@/lib/utils";
 import { LeadTimeline } from "@/components/lead-timeline";
 import Link from "next/link";
+import { PullToRefresh } from "@/components/pull-to-refresh";
 
 type Lead = {
   id: string;
@@ -163,6 +164,7 @@ export default function MesRecommandationsPage() {
 
   // ─── LIST VIEW ──────────────────────────────────────────────────
   return (
+    <PullToRefresh onRefresh={fetchLeads}>
     <div className="space-y-5">
       <div className="flex items-center justify-between">
         <div>
@@ -247,5 +249,6 @@ export default function MesRecommandationsPage() {
         </div>
       )}
     </div>
+    </PullToRefresh>
   );
 }

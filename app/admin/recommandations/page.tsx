@@ -8,6 +8,7 @@ import { Select } from "@/components/ui/select";
 import { ClipboardList, Search, Plus, X, FileText, Check } from "lucide-react";
 import { CsvExport } from "@/components/admin/csv-export";
 import { ConfirmModal } from "@/components/confirm-modal";
+import { PullToRefresh } from "@/components/pull-to-refresh";
 import {
   formatDate,
   LEAD_STATUS_LABELS,
@@ -106,6 +107,7 @@ export default function RecommandationsPage() {
   };
 
   return (
+    <PullToRefresh onRefresh={fetchLeads}>
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
@@ -363,5 +365,6 @@ export default function RecommandationsPage() {
         onCancel={() => setConfirmAction(null)}
       />
     </div>
+    </PullToRefresh>
   );
 }

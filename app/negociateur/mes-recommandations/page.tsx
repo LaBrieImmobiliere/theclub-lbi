@@ -5,6 +5,7 @@ import { Check, Phone, Mail, MapPin, Euro, Home, Building, Key, ArrowLeft, Chevr
 import { formatDate, LEAD_TYPE_LABELS } from "@/lib/utils";
 import { LeadTimeline } from "@/components/lead-timeline";
 import { ConfirmModal } from "@/components/confirm-modal";
+import { PullToRefresh } from "@/components/pull-to-refresh";
 
 type Lead = {
   id: string;
@@ -358,6 +359,7 @@ export default function NegociateurRecommandationsPage() {
 
   // ─── LIST VIEW ──────────────────────────────────────────────────
   return (
+    <PullToRefresh onRefresh={fetchLeads}>
     <div className="space-y-5">
       <div>
         <h1 className="text-2xl font-bold text-white" style={{ fontFamily: "'Fira Sans', sans-serif" }}>
@@ -469,5 +471,6 @@ export default function NegociateurRecommandationsPage() {
         )}
       </div>
     </div>
+    </PullToRefresh>
   );
 }
