@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { sendNotificationEmail } from "@/lib/email";
 import { sendPushToUser } from "@/lib/push";
 import { generateAcknowledgmentNumber } from "@/lib/utils";
+import { sendLeadStatusSms } from "@/lib/sms";
 
 const STATUS_LABELS: Record<string, string> = {
   NOUVEAU: "Nouveau",
@@ -218,6 +219,18 @@ export async function PATCH(
           );
         } catch (pushErr) {
           console.error("Failed to send push:", pushErr);
+        }
+
+        // Send SMS for key steps
+        try {
+          await sendLeadStatusSms(
+            user.phone,
+            user.name || "Ambassadeur",
+            leadName,
+            body.status
+          );
+        } catch (smsErr) {
+          console.error("Failed to send SMS:", smsErr);
         }
 
         // Check badges for ambassador

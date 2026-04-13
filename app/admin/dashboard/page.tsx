@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   Users, ClipboardList, FileText, TrendingUp,
   Clock, Coins, Percent, Bell, ArrowRight,
+  Download, Trophy,
 } from "lucide-react";
 import {
   formatCurrency, formatDate,
@@ -14,6 +15,7 @@ import Link from "next/link";
 import DashboardChart from "@/components/portal/dashboard-chart";
 import { CAGauge } from "@/components/admin/ca-gauge";
 import { KPIComparison } from "@/components/admin/kpi-comparison";
+import { ExportCommissionsButton } from "@/components/admin/export-commissions-button";
 
 export const dynamic = "force-dynamic";
 
@@ -27,6 +29,7 @@ export default async function AdminDashboardPage() {
     recentLeads,
     recentContracts,
     allLeads,
+    topAmbassadors,
   ] = await Promise.all([
     prisma.ambassador.count({ where: { status: "ACTIVE" } }),
     prisma.lead.count(),
@@ -47,6 +50,15 @@ export default async function AdminDashboardPage() {
     }),
     prisma.lead.findMany({
       select: { createdAt: true, contract: { select: { createdAt: true } } },
+    }),
+    prisma.ambassador.findMany({
+      take: 5,
+      include: {
+        user: { select: { name: true, email: true } },
+        _count: { select: { leads: true, contracts: true } },
+        contracts: { where: { status: "PAYE" }, select: { commissionAmount: true } },
+      },
+      orderBy: { leads: { _count: "desc" } },
     }),
   ]);
 
@@ -186,9 +198,12 @@ export default async function AdminDashboardPage() {
       {/* CA Gauges */}
       <Card>
         <CardHeader>
-          <h2 className="font-semibold text-gray-900" style={{ fontFamily: "'Fira Sans', sans-serif" }}>
-            Chiffre d&apos;affaires — Commissions
-          </h2>
+          <div className="flex items-center justify-between">
+            <h2 className="font-semibold text-gray-900" style={{ fontFamily: "'Fira Sans', sans-serif" }}>
+              Chiffre d&apos;affaires — Commissions
+            </h2>
+            <ExportCommissionsButton />
+          </div>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6">
@@ -254,6 +269,96 @@ export default async function AdminDashboardPage() {
           <KPIComparison label="Recommandations" current={thisMonthLeads} previous={lastMonthLeads} />
           <KPIComparison label="Contrats" current={thisMonthContracts} previous={lastMonthContracts} />
           <KPIComparison label="Commissions" current={thisMonthCA} previous={lastMonthCA} format="currency" />
+        </CardContent>
+      </Card>
+
+      {/* Top ambassadeurs */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <h2 className="font-semibold text-gray-900" style={{ fontFamily: "'Fira Sans', sans-serif" }}>
+              <Trophy className="w-4 h-4 inline-block mr-2 text-amber-500" />
+              Top ambassadeurs
+            </h2>
+            <Link href="/admin/ambassadeurs" className="text-xs text-[#D1B280] hover:underline flex items-center gap-1">
+              Voir tout <ArrowRight className="w-3 h-3" />
+            </Link>
+          </div>
+        </CardHeader>
+        <CardContent className="p-0">
+          {topAmbassadors.length === 0 ? (
+            <p className="text-sm text-gray-400 text-center py-8">Aucun ambassadeur</p>
+          ) : (
+            <>
+              {/* Desktop table */}
+              <div className="hidden sm:block overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-gray-100">
+                      <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Ambassadeur</th>
+                      <th className="text-center px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Leads</th>
+                      <th className="text-center px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Contrats</th>
+                      <th className="text-right px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Commissions</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {topAmbassadors.map((amb) => {
+                      const totalCommissions = amb.contracts.reduce((s, c) => s + (c.commissionAmount || 0), 0);
+                      return (
+                        <tr key={amb.id} className="hover:bg-gray-50/50">
+                          <td className="px-6 py-3">
+                            <p className="font-medium text-gray-900">{amb.user.name || "—"}</p>
+                            <p className="text-xs text-gray-400">{amb.user.email}</p>
+                          </td>
+                          <td className="text-center px-4 py-3">
+                            <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-purple-50 text-purple-700 text-xs font-semibold">
+                              {amb._count.leads}
+                            </span>
+                          </td>
+                          <td className="text-center px-4 py-3">
+                            <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-green-50 text-green-700 text-xs font-semibold">
+                              {amb._count.contracts}
+                            </span>
+                          </td>
+                          <td className="text-right px-6 py-3 font-medium text-gray-900">
+                            {totalCommissions > 0 ? formatCurrency(totalCommissions) : "—"}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile cards */}
+              <ul className="sm:hidden divide-y divide-gray-50">
+                {topAmbassadors.map((amb) => {
+                  const totalCommissions = amb.contracts.reduce((s, c) => s + (c.commissionAmount || 0), 0);
+                  return (
+                    <li key={amb.id} className="px-5 py-4 space-y-2">
+                      <div>
+                        <p className="text-sm font-medium text-gray-900">{amb.user.name || "—"}</p>
+                        <p className="text-xs text-gray-400">{amb.user.email}</p>
+                      </div>
+                      <div className="flex items-center gap-4 text-xs">
+                        <span className="flex items-center gap-1">
+                          <span className="w-5 h-5 rounded-full bg-purple-50 text-purple-700 flex items-center justify-center text-[10px] font-semibold">{amb._count.leads}</span>
+                          <span className="text-gray-500">leads</span>
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <span className="w-5 h-5 rounded-full bg-green-50 text-green-700 flex items-center justify-center text-[10px] font-semibold">{amb._count.contracts}</span>
+                          <span className="text-gray-500">contrats</span>
+                        </span>
+                        <span className="ml-auto font-medium text-gray-900">
+                          {totalCommissions > 0 ? formatCurrency(totalCommissions) : "—"}
+                        </span>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ul>
+            </>
+          )}
         </CardContent>
       </Card>
 

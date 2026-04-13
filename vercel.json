@@ -8,6 +8,10 @@
       "schedule": "0 9 */2 * *"
     },
     {
+      "path": "/api/cron/relance",
+      "schedule": "0 9 * * 1"
+    },
+    {
       "path": "/api/cron/weekly-recap",
       "schedule": "0 9 * * 1"
     },
