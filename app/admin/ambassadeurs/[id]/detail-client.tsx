@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import {
   ArrowLeft, Phone, Mail, FileText, ClipboardList,
-  Pencil, Save, X, Trash2, AlertTriangle, Building2, UserCircle,
+  Pencil, Save, X, Trash2, AlertTriangle, Building2, UserCircle, FileText as ContractIcon,
 } from "lucide-react";
 
 const LEAD_STATUS_LABELS: Record<string, string> = {
@@ -56,6 +56,8 @@ export function AmbassadeurDetailClient({ data }: { data: AmbassadorData }) {
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [sendingContract, setSendingContract] = useState(false);
+  const [contractSent, setContractSent] = useState(false);
 
   // Editable fields
   const [firstName, setFirstName] = useState(data.user.firstName || "");
@@ -90,6 +92,27 @@ export function AmbassadeurDetailClient({ data }: { data: AmbassadorData }) {
       }
     } finally {
       setDeleting(false);
+    }
+  };
+
+  const handleSendContract = async () => {
+    setSendingContract(true);
+    try {
+      const res = await fetch("/api/admin/contrat-apporteur", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ambassadorId: data.id, commissionValue: 5 }),
+      });
+      const result = await res.json();
+      if (res.ok) {
+        setContractSent(true);
+        alert("Contrat envoyé avec succès ! L'ambassadeur a été notifié.");
+        router.refresh();
+      } else {
+        alert(result.error || "Erreur lors de l'envoi du contrat");
+      }
+    } finally {
+      setSendingContract(false);
     }
   };
 
@@ -146,6 +169,14 @@ export function AmbassadeurDetailClient({ data }: { data: AmbassadorData }) {
               </button>
             </>
           )}
+          <button
+            onClick={handleSendContract}
+            disabled={sendingContract || contractSent}
+            className="flex items-center gap-2 px-3 py-2 border border-[#D1B280] text-[#D1B280] text-sm font-medium hover:bg-[#D1B280]/10 transition-colors disabled:opacity-50"
+          >
+            <ContractIcon className="w-4 h-4" />
+            {contractSent ? "Contrat envoyé ✓" : sendingContract ? "Envoi..." : "Envoyer contrat"}
+          </button>
           <button
             onClick={() => setShowDeleteConfirm(true)}
             className="flex items-center gap-2 px-3 py-2 border border-red-300 text-red-600 text-sm font-medium hover:bg-red-50 transition-colors"
