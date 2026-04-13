@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Check, ChevronRight, Phone, Mail, MapPin, Euro } from "lucide-react";
+import { Check, Phone, Mail, MapPin, Euro, Home, Building, Key, ArrowLeft, ChevronRight } from "lucide-react";
 import { formatDate, LEAD_TYPE_LABELS } from "@/lib/utils";
 import { LeadTimeline } from "@/components/lead-timeline";
 import { ConfirmModal } from "@/components/confirm-modal";
@@ -24,38 +24,35 @@ type Lead = {
 };
 
 const STATUS_STEPS = [
-  { key: "NOUVEAU", label: "Nouveau", color: "bg-blue-500" },
-  { key: "PRIS_EN_CHARGE", label: "Pris en charge", color: "bg-indigo-500" },
-  { key: "CONTACTE", label: "Contacté", color: "bg-yellow-500" },
-  { key: "RDV_PLANIFIE", label: "RDV planifié", color: "bg-cyan-500" },
-  { key: "EN_NEGOCIATION", label: "Négociation", color: "bg-orange-500" },
-  { key: "MANDAT_SIGNE", label: "Mandat signé", color: "bg-violet-500" },
-  { key: "SOUS_OFFRE", label: "Sous offre", color: "bg-pink-500" },
-  { key: "COMPROMIS_SIGNE", label: "Compromis", color: "bg-emerald-500" },
-  { key: "ACTE_SIGNE", label: "Acte signé", color: "bg-green-500" },
-  { key: "RECONNAISSANCE_HONORAIRES", label: "Reco. hon.", color: "bg-amber-500" },
-  { key: "COMMISSION_VERSEE", label: "Commission", color: "bg-green-600" },
-  { key: "CLOTURE", label: "Clôturé", color: "bg-slate-500" },
+  { key: "NOUVEAU", label: "Nouveau" },
+  { key: "PRIS_EN_CHARGE", label: "Pris en charge" },
+  { key: "CONTACTE", label: "Contacté" },
+  { key: "RDV_PLANIFIE", label: "RDV planifié" },
+  { key: "EN_NEGOCIATION", label: "Négociation" },
+  { key: "MANDAT_SIGNE", label: "Mandat signé" },
+  { key: "SOUS_OFFRE", label: "Sous offre" },
+  { key: "COMPROMIS_SIGNE", label: "Compromis" },
+  { key: "ACTE_SIGNE", label: "Acte signé" },
+  { key: "RECONNAISSANCE_HONORAIRES", label: "Reco. hon." },
+  { key: "COMMISSION_VERSEE", label: "Commission" },
+  { key: "CLOTURE", label: "Clôturé" },
 ];
 
-const STATUS_BADGE: Record<string, string> = {
-  NOUVEAU: "bg-blue-50 text-blue-700 border-blue-200",
-  PRIS_EN_CHARGE: "bg-indigo-50 text-indigo-700 border-indigo-200",
-  CONTACTE: "bg-yellow-50 text-yellow-700 border-yellow-200",
-  RDV_PLANIFIE: "bg-cyan-50 text-cyan-700 border-cyan-200",
-  EN_NEGOCIATION: "bg-orange-50 text-orange-700 border-orange-200",
-  MANDAT_SIGNE: "bg-violet-50 text-violet-700 border-violet-200",
-  SOUS_OFFRE: "bg-pink-50 text-pink-700 border-pink-200",
-  COMPROMIS_SIGNE: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  ACTE_SIGNE: "bg-green-50 text-green-700 border-green-200",
-  RECONNAISSANCE_HONORAIRES: "bg-amber-50 text-amber-700 border-amber-200",
-  COMMISSION_VERSEE: "bg-green-100 text-green-800 border-green-300",
-  CLOTURE: "bg-slate-100 text-slate-700 border-slate-300",
-  EN_PAUSE: "bg-gray-50 text-gray-500 border-gray-200",
-  PERDU: "bg-red-50 text-red-700 border-red-200",
-  EN_COURS: "bg-orange-50 text-orange-700 border-orange-200",
-  SIGNE: "bg-green-50 text-green-700 border-green-200",
-  ANNULE: "bg-gray-50 text-gray-500 border-gray-200",
+const STATUS_DOT: Record<string, string> = {
+  NOUVEAU: "bg-blue-400",
+  PRIS_EN_CHARGE: "bg-indigo-400",
+  CONTACTE: "bg-yellow-400",
+  RDV_PLANIFIE: "bg-cyan-400",
+  EN_NEGOCIATION: "bg-orange-400",
+  MANDAT_SIGNE: "bg-violet-400",
+  SOUS_OFFRE: "bg-pink-400",
+  COMPROMIS_SIGNE: "bg-emerald-400",
+  ACTE_SIGNE: "bg-green-400",
+  RECONNAISSANCE_HONORAIRES: "bg-amber-400",
+  COMMISSION_VERSEE: "bg-green-500",
+  CLOTURE: "bg-slate-400",
+  EN_PAUSE: "bg-gray-400",
+  PERDU: "bg-red-400",
 };
 
 const STATUS_LABEL: Record<string, string> = {
@@ -73,77 +70,67 @@ const STATUS_LABEL: Record<string, string> = {
   CLOTURE: "Clôturé",
   EN_PAUSE: "En pause",
   PERDU: "Perdu",
-  EN_COURS: "En cours",
-  SIGNE: "Signé",
-  ANNULE: "Annulé",
+};
+
+const TYPE_ICON: Record<string, typeof Home> = {
+  ACHAT: Home,
+  VENTE: Building,
+  LOCATION: Key,
 };
 
 function StatusTimeline({ status, onStepClick, disabled }: { status: string; onStepClick?: (key: string) => void; disabled?: boolean }) {
   const currentIndex = STATUS_STEPS.findIndex((s) => s.key === status);
-  const isLost = status === "PERDU" || status === "ANNULE";
-
-  if (isLost) {
+  if (status === "PERDU" || status === "ANNULE") {
     return (
-      <div className="flex items-center gap-2 px-3 py-2 bg-red-50 border border-red-100 rounded">
-        <div className="w-2 h-2 rounded-full bg-red-400 flex-shrink-0" />
-        <span className="text-sm text-red-600 font-medium">
-          {status === "PERDU" ? "Dossier perdu" : "Dossier annulé"}
-        </span>
+      <div className="flex items-center gap-2 px-4 py-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+        <div className="w-2.5 h-2.5 rounded-full bg-red-400" />
+        <span className="text-sm text-red-400 font-medium">{status === "PERDU" ? "Dossier perdu" : "Dossier annulé"}</span>
       </div>
     );
   }
-
-  return (
-    <div className="relative pt-1">
-      <div className="absolute top-4 left-4 right-4 h-0.5 bg-gray-100" />
-      <div
-        className="absolute top-4 left-4 h-0.5 bg-[#D1B280] transition-all duration-500"
-        style={{
-          width: currentIndex <= 0
-            ? "0%"
-            : `${(currentIndex / (STATUS_STEPS.length - 1)) * 100}%`,
-        }}
-      />
-      <div className="relative flex justify-between">
-        {STATUS_STEPS.map((step, i) => {
-          const isDone = i < currentIndex;
-          const isCurrent = i === currentIndex;
-          const isClickable = onStepClick && !disabled && !isCurrent;
-          return (
-            <div key={step.key} className="flex flex-col items-center gap-1.5" style={{ width: "25%" }}>
-              <button
-                type="button"
-                onClick={() => isClickable && onStepClick(step.key)}
-                disabled={!isClickable}
-                className={`w-8 h-8 rounded-full flex items-center justify-center border-2 transition-all ${
-                  isDone
-                    ? "bg-[#D1B280] border-[#D1B280]"
-                    : isCurrent
-                    ? "bg-white border-[#D1B280] shadow-sm"
-                    : "bg-white border-gray-200"
-                } ${isClickable ? "cursor-pointer hover:scale-110 hover:shadow-md" : ""}`}
-                title={isClickable ? `Passer en "${step.label}"` : ""}
-              >
-                {isDone ? (
-                  <Check className="w-3.5 h-3.5 text-white" />
-                ) : isCurrent ? (
-                  <div className="w-2.5 h-2.5 rounded-full bg-[#D1B280]" />
-                ) : (
-                  <div className="w-2 h-2 rounded-full bg-gray-200" />
-                )}
-              </button>
-              <span
-                className={`text-[10px] text-center leading-tight ${
-                  isCurrent ? "text-[#D1B280] font-semibold" : isDone ? "text-gray-500" : "text-gray-300"
-                } ${isClickable ? "cursor-pointer" : ""}`}
-                onClick={() => isClickable && onStepClick(step.key)}
-              >
-                {step.label}
-              </span>
-            </div>
-          );
-        })}
+  if (status === "EN_PAUSE") {
+    return (
+      <div className="flex items-center gap-2 px-4 py-3 bg-gray-500/10 border border-gray-500/20 rounded-lg">
+        <div className="w-2.5 h-2.5 rounded-full bg-gray-400" />
+        <span className="text-sm text-gray-400 font-medium">Dossier en pause</span>
       </div>
+    );
+  }
+  return (
+    <div className="space-y-2">
+      {STATUS_STEPS.map((step, i) => {
+        const isDone = i < currentIndex;
+        const isCurrent = i === currentIndex;
+        const isFuture = i > currentIndex;
+        const isClickable = onStepClick && !disabled && !isCurrent;
+        if (isFuture && i > currentIndex + 2) return null;
+        return (
+          <button
+            key={step.key}
+            type="button"
+            onClick={() => isClickable && onStepClick(step.key)}
+            disabled={!isClickable}
+            className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-all ${
+              isCurrent ? "bg-[#D1B280]/10 border border-[#D1B280]/30" :
+              isDone ? "opacity-70" :
+              "opacity-30"
+            } ${isClickable ? "hover:bg-[#D1B280]/10 cursor-pointer" : ""}`}
+          >
+            <div className={`w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 border-2 ${
+              isDone ? "bg-[#D1B280] border-[#D1B280]" :
+              isCurrent ? "border-[#D1B280] bg-transparent" :
+              "border-gray-600 bg-transparent"
+            }`}>
+              {isDone ? <Check className="w-3.5 h-3.5 text-white" /> :
+               <span className="text-[10px] text-gray-400 font-medium">{i + 1}</span>}
+            </div>
+            <span className={`text-sm ${isCurrent ? "text-[#D1B280] font-semibold" : isDone ? "text-gray-400" : "text-gray-500"}`}>
+              {step.label}
+            </span>
+            {isCurrent && <span className="ml-auto text-[10px] bg-[#D1B280]/20 text-[#D1B280] px-2 py-0.5 rounded-full font-medium">En cours</span>}
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -159,15 +146,10 @@ export default function NegociateurRecommandationsPage() {
 
   const fetchLeads = useCallback(async () => {
     const res = await fetch("/api/recommandations?role=negotiator");
-    if (res.ok) {
-      const data = await res.json();
-      setLeads(data);
-    }
+    if (res.ok) setLeads(await res.json());
   }, []);
 
-  useEffect(() => {
-    fetchLeads();
-  }, [fetchLeads]);
+  useEffect(() => { fetchLeads(); }, [fetchLeads]);
 
   const handleSelectLead = (lead: Lead) => {
     setSelected(lead);
@@ -176,8 +158,7 @@ export default function NegociateurRecommandationsPage() {
 
   const requestStatusChange = (newStatus: string) => {
     if (!selected || updatingStatus) return;
-    const label = STATUS_LABEL[newStatus] || newStatus;
-    setConfirmAction({ status: newStatus, label });
+    setConfirmAction({ status: newStatus, label: STATUS_LABEL[newStatus] || newStatus });
   };
 
   const handleStatusChange = async (newStatus: string) => {
@@ -192,13 +173,10 @@ export default function NegociateurRecommandationsPage() {
       });
       if (res.ok) {
         const updated = await res.json();
-        const updatedLead = { ...selected, status: updated.status };
-        setSelected(updatedLead);
+        setSelected({ ...selected, status: updated.status });
         setLeads((prev) => prev.map((l) => (l.id === updated.id ? { ...l, status: updated.status } : l)));
       }
-    } finally {
-      setUpdatingStatus(false);
-    }
+    } finally { setUpdatingStatus(false); }
   };
 
   const handleSaveNotes = async () => {
@@ -214,23 +192,181 @@ export default function NegociateurRecommandationsPage() {
         setLeads((prev) => prev.map((l) => (l.id === selected.id ? { ...l, notes } : l)));
         setSelected((prev) => prev ? { ...prev, notes } : prev);
       }
-    } finally {
-      setSavingNotes(false);
-    }
+    } finally { setSavingNotes(false); }
   };
 
   const filtered = filterStatus === "ALL" ? leads : leads.filter((l) => l.status === filterStatus);
 
+  // ─── DETAIL VIEW (full page on mobile) ─────────────────────────
+  if (selected) {
+    const statusIdx = STATUS_STEPS.findIndex(s => s.key === selected.status);
+    const progress = statusIdx >= 0 ? Math.round(((statusIdx + 1) / STATUS_STEPS.length) * 100) : 0;
+    const TypeIcon = TYPE_ICON[selected.type] || Home;
+
+    return (
+      <div className="space-y-4 animate-in">
+        {/* Back button */}
+        <button onClick={() => setSelected(null)} className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors min-h-[44px]">
+          <ArrowLeft className="w-5 h-5" />
+          <span className="text-sm font-medium">Retour</span>
+        </button>
+
+        {/* Header card */}
+        <div className="bg-white/5 border border-white/10 rounded-xl p-5 space-y-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-[#D1B280]/20 flex items-center justify-center">
+                <span className="text-[#D1B280] text-lg font-bold">{selected.firstName[0]}{selected.lastName[0]}</span>
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-white">{selected.firstName} {selected.lastName}</h1>
+                <div className="flex items-center gap-2 mt-1">
+                  <div className={`w-2 h-2 rounded-full ${STATUS_DOT[selected.status] || "bg-gray-400"}`} />
+                  <span className="text-sm text-gray-400">{STATUS_LABEL[selected.status]}</span>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-1.5 bg-white/5 px-3 py-1.5 rounded-full">
+              <TypeIcon className="w-3.5 h-3.5 text-[#D1B280]" />
+              <span className="text-xs text-gray-300">{LEAD_TYPE_LABELS[selected.type] || selected.type}</span>
+            </div>
+          </div>
+
+          {/* Progress */}
+          <div className="space-y-1.5">
+            <div className="flex justify-between text-xs">
+              <span className="text-gray-500">Progression</span>
+              <span className="text-[#D1B280] font-medium">{progress}%</span>
+            </div>
+            <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+              <div className="h-full rounded-full transition-all duration-500" style={{ width: `${progress}%`, background: "linear-gradient(90deg, #D1B280, #b89a65)" }} />
+            </div>
+          </div>
+
+          {/* Contact buttons */}
+          <div className="flex gap-2">
+            <a href={`tel:${selected.phone}`} className="flex-1 flex items-center justify-center gap-2 bg-[#D1B280] text-[#030A24] py-2.5 rounded-lg font-medium text-sm min-h-[44px]">
+              <Phone className="w-4 h-4" /> Appeler
+            </a>
+            {selected.email && (
+              <a href={`mailto:${selected.email}`} className="flex-1 flex items-center justify-center gap-2 bg-white/10 text-white py-2.5 rounded-lg font-medium text-sm min-h-[44px]">
+                <Mail className="w-4 h-4" /> Email
+              </a>
+            )}
+          </div>
+        </div>
+
+        {/* Info cards */}
+        <div className="grid grid-cols-2 gap-3">
+          {selected.location && (
+            <div className="bg-white/5 border border-white/10 rounded-lg p-3 col-span-2">
+              <div className="flex items-center gap-2 text-gray-400 text-xs mb-1">
+                <MapPin className="w-3 h-3" /> Localisation
+              </div>
+              <p className="text-sm text-white">{selected.location}</p>
+            </div>
+          )}
+          {selected.budget && (
+            <div className="bg-white/5 border border-white/10 rounded-lg p-3">
+              <div className="flex items-center gap-2 text-gray-400 text-xs mb-1">
+                <Euro className="w-3 h-3" /> Budget
+              </div>
+              <p className="text-sm text-white font-medium">{selected.budget}</p>
+            </div>
+          )}
+          <div className="bg-white/5 border border-white/10 rounded-lg p-3">
+            <p className="text-gray-400 text-xs mb-1">Ambassadeur</p>
+            <p className="text-sm text-white">{selected.ambassador.user.name}</p>
+          </div>
+          <div className="bg-white/5 border border-white/10 rounded-lg p-3">
+            <p className="text-gray-400 text-xs mb-1">Date</p>
+            <p className="text-sm text-white">{formatDate(selected.createdAt)}</p>
+          </div>
+          {selected.contract && (
+            <div className="bg-white/5 border border-white/10 rounded-lg p-3">
+              <p className="text-gray-400 text-xs mb-1">Contrat</p>
+              <p className="text-sm text-[#D1B280] font-mono">{selected.contract.number}</p>
+            </div>
+          )}
+        </div>
+
+        {selected.description && (
+          <div className="bg-white/5 border border-white/10 rounded-lg p-4">
+            <p className="text-gray-400 text-xs mb-2">Description</p>
+            <p className="text-sm text-gray-300 leading-relaxed">{selected.description}</p>
+          </div>
+        )}
+
+        {/* Timeline */}
+        <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+          <p className="text-xs text-gray-400 mb-3 font-medium uppercase tracking-wide">Avancement</p>
+          <StatusTimeline status={selected.status} onStepClick={requestStatusChange} disabled={updatingStatus} />
+        </div>
+
+        {/* Action buttons */}
+        {!["PERDU", "ANNULE", "CLOTURE"].includes(selected.status) && (
+          <div className="flex gap-2">
+            {selected.status === "COMMISSION_VERSEE" && (
+              <button onClick={() => requestStatusChange("CLOTURE")} disabled={updatingStatus}
+                className="flex-1 min-h-[44px] text-sm font-medium rounded-lg bg-slate-700 text-white hover:bg-slate-600 transition-colors disabled:opacity-50">
+                ✅ Clore le dossier
+              </button>
+            )}
+            <button onClick={() => requestStatusChange("EN_PAUSE")} disabled={updatingStatus || selected.status === "EN_PAUSE"}
+              className="min-h-[44px] px-4 text-sm font-medium rounded-lg border border-white/10 text-gray-400 hover:bg-white/5 transition-colors disabled:opacity-50">
+              ⏸ Pause
+            </button>
+            <button onClick={() => requestStatusChange("PERDU")} disabled={updatingStatus}
+              className="min-h-[44px] px-4 text-sm font-medium rounded-lg border border-red-500/20 text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-50">
+              ✕ Perdu
+            </button>
+          </div>
+        )}
+
+        {/* Notes */}
+        <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+          <p className="text-xs text-gray-400 mb-2 font-medium uppercase tracking-wide">Notes internes</p>
+          <textarea
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder="Ajouter des notes sur ce prospect..."
+            rows={3}
+            className="w-full px-3 py-2 text-sm bg-white/5 border border-white/10 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-[#D1B280] resize-none"
+          />
+          <button
+            onClick={handleSaveNotes}
+            disabled={savingNotes || notes === (selected.notes || "")}
+            className="mt-2 w-full min-h-[44px] bg-[#030A24] border border-[#D1B280]/30 text-[#D1B280] text-sm font-medium rounded-lg hover:bg-[#D1B280]/10 disabled:opacity-40 transition-colors"
+          >
+            {savingNotes ? "Enregistrement..." : "Enregistrer les notes"}
+          </button>
+        </div>
+
+        <ConfirmModal
+          open={!!confirmAction}
+          title="Changer le statut"
+          message={confirmAction ? `Passer cette recommandation en « ${confirmAction.label} » ?` : ""}
+          confirmLabel="Confirmer"
+          cancelLabel="Annuler"
+          variant={confirmAction?.status === "PERDU" ? "danger" : "default"}
+          onConfirm={() => confirmAction && handleStatusChange(confirmAction.status)}
+          onCancel={() => setConfirmAction(null)}
+        />
+      </div>
+    );
+  }
+
+  // ─── LIST VIEW ──────────────────────────────────────────────────
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900" style={{ fontFamily: "'Fira Sans', sans-serif" }}>
+        <h1 className="text-2xl font-bold text-white" style={{ fontFamily: "'Fira Sans', sans-serif" }}>
           Recommandations
         </h1>
-        <p className="text-gray-500 mt-1 text-sm">{leads.length} recommandation{leads.length > 1 ? "s" : ""} au total</p>
+        <p className="text-gray-400 mt-1 text-sm">{leads.length} recommandation{leads.length > 1 ? "s" : ""}</p>
       </div>
 
-      {/* Filters — horizontal scroll on mobile */}
+      {/* Filters */}
       <div className="overflow-x-auto -mx-4 px-4 pb-2 scrollbar-hide">
         <div className="flex gap-2 min-w-max">
           {["ALL", "NOUVEAU", "PRIS_EN_CHARGE", "CONTACTE", "RDV_PLANIFIE", "EN_NEGOCIATION", "MANDAT_SIGNE", "SOUS_OFFRE", "COMPROMIS_SIGNE", "ACTE_SIGNE", "RECONNAISSANCE_HONORAIRES", "COMMISSION_VERSEE", "CLOTURE", "EN_PAUSE", "PERDU"].map((s) => {
@@ -243,221 +379,97 @@ export default function NegociateurRecommandationsPage() {
                 className={`flex items-center gap-1.5 px-3.5 py-2 min-h-[44px] text-xs font-medium rounded-full whitespace-nowrap transition-all ${
                   isActive
                     ? "bg-[#D1B280] text-[#030A24] shadow-sm"
-                    : "bg-white/10 text-gray-400 border border-white/10 hover:border-[#D1B280] hover:text-[#D1B280]"
+                    : "bg-white/5 text-gray-400 border border-white/10 hover:border-[#D1B280] hover:text-[#D1B280]"
                 }`}
               >
                 {s === "ALL" ? "Tous" : STATUS_LABEL[s]}
-                <span className={`text-[10px] ${isActive ? "bg-[#030A24]/30 text-[#030A24]" : "bg-white/5 text-gray-500"} rounded-full px-1.5 py-0.5 min-w-[20px] text-center`}>
-                  {count}
-                </span>
+                {count > 0 && (
+                  <span className={`text-[10px] ${isActive ? "bg-[#030A24]/30 text-[#030A24]" : "bg-white/10 text-gray-500"} rounded-full px-1.5 py-0.5 min-w-[20px] text-center`}>
+                    {count}
+                  </span>
+                )}
               </button>
             );
           })}
         </div>
       </div>
 
-      <div className="grid gap-6 grid-cols-1 xl:grid-cols-2">
-        {/* Lead list */}
-        <div className="space-y-3">
-          {filtered.length === 0 ? (
-            <div className="bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 shadow-sm rounded-lg px-6 py-12 text-center text-gray-400 text-sm">
-              Aucune recommandation{filterStatus !== "ALL" ? " dans ce statut" : ""}.
-            </div>
-          ) : (
-            filtered.map((lead) => {
-              const isSelected = selected?.id === lead.id;
-              const statusIdx = STATUS_STEPS.findIndex(s => s.key === lead.status);
-              const progress = statusIdx >= 0 ? Math.round(((statusIdx + 1) / STATUS_STEPS.length) * 100) : 0;
-              return (
-                <button
-                  key={lead.id}
-                  onClick={() => handleSelectLead(lead)}
-                  className={`w-full text-left bg-white dark:bg-white/5 border shadow-sm rounded-lg p-4 transition-all hover:shadow-md ${
-                    isSelected ? "border-[#D1B280] ring-1 ring-[#D1B280]/30" : "border-gray-100 dark:border-white/10"
-                  }`}
-                >
-                  {/* Header: avatar + name + badge */}
-                  <div className="flex items-start justify-between gap-2 mb-2">
-                    <div className="flex items-center gap-3 min-w-0 flex-1">
-                      <div className="w-9 h-9 rounded-full bg-[#D1B280]/20 flex items-center justify-center flex-shrink-0">
-                        <span className="text-[#D1B280] text-xs font-bold">
-                          {lead.firstName[0]}{lead.lastName[0]}
-                        </span>
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <p className="font-semibold text-gray-900 dark:text-white text-sm truncate">
-                          {lead.firstName} {lead.lastName}
-                        </p>
-                        <p className="text-[11px] text-gray-400 truncate">
-                          {lead.ambassador.user.name} &middot; {LEAD_TYPE_LABELS[lead.type] || lead.type} &middot; {formatDate(lead.createdAt)}
-                        </p>
-                      </div>
-                    </div>
-                    <span className={`inline-flex items-center px-2 py-0.5 text-[10px] font-medium rounded-full whitespace-nowrap flex-shrink-0 border ${STATUS_BADGE[lead.status]}`}>
-                      {STATUS_LABEL[lead.status]}
-                    </span>
-                  </div>
-                  {/* Progress bar */}
-                  <div className="flex items-center gap-2 mt-3">
-                    <div className="flex-1 h-1.5 bg-gray-100 dark:bg-white/10 rounded-full overflow-hidden">
-                      <div
-                        className="h-full rounded-full transition-all duration-500"
-                        style={{
-                          width: `${progress}%`,
-                          background: lead.status === "PERDU" ? "#ef4444" : lead.status === "EN_PAUSE" ? "#9ca3af" : "linear-gradient(90deg, #D1B280, #b89a65)",
-                        }}
-                      />
-                    </div>
-                    <span className="text-[10px] text-gray-400 tabular-nums flex-shrink-0 w-7 text-right">{progress}%</span>
-                    <ChevronRight className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 flex-shrink-0 hidden sm:block" />
-                  </div>
-                </button>
-              );
-            })
-          )}
-        </div>
+      {/* Cards */}
+      <div className="space-y-3">
+        {filtered.length === 0 ? (
+          <div className="bg-white/5 border border-white/10 rounded-xl px-6 py-16 text-center">
+            <p className="text-gray-400 text-sm">Aucune recommandation{filterStatus !== "ALL" ? " dans ce statut" : ""}</p>
+          </div>
+        ) : (
+          filtered.map((lead) => {
+            const statusIdx = STATUS_STEPS.findIndex(s => s.key === lead.status);
+            const progress = statusIdx >= 0 ? Math.round(((statusIdx + 1) / STATUS_STEPS.length) * 100) : 0;
+            const TypeIcon = TYPE_ICON[lead.type] || Home;
 
-        {/* Detail panel — mobile: full-screen overlay, desktop: side panel */}
-        {selected && (
-          <div className="fixed inset-0 z-40 xl:relative xl:inset-auto xl:z-auto">
-            {/* Backdrop on mobile — fade in */}
-            <div
-              className="absolute inset-0 bg-black/40 xl:hidden animate-[fadeIn_200ms_ease-out]"
-              onClick={() => setSelected(null)}
-            />
-            {/* Panel — slide up on mobile */}
-            <div className="absolute bottom-0 left-0 right-0 max-h-[90vh] xl:relative xl:max-h-none xl:bottom-auto bg-white dark:bg-[#0c1425] border border-gray-100 dark:border-white/10 shadow-xl xl:shadow-sm overflow-hidden rounded-t-2xl xl:rounded-t-none xl:rounded-lg animate-[slideUp_300ms_ease-out] xl:animate-none">
-            {/* Drag handle on mobile */}
-            <div className="xl:hidden flex justify-center pt-2 pb-1">
-              <div className="w-10 h-1 bg-gray-300 dark:bg-white/20 rounded-full" />
-            </div>
-            <div className="px-5 py-3 xl:py-4 border-b border-gray-100 dark:border-white/10 flex items-start justify-between">
-              <div>
-                <h2 className="font-bold text-gray-900 dark:text-white text-lg">{selected.firstName} {selected.lastName}</h2>
-                <p className="text-xs text-gray-400 mt-0.5">
-                  Ambassadeur : <span className="font-medium text-gray-600 dark:text-gray-300">{selected.ambassador.user.name}</span>
-                </p>
-              </div>
+            return (
               <button
-                onClick={() => setSelected(null)}
-                className="text-gray-300 hover:text-gray-500 transition-colors text-xl leading-none"
+                key={lead.id}
+                onClick={() => handleSelectLead(lead)}
+                className="w-full text-left bg-white/5 border border-white/10 rounded-xl p-4 transition-all hover:bg-white/[0.07] hover:border-white/20 active:scale-[0.99]"
               >
-                ✕
-              </button>
-            </div>
-
-            <div className="p-5 space-y-5 overflow-y-auto max-h-[70vh] xl:max-h-none">
-              {/* Contact info */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <a href={`tel:${selected.phone}`} className="flex items-center gap-2 text-sm text-gray-600 hover:text-[#030A24]">
-                  <Phone className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
-                  {selected.phone}
-                </a>
-                {selected.email && (
-                  <a href={`mailto:${selected.email}`} className="flex items-center gap-2 text-sm text-gray-600 hover:text-[#030A24] truncate">
-                    <Mail className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
-                    <span className="truncate">{selected.email}</span>
-                  </a>
-                )}
-                {selected.location && (
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <MapPin className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
-                    {selected.location}
+                {/* Top row: date + type */}
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-[11px] text-gray-500">{formatDate(lead.createdAt)}</span>
+                  <div className="flex items-center gap-1.5 text-gray-400">
+                    <TypeIcon className="w-3.5 h-3.5" />
+                    <span className="text-[11px]">{LEAD_TYPE_LABELS[lead.type] || lead.type}</span>
                   </div>
-                )}
-                {selected.budget && (
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Euro className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" />
-                    {selected.budget}
-                  </div>
-                )}
-              </div>
-
-              {selected.description && (
-                <div className="bg-gray-50 px-4 py-3 text-sm text-gray-700 leading-relaxed border border-gray-100">
-                  {selected.description}
                 </div>
-              )}
 
-              {/* Timeline - clickable */}
-              <div>
-                <p className="text-xs text-gray-400 mb-1 font-medium uppercase tracking-wide">Avancement</p>
-                <p className="text-[10px] text-gray-300 mb-3">Cliquez sur une étape pour avancer ou reculer</p>
-                <StatusTimeline status={selected.status} onStepClick={requestStatusChange} disabled={updatingStatus} />
-              </div>
+                {/* Status badge */}
+                <div className="flex items-center gap-2 mb-3">
+                  <div className={`w-2.5 h-2.5 rounded-full ${STATUS_DOT[lead.status] || "bg-gray-400"}`} />
+                  <span className="text-xs font-medium text-[#D1B280]">{STATUS_LABEL[lead.status]}</span>
+                </div>
 
-              {/* Quick action buttons */}
-              {selected.status !== "SIGNE" && selected.status !== "PERDU" && selected.status !== "ANNULE" && selected.status !== "CLOTURE" && (
-                <div className="flex flex-wrap gap-2">
-                    {selected.status === "COMMISSION_VERSEE" && (
-                      <button
-                        onClick={() => requestStatusChange("CLOTURE")}
-                        disabled={updatingStatus}
-                        className="px-3 py-1.5 text-xs font-medium border border-slate-400 text-slate-600 bg-slate-50 hover:bg-slate-100 hover:border-slate-500 transition-colors disabled:opacity-50"
-                      >
-                        ✅ Clore le dossier
-                      </button>
+                {/* Location / Name */}
+                {lead.location && (
+                  <div className="flex items-start gap-2 mb-2">
+                    <MapPin className="w-3.5 h-3.5 text-gray-500 mt-0.5 flex-shrink-0" />
+                    <p className="text-sm text-gray-300">{lead.location}</p>
+                  </div>
+                )}
+
+                {/* Contact */}
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-base font-semibold text-white">{lead.firstName} {lead.lastName}</p>
+                    <p className="text-xs text-gray-500 mt-0.5">{lead.ambassador.user.name}</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <a href={`tel:${lead.phone}`} onClick={(e) => e.stopPropagation()}
+                      className="w-9 h-9 rounded-full bg-[#D1B280]/10 flex items-center justify-center hover:bg-[#D1B280]/20 transition-colors">
+                      <Phone className="w-4 h-4 text-[#D1B280]" />
+                    </a>
+                    {lead.email && (
+                      <a href={`mailto:${lead.email}`} onClick={(e) => e.stopPropagation()}
+                        className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors">
+                        <Mail className="w-4 h-4 text-gray-400" />
+                      </a>
                     )}
-                    <button
-                      onClick={() => requestStatusChange("EN_PAUSE")}
-                      disabled={updatingStatus || selected.status === "EN_PAUSE"}
-                      className="px-3 py-1.5 text-xs font-medium border border-gray-300 text-gray-500 hover:border-gray-500 hover:text-gray-700 transition-colors disabled:opacity-50"
-                    >
-                      ⏸ En pause
-                    </button>
-                    <button
-                      onClick={() => requestStatusChange("PERDU")}
-                      disabled={updatingStatus}
-                      className="px-3 py-1.5 text-xs font-medium border border-red-200 text-red-400 hover:border-red-400 hover:text-red-600 transition-colors disabled:opacity-50"
-                    >
-                      ✕ Perdu
-                    </button>
+                  </div>
                 </div>
-              )}
 
-              {/* Notes */}
-              <div>
-                <p className="text-xs text-gray-400 mb-2 font-medium uppercase tracking-wide">Notes internes</p>
-                <textarea
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Ajouter des notes sur ce prospect..."
-                  rows={3}
-                  className="w-full px-3 py-2 text-sm border border-gray-200 focus:outline-none focus:border-[#D1B280] resize-none"
-                />
-                <button
-                  onClick={handleSaveNotes}
-                  disabled={savingNotes || notes === (selected.notes || "")}
-                  className="mt-2 px-4 py-1.5 bg-[#030A24] text-white text-xs font-medium hover:bg-[#0f1e40] disabled:opacity-40 transition-colors"
-                >
-                  {savingNotes ? "Enregistrement..." : "Enregistrer"}
-                </button>
-              </div>
-
-              {/* Dates */}
-              <div className="pt-2 border-t border-gray-100 text-xs text-gray-400">
-                Recommandé le {formatDate(selected.createdAt)}
-                {selected.contract && (
-                  <span className="ml-2">&middot; Contrat : <span className="font-mono text-gray-600">{selected.contract.number}</span></span>
-                )}
-              </div>
-            </div>
-          </div>
-          </div>
+                {/* Progress bar */}
+                <div className="mt-3 flex items-center gap-2">
+                  <div className="flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden">
+                    <div className="h-full rounded-full transition-all duration-500" style={{
+                      width: `${progress}%`,
+                      background: lead.status === "PERDU" ? "#ef4444" : lead.status === "EN_PAUSE" ? "#6b7280" : "linear-gradient(90deg, #D1B280, #b89a65)",
+                    }} />
+                  </div>
+                  <span className="text-[10px] text-gray-500 tabular-nums flex-shrink-0">{progress}%</span>
+                </div>
+              </button>
+            );
+          })
         )}
       </div>
-
-      {/* Confirm status change modal */}
-      <ConfirmModal
-        open={!!confirmAction}
-        title="Changer le statut"
-        message={confirmAction ? `Passer cette recommandation en « ${confirmAction.label} » ?` : ""}
-        confirmLabel="Confirmer"
-        cancelLabel="Annuler"
-        variant={confirmAction?.status === "PERDU" ? "danger" : "default"}
-        onConfirm={() => confirmAction && handleStatusChange(confirmAction.status)}
-        onCancel={() => setConfirmAction(null)}
-      />
     </div>
   );
 }
