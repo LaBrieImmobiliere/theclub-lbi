@@ -242,12 +242,12 @@ export default function NegociateurRecommandationsPage() {
                 onClick={() => setFilterStatus(s)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full whitespace-nowrap transition-all ${
                   isActive
-                    ? "bg-[#030A24] text-white shadow-sm"
-                    : "bg-white text-gray-500 border border-gray-200 hover:border-[#D1B280] hover:text-[#D1B280]"
+                    ? "bg-[#D1B280] text-[#030A24] shadow-sm"
+                    : "bg-white/10 text-gray-400 border border-white/10 hover:border-[#D1B280] hover:text-[#D1B280]"
                 }`}
               >
                 {s === "ALL" ? "Tous" : STATUS_LABEL[s]}
-                <span className={`text-[10px] ${isActive ? "bg-white/20 text-white" : "bg-gray-100 text-gray-400"} rounded-full px-1.5 py-0.5 min-w-[20px] text-center`}>
+                <span className={`text-[10px] ${isActive ? "bg-[#030A24]/30 text-[#030A24]" : "bg-white/5 text-gray-500"} rounded-full px-1.5 py-0.5 min-w-[20px] text-center`}>
                   {count}
                 </span>
               </button>
@@ -260,7 +260,7 @@ export default function NegociateurRecommandationsPage() {
         {/* Lead list */}
         <div className="space-y-3">
           {filtered.length === 0 ? (
-            <div className="bg-white border border-gray-100 shadow-sm rounded-lg px-6 py-12 text-center text-gray-400 text-sm">
+            <div className="bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 shadow-sm rounded-lg px-6 py-12 text-center text-gray-400 text-sm">
               Aucune recommandation{filterStatus !== "ALL" ? " dans ce statut" : ""}.
             </div>
           ) : (
@@ -272,36 +272,34 @@ export default function NegociateurRecommandationsPage() {
                 <button
                   key={lead.id}
                   onClick={() => handleSelectLead(lead)}
-                  className={`w-full text-left bg-white border shadow-sm rounded-lg p-4 transition-all hover:shadow-md ${
-                    isSelected ? "border-[#D1B280] ring-1 ring-[#D1B280]/30" : "border-gray-100"
+                  className={`w-full text-left bg-white dark:bg-white/5 border shadow-sm rounded-lg p-4 transition-all hover:shadow-md ${
+                    isSelected ? "border-[#D1B280] ring-1 ring-[#D1B280]/30" : "border-gray-100 dark:border-white/10"
                   }`}
                 >
-                  <div className="flex items-start justify-between gap-3 mb-3">
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-10 h-10 rounded-full bg-[#030A24] flex items-center justify-center flex-shrink-0">
-                        <span className="text-white text-xs font-bold">
+                  {/* Header: avatar + name + badge */}
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <div className="flex items-center gap-3 min-w-0 flex-1">
+                      <div className="w-9 h-9 rounded-full bg-[#D1B280]/20 flex items-center justify-center flex-shrink-0">
+                        <span className="text-[#D1B280] text-xs font-bold">
                           {lead.firstName[0]}{lead.lastName[0]}
                         </span>
                       </div>
-                      <div className="min-w-0">
-                        <p className="font-semibold text-gray-900 text-sm truncate">
+                      <div className="min-w-0 flex-1">
+                        <p className="font-semibold text-gray-900 dark:text-white text-sm truncate">
                           {lead.firstName} {lead.lastName}
                         </p>
-                        <p className="text-xs text-gray-400 truncate">
-                          {lead.ambassador.user.name} &middot; {LEAD_TYPE_LABELS[lead.type] || lead.type}
+                        <p className="text-[11px] text-gray-400 truncate">
+                          {lead.ambassador.user.name} &middot; {LEAD_TYPE_LABELS[lead.type] || lead.type} &middot; {formatDate(lead.createdAt)}
                         </p>
                       </div>
                     </div>
-                    <div className="flex flex-col items-end gap-1 flex-shrink-0">
-                      <span className={`inline-flex items-center px-2 py-0.5 text-[10px] font-medium rounded-full ${STATUS_BADGE[lead.status]}`}>
-                        {STATUS_LABEL[lead.status]}
-                      </span>
-                      <span className="text-[10px] text-gray-300">{formatDate(lead.createdAt)}</span>
-                    </div>
+                    <span className={`inline-flex items-center px-2 py-0.5 text-[10px] font-medium rounded-full whitespace-nowrap flex-shrink-0 border ${STATUS_BADGE[lead.status]}`}>
+                      {STATUS_LABEL[lead.status]}
+                    </span>
                   </div>
                   {/* Progress bar */}
-                  <div className="flex items-center gap-2">
-                    <div className="flex-1 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                  <div className="flex items-center gap-2 mt-3">
+                    <div className="flex-1 h-1.5 bg-gray-100 dark:bg-white/10 rounded-full overflow-hidden">
                       <div
                         className="h-full rounded-full transition-all duration-500"
                         style={{
@@ -310,8 +308,8 @@ export default function NegociateurRecommandationsPage() {
                         }}
                       />
                     </div>
-                    <span className="text-[10px] text-gray-400 w-8 text-right">{progress}%</span>
-                    <ChevronRight className="w-4 h-4 text-gray-300 flex-shrink-0" />
+                    <span className="text-[10px] text-gray-400 tabular-nums">{progress}%</span>
+                    <ChevronRight className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 flex-shrink-0" />
                   </div>
                 </button>
               );
