@@ -115,7 +115,7 @@ export const CONTRACT_STATUS_LABELS: Record<string, string> = {
   BROUILLON: "Brouillon",
   ENVOYE: "Envoyé",
   SIGNE: "Signé",
-  PAYE: "Payé",
+  PAYE: "Commission versée",
   ANNULE: "Annulé",
 };
 

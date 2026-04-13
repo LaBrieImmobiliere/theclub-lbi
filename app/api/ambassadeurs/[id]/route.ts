@@ -123,6 +123,16 @@ export async function DELETE(
   const delSessionUser = session.user as { id?: string };
   await auditLog("DELETE", "Ambassador", id, delSessionUser.id, `Ambassadeur ${ambassador.user?.name} supprimé`);
 
+  // Delete related records that don't have onDelete: Cascade
+  // 1. Delete honorary acknowledgments on ambassador's contracts
+  await prisma.honoraryAcknowledgment.deleteMany({
+    where: { contract: { ambassadorId: id } },
+  });
+  // 2. Delete contracts
+  await prisma.contract.deleteMany({ where: { ambassadorId: id } });
+  // 3. Delete leads (and their status history via cascade)
+  await prisma.lead.deleteMany({ where: { ambassadorId: id } });
+  // 4. Delete user (cascades to ambassador, notifications, messages, etc.)
   await prisma.user.delete({ where: { id: ambassador.userId } });
   return NextResponse.json({ success: true });
 }

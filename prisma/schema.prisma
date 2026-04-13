@@ -234,8 +234,8 @@ model Contract {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  ambassador              Ambassador               @relation(fields: [ambassadorId], references: [id])
-  lead                    Lead?                    @relation(fields: [leadId], references: [id])
+  ambassador              Ambassador               @relation(fields: [ambassadorId], references: [id], onDelete: Cascade)
+  lead                    Lead?                    @relation(fields: [leadId], references: [id], onDelete: SetNull)
   honoraryAcknowledgments HonoraryAcknowledgment[]
 }
 

@@ -462,9 +462,13 @@ export default function ContratDetailPage() {
             <CardContent className="grid grid-cols-2 gap-6">
               <div>
                 <p className="text-xs text-gray-500 mb-2">Signature agence</p>
-                {contract.adminSignature ? (
+                {contract.adminSignature?.startsWith("data:image") ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={contract.adminSignature} alt="Signature agence" className="border rounded-lg max-h-24 w-full object-contain bg-white" />
+                ) : contract.adminSignature ? (
+                  <div className="border rounded-lg h-24 flex items-center justify-center bg-white">
+                    <p className="text-sm italic text-blue-700 font-medium">{contract.adminSignature}</p>
+                  </div>
                 ) : (
                   <div className="border-2 border-dashed border-gray-200 rounded-lg h-24 flex items-center justify-center">
                     <p className="text-xs text-gray-400">Non signé</p>
@@ -473,9 +477,13 @@ export default function ContratDetailPage() {
               </div>
               <div>
                 <p className="text-xs text-gray-500 mb-2">Signature ambassadeur</p>
-                {contract.ambassadorSignature ? (
+                {contract.ambassadorSignature?.startsWith("data:image") ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={contract.ambassadorSignature} alt="Signature ambassadeur" className="border rounded-lg max-h-24 w-full object-contain bg-white" />
+                ) : contract.ambassadorSignature ? (
+                  <div className="border rounded-lg h-24 flex items-center justify-center bg-white">
+                    <p className="text-sm italic text-blue-700 font-medium">{contract.ambassadorSignature}</p>
+                  </div>
                 ) : (
                   <div className="border-2 border-dashed border-gray-200 rounded-lg h-24 flex items-center justify-center">
                     <p className="text-xs text-gray-400">En attente</p>

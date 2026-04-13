@@ -105,7 +105,16 @@ export async function PATCH(
       status: body.status,
       notes: body.notes,
     },
+    include: { contract: true },
   });
+
+  // Sync: when lead → COMMISSION_VERSEE, also set contract to PAYE
+  if (body.status === "COMMISSION_VERSEE" && lead.contract && lead.contract.status !== "PAYE") {
+    await prisma.contract.update({
+      where: { id: lead.contract.id },
+      data: { status: "PAYE", paidAt: new Date() },
+    });
+  }
 
   // Record status change history + notifications
   if (body.status && body.status !== oldStatus) {

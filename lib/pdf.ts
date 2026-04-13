@@ -485,6 +485,11 @@ export function generateContractPDF(contract: any) {
   doc.text(`L'AGENCE \u2014 ${agency.name}`, M + 3, y + 6);
   if (contract.adminSignature?.startsWith("data:image")) {
     try { doc.addImage(contract.adminSignature, "PNG", M + 5, y + 10, sigBoxW - 10, 22); } catch { /* skip */ }
+  } else if (contract.adminSignature) {
+    doc.setFont("helvetica", "italic");
+    doc.setFontSize(10);
+    doc.setTextColor(30, 64, 175);
+    doc.text(contract.adminSignature, M + 3, y + 22);
   } else {
     doc.setTextColor(200, 210, 220);
     doc.text("En attente de signature", M + 3, y + 22);
@@ -504,6 +509,11 @@ export function generateContractPDF(contract: any) {
   doc.text(sigLabel.substring(0, 45), sigX2 + 3, y + 6);
   if (contract.ambassadorSignature?.startsWith("data:image")) {
     try { doc.addImage(contract.ambassadorSignature, "PNG", sigX2 + 5, y + 10, sigBoxW - 10, 22); } catch { /* skip */ }
+  } else if (contract.ambassadorSignature) {
+    doc.setFont("helvetica", "italic");
+    doc.setFontSize(10);
+    doc.setTextColor(30, 64, 175);
+    doc.text(contract.ambassadorSignature, sigX2 + 3, y + 22);
   } else {
     doc.setTextColor(200, 210, 220);
     doc.text("En attente de signature", sigX2 + 3, y + 22);
@@ -635,6 +645,11 @@ export function generateAcknowledgmentPDF(ack: any, contract: any) {
   doc.text(`L'AGENCE \u2014 ${agency.name}`, M + 3, y + 6);
   if (contract.adminSignature?.startsWith("data:image")) {
     try { doc.addImage(contract.adminSignature, "PNG", M + 5, y + 8, sigBoxW - 10, 25); } catch { /* skip */ }
+  } else if (contract.adminSignature) {
+    doc.setFont("helvetica", "italic");
+    doc.setFontSize(10);
+    doc.setTextColor(30, 64, 175);
+    doc.text(contract.adminSignature, M + 3, y + 22);
   }
 
   const sigX2 = M + sigBoxW + 10;

@@ -117,6 +117,14 @@ export async function PATCH(
 
   await auditLog("UPDATE", "Contract", id, user.id, body.status !== contract.status ? `Statut: ${contract.status} → ${body.status}` : "Contrat mis à jour");
 
+  // Sync: when contract → PAYE, also set the associated lead to COMMISSION_VERSEE
+  if (body.status === "PAYE" && updated.lead && updated.lead.status !== "COMMISSION_VERSEE") {
+    await prisma.lead.update({
+      where: { id: updated.lead.id },
+      data: { status: "COMMISSION_VERSEE" },
+    });
+  }
+
   // Send notification if status changed
   if (body.status && body.status !== contract.status) {
     try {

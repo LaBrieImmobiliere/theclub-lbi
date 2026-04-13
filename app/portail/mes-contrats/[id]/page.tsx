@@ -235,9 +235,13 @@ export default function ContratPortalDetailPage() {
         <CardContent className="grid grid-cols-2 gap-6">
           <div>
             <p className="text-xs text-gray-400 mb-2">La Brie Immobilière</p>
-            {contract.adminSignature ? (
+            {contract.adminSignature?.startsWith("data:image") ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={contract.adminSignature} alt="Signature agence" className="border rounded-lg max-h-24 w-full object-contain bg-white" />
+            ) : contract.adminSignature ? (
+              <div className="border rounded-lg h-20 flex items-center justify-center bg-white">
+                <p className="text-sm italic text-blue-700 font-medium">{contract.adminSignature}</p>
+              </div>
             ) : (
               <div className="border-2 border-dashed border-gray-200 rounded-lg h-20 flex items-center justify-center">
                 <p className="text-xs text-gray-400">Non signé</p>
@@ -246,9 +250,13 @@ export default function ContratPortalDetailPage() {
           </div>
           <div>
             <p className="text-xs text-gray-400 mb-2">Votre signature</p>
-            {contract.ambassadorSignature ? (
+            {contract.ambassadorSignature?.startsWith("data:image") ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={contract.ambassadorSignature} alt="Votre signature" className="border rounded-lg max-h-24 w-full object-contain bg-white" />
+            ) : contract.ambassadorSignature ? (
+              <div className="border rounded-lg h-20 flex items-center justify-center bg-white">
+                <p className="text-sm italic text-blue-700 font-medium">{contract.ambassadorSignature}</p>
+              </div>
             ) : (
               <div
                 className="border-2 border-dashed border-blue-200 bg-blue-50/30 rounded-lg h-20 flex items-center justify-center cursor-pointer hover:bg-blue-50"

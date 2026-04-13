@@ -234,6 +234,8 @@ export default function NegociateurContratDetailPage() {
               {contract.adminSignature?.startsWith("data:image") ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={contract.adminSignature} alt="Signature agence" className="max-h-16 object-contain" />
+              ) : contract.adminSignature ? (
+                <p className="text-sm italic text-blue-700 font-medium">{contract.adminSignature}</p>
               ) : (
                 <p className="text-sm text-gray-300 italic">Non signé</p>
               )}
@@ -243,6 +245,8 @@ export default function NegociateurContratDetailPage() {
               {contract.ambassadorSignature?.startsWith("data:image") ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={contract.ambassadorSignature} alt="Signature ambassadeur" className="max-h-16 object-contain" />
+              ) : contract.ambassadorSignature ? (
+                <p className="text-sm italic text-blue-700 font-medium">{contract.ambassadorSignature}</p>
               ) : (
                 <p className="text-sm text-gray-300 italic">Non signé</p>
               )}
