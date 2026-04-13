@@ -410,60 +410,58 @@ export default function NegociateurRecommandationsPage() {
               <button
                 key={lead.id}
                 onClick={() => handleSelectLead(lead)}
-                className="w-full text-left bg-white/5 border border-white/10 rounded-xl p-4 transition-all hover:bg-white/[0.07] hover:border-white/20 active:scale-[0.99]"
+                className="w-full text-left bg-white/5 border border-white/10 rounded-xl overflow-hidden transition-all hover:bg-white/[0.07] hover:border-white/20 active:scale-[0.99]"
               >
-                {/* Top row: date + type */}
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-[11px] text-gray-500">{formatDate(lead.createdAt)}</span>
-                  <div className="flex items-center gap-1.5 text-gray-400">
-                    <TypeIcon className="w-3.5 h-3.5" />
-                    <span className="text-[11px]">{LEAD_TYPE_LABELS[lead.type] || lead.type}</span>
-                  </div>
+                {/* Segmented progress bar (like mareco) */}
+                <div className="flex gap-0.5 px-4 pt-4">
+                  {STATUS_STEPS.map((_, i) => (
+                    <div key={i} className={`h-1 flex-1 rounded-full ${i <= statusIdx ? "bg-[#D1B280]" : "bg-white/10"}`} />
+                  ))}
                 </div>
 
-                {/* Status badge */}
-                <div className="flex items-center gap-2 mb-3">
-                  <div className={`w-2.5 h-2.5 rounded-full ${STATUS_DOT[lead.status] || "bg-gray-400"}`} />
-                  <span className="text-xs font-medium text-[#D1B280]">{STATUS_LABEL[lead.status]}</span>
-                </div>
-
-                {/* Location / Name */}
-                {lead.location && (
-                  <div className="flex items-start gap-2 mb-2">
-                    <MapPin className="w-3.5 h-3.5 text-gray-500 mt-0.5 flex-shrink-0" />
-                    <p className="text-sm text-gray-300">{lead.location}</p>
+                <div className="p-4 pt-3">
+                  {/* Top row: date + type */}
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[11px] text-gray-500">{formatDate(lead.createdAt)}</span>
+                    <div className="flex items-center gap-1.5 text-gray-400">
+                      <TypeIcon className="w-3.5 h-3.5" />
+                      <span className="text-[11px]">{LEAD_TYPE_LABELS[lead.type] || lead.type}</span>
+                    </div>
                   </div>
-                )}
 
-                {/* Contact */}
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-base font-semibold text-white">{lead.firstName} {lead.lastName}</p>
-                    <p className="text-xs text-gray-500 mt-0.5">{lead.ambassador.user.name}</p>
+                  {/* Status badge */}
+                  <div className="inline-flex items-center gap-1.5 bg-[#D1B280]/10 px-2.5 py-1 rounded-full mb-3">
+                    <div className={`w-2 h-2 rounded-full ${STATUS_DOT[lead.status] || "bg-gray-400"}`} />
+                    <span className="text-xs font-semibold text-[#D1B280]">{STATUS_LABEL[lead.status]}</span>
                   </div>
-                  <div className="flex gap-2">
-                    <a href={`tel:${lead.phone}`} onClick={(e) => e.stopPropagation()}
-                      className="w-9 h-9 rounded-full bg-[#D1B280]/10 flex items-center justify-center hover:bg-[#D1B280]/20 transition-colors">
-                      <Phone className="w-4 h-4 text-[#D1B280]" />
-                    </a>
-                    {lead.email && (
-                      <a href={`mailto:${lead.email}`} onClick={(e) => e.stopPropagation()}
-                        className="w-9 h-9 rounded-full bg-white/5 flex items-center justify-center hover:bg-white/10 transition-colors">
-                        <Mail className="w-4 h-4 text-gray-400" />
+
+                  {/* Location */}
+                  {lead.location && (
+                    <div className="flex items-start gap-2 mb-3">
+                      <MapPin className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
+                      <p className="text-sm text-gray-300">{lead.location}</p>
+                    </div>
+                  )}
+
+                  {/* Contact row: name + actions */}
+                  <div className="flex items-center justify-between pt-2 border-t border-white/5">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-base font-semibold text-white truncate">{lead.firstName} {lead.lastName}</p>
+                      <p className="text-xs text-gray-500 mt-0.5">Ambassadeur : {lead.ambassador.user.name}</p>
+                    </div>
+                    <div className="flex gap-2 flex-shrink-0 ml-3">
+                      <a href={`tel:${lead.phone}`} onClick={(e) => e.stopPropagation()}
+                        className="w-10 h-10 rounded-full border border-[#D1B280]/30 flex items-center justify-center hover:bg-[#D1B280]/10 transition-colors">
+                        <Phone className="w-4 h-4 text-[#D1B280]" />
                       </a>
-                    )}
+                      {lead.email && (
+                        <a href={`mailto:${lead.email}`} onClick={(e) => e.stopPropagation()}
+                          className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5 transition-colors">
+                          <Mail className="w-4 h-4 text-gray-400" />
+                        </a>
+                      )}
+                    </div>
                   </div>
-                </div>
-
-                {/* Progress bar */}
-                <div className="mt-3 flex items-center gap-2">
-                  <div className="flex-1 h-1.5 bg-white/5 rounded-full overflow-hidden">
-                    <div className="h-full rounded-full transition-all duration-500" style={{
-                      width: `${progress}%`,
-                      background: lead.status === "PERDU" ? "#ef4444" : lead.status === "EN_PAUSE" ? "#6b7280" : "linear-gradient(90deg, #D1B280, #b89a65)",
-                    }} />
-                  </div>
-                  <span className="text-[10px] text-gray-500 tabular-nums flex-shrink-0">{progress}%</span>
                 </div>
               </button>
             );

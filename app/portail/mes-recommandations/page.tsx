@@ -1,19 +1,10 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { ClipboardList, Plus } from "lucide-react";
-import {
-  formatDate,
-  LEAD_STATUS_LABELS,
-  LEAD_STATUS_COLORS,
-  LEAD_TYPE_LABELS,
-} from "@/lib/utils";
-import Link from "next/link";
-
+import { Phone, Mail, MapPin, Euro, Home, Building, Key, ArrowLeft, Plus, ClipboardList } from "lucide-react";
+import { formatDate, LEAD_STATUS_LABELS, LEAD_TYPE_LABELS } from "@/lib/utils";
 import { LeadTimeline } from "@/components/lead-timeline";
+import Link from "next/link";
 
 type Lead = {
   id: string;
@@ -28,7 +19,37 @@ type Lead = {
   status: string;
   createdAt: string;
   contract?: { id: string; number: string } | null;
+  statusHistory?: { id: string; toStatus: string; changedBy: string | null; note: string | null; createdAt: string }[];
 };
+
+const STATUS_DOT: Record<string, string> = {
+  NOUVEAU: "bg-blue-400",
+  PRIS_EN_CHARGE: "bg-indigo-400",
+  CONTACTE: "bg-yellow-400",
+  RDV_PLANIFIE: "bg-cyan-400",
+  EN_NEGOCIATION: "bg-orange-400",
+  MANDAT_SIGNE: "bg-violet-400",
+  SOUS_OFFRE: "bg-pink-400",
+  COMPROMIS_SIGNE: "bg-emerald-400",
+  ACTE_SIGNE: "bg-green-400",
+  RECONNAISSANCE_HONORAIRES: "bg-amber-400",
+  COMMISSION_VERSEE: "bg-green-500",
+  CLOTURE: "bg-slate-400",
+  EN_PAUSE: "bg-gray-400",
+  PERDU: "bg-red-400",
+};
+
+const TYPE_ICON: Record<string, typeof Home> = {
+  ACHAT: Home,
+  VENTE: Building,
+  LOCATION: Key,
+};
+
+const STEPS = [
+  "NOUVEAU", "PRIS_EN_CHARGE", "CONTACTE", "RDV_PLANIFIE", "EN_NEGOCIATION",
+  "MANDAT_SIGNE", "SOUS_OFFRE", "COMPROMIS_SIGNE", "ACTE_SIGNE",
+  "RECONNAISSANCE_HONORAIRES", "COMMISSION_VERSEE", "CLOTURE",
+];
 
 export default function MesRecommandationsPage() {
   const [leads, setLeads] = useState<Lead[]>([]);
@@ -36,144 +57,193 @@ export default function MesRecommandationsPage() {
 
   const fetchLeads = useCallback(async () => {
     const res = await fetch("/api/recommandations");
-    const data = await res.json();
-    setLeads(data);
+    if (res.ok) setLeads(await res.json());
   }, []);
 
   useEffect(() => { fetchLeads(); }, [fetchLeads]);
 
-  return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Mes recommandations</h1>
-          <p className="text-gray-500 mt-1 text-sm">{leads.length} contact{leads.length > 1 ? "s" : ""} transmis</p>
+  // ─── DETAIL VIEW ────────────────────────────────────────────────
+  if (selected) {
+    const statusIdx = STEPS.indexOf(selected.status);
+    const progress = statusIdx >= 0 ? Math.round(((statusIdx + 1) / STEPS.length) * 100) : 0;
+    const TypeIcon = TYPE_ICON[selected.type] || Home;
+
+    return (
+      <div className="space-y-4 animate-in">
+        <button onClick={() => setSelected(null)} className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors min-h-[44px]">
+          <ArrowLeft className="w-5 h-5" />
+          <span className="text-sm font-medium">Mes recommandations</span>
+        </button>
+
+        {/* Header */}
+        <div className="bg-white/5 border border-white/10 rounded-xl p-5 space-y-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-[#D1B280]/20 flex items-center justify-center">
+                <span className="text-[#D1B280] text-lg font-bold">{selected.firstName[0]}{selected.lastName[0]}</span>
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-white">{selected.firstName} {selected.lastName}</h1>
+                <div className="flex items-center gap-2 mt-1">
+                  <div className={`w-2 h-2 rounded-full ${STATUS_DOT[selected.status] || "bg-gray-400"}`} />
+                  <span className="text-sm text-[#D1B280]">{LEAD_STATUS_LABELS[selected.status]}</span>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-1.5 bg-white/5 px-3 py-1.5 rounded-full">
+              <TypeIcon className="w-3.5 h-3.5 text-[#D1B280]" />
+              <span className="text-xs text-gray-300">{LEAD_TYPE_LABELS[selected.type] || selected.type}</span>
+            </div>
+          </div>
+
+          {/* Progress */}
+          <div className="space-y-1.5">
+            <div className="flex justify-between text-xs">
+              <span className="text-gray-500">Progression du dossier</span>
+              <span className="text-[#D1B280] font-medium">{progress}%</span>
+            </div>
+            <div className="h-2 bg-white/5 rounded-full overflow-hidden">
+              <div className="h-full rounded-full transition-all duration-500" style={{ width: `${progress}%`, background: "linear-gradient(90deg, #D1B280, #b89a65)" }} />
+            </div>
+          </div>
         </div>
-        <Link href="/portail/recommander">
-          <Button className="w-full sm:w-auto">
-            <Plus className="w-4 h-4" /> Nouvelle recommandation
-          </Button>
+
+        {/* Info cards */}
+        <div className="grid grid-cols-2 gap-3">
+          {selected.location && (
+            <div className="bg-white/5 border border-white/10 rounded-lg p-3 col-span-2">
+              <div className="flex items-center gap-2 text-gray-400 text-xs mb-1">
+                <MapPin className="w-3 h-3" /> Localisation
+              </div>
+              <p className="text-sm text-white">{selected.location}</p>
+            </div>
+          )}
+          {selected.budget && (
+            <div className="bg-white/5 border border-white/10 rounded-lg p-3">
+              <div className="flex items-center gap-2 text-gray-400 text-xs mb-1">
+                <Euro className="w-3 h-3" /> Budget
+              </div>
+              <p className="text-sm text-white font-medium">{selected.budget}</p>
+            </div>
+          )}
+          <div className="bg-white/5 border border-white/10 rounded-lg p-3">
+            <p className="text-gray-400 text-xs mb-1">Recommandé le</p>
+            <p className="text-sm text-white">{formatDate(selected.createdAt)}</p>
+          </div>
+          {selected.contract && (
+            <div className="bg-white/5 border border-white/10 rounded-lg p-3">
+              <p className="text-gray-400 text-xs mb-1">Contrat</p>
+              <Link href={`/portail/mes-contrats/${selected.contract.id}`} className="text-sm text-[#D1B280] font-mono hover:underline">
+                {selected.contract.number}
+              </Link>
+            </div>
+          )}
+        </div>
+
+        {selected.description && (
+          <div className="bg-white/5 border border-white/10 rounded-lg p-4">
+            <p className="text-gray-400 text-xs mb-2">Description</p>
+            <p className="text-sm text-gray-300 leading-relaxed">{selected.description}</p>
+          </div>
+        )}
+
+        {/* Timeline */}
+        <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+          <p className="text-xs text-gray-400 mb-3 font-medium uppercase tracking-wide">Suivi du dossier</p>
+          <LeadTimeline status={selected.status} history={selected.statusHistory} />
+        </div>
+
+        {/* Message */}
+        <div className="bg-[#D1B280]/10 border border-[#D1B280]/20 rounded-lg p-4 text-center">
+          <p className="text-sm text-[#D1B280]">Notre équipe suit ce dossier. Vous serez notifié de chaque avancement.</p>
+        </div>
+      </div>
+    );
+  }
+
+  // ─── LIST VIEW ──────────────────────────────────────────────────
+  return (
+    <div className="space-y-5">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-white" style={{ fontFamily: "'Fira Sans', sans-serif" }}>
+            Mes recommandations
+          </h1>
+          <p className="text-gray-400 mt-1 text-sm">{leads.length} contact{leads.length > 1 ? "s" : ""} transmis</p>
+        </div>
+        <Link href="/portail/recommander"
+          className="flex items-center gap-2 bg-[#D1B280] text-[#030A24] px-4 py-2.5 rounded-lg text-sm font-semibold min-h-[44px] hover:bg-[#b89a65] transition-colors">
+          <Plus className="w-4 h-4" /> Recommander
         </Link>
       </div>
 
       {leads.length === 0 ? (
-        <Card>
-          <CardContent className="p-0">
-            <div className="text-center py-16">
-              <ClipboardList className="w-12 h-12 text-gray-200 mx-auto mb-4" />
-              <h3 className="font-medium text-gray-900 mb-2">Aucune recommandation</h3>
-              <p className="text-sm text-gray-500 mb-6">
-                Transmettez les coordonnées d&apos;un contact pour commencer.
-              </p>
-              <Link href="/portail/recommander">
-                <Button>Faire ma première recommandation</Button>
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
+        <div className="bg-white/5 border border-white/10 rounded-xl px-6 py-16 text-center">
+          <ClipboardList className="w-12 h-12 text-gray-600 mx-auto mb-4" />
+          <h3 className="font-medium text-white mb-2">Aucune recommandation</h3>
+          <p className="text-sm text-gray-400 mb-6">Transmettez les coordonnées d&apos;un contact pour commencer.</p>
+          <Link href="/portail/recommander"
+            className="inline-flex items-center gap-2 bg-[#D1B280] text-[#030A24] px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-[#b89a65] transition-colors">
+            Faire ma première recommandation
+          </Link>
+        </div>
       ) : (
-        <div className={`grid gap-6 ${selected ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1"}`}>
-          {/* Cards list */}
-          <div className="space-y-3">
-            {leads.map((lead) => (
-              <div
+        <div className="space-y-3">
+          {leads.map((lead) => {
+            const statusIdx = STEPS.indexOf(lead.status);
+            const progress = statusIdx >= 0 ? Math.round(((statusIdx + 1) / STEPS.length) * 100) : 0;
+            const TypeIcon = TYPE_ICON[lead.type] || Home;
+
+            return (
+              <button
                 key={lead.id}
                 onClick={() => setSelected(lead)}
-                className={`bg-white border border-gray-100 rounded-lg shadow-sm cursor-pointer hover:shadow-md transition-shadow ${selected?.id === lead.id ? "ring-2 ring-[#D1B280] border-[#D1B280]" : ""}`}
+                className="w-full text-left bg-white/5 border border-white/10 rounded-xl overflow-hidden transition-all hover:bg-white/[0.07] hover:border-white/20 active:scale-[0.99]"
               >
-                <div className="p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-gray-900 truncate">
-                        {lead.firstName} {lead.lastName}
-                      </p>
-                      <p className="text-xs text-gray-500 mt-0.5">{lead.phone}</p>
+                {/* Segmented progress bar (like mareco) */}
+                <div className="flex gap-0.5 px-4 pt-4">
+                  {STEPS.map((_, i) => (
+                    <div key={i} className={`h-1 flex-1 rounded-full ${i <= statusIdx ? "bg-[#D1B280]" : "bg-white/10"}`} />
+                  ))}
+                </div>
+
+                <div className="p-4 pt-3">
+                  {/* Top: date + type */}
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[11px] text-gray-500">{formatDate(lead.createdAt)}</span>
+                    <div className="flex items-center gap-1.5 text-gray-400">
+                      <TypeIcon className="w-3.5 h-3.5" />
+                      <span className="text-[11px]">{LEAD_TYPE_LABELS[lead.type] || lead.type}</span>
                     </div>
-                    <Badge className={LEAD_STATUS_COLORS[lead.status]}>
-                      {LEAD_STATUS_LABELS[lead.status]}
-                    </Badge>
                   </div>
-                  <div className="flex items-center gap-2 mt-3 flex-wrap">
-                    <Badge className="bg-slate-100 text-slate-700">
-                      {LEAD_TYPE_LABELS[lead.type] || lead.type}
-                    </Badge>
-                    <span className="text-xs text-gray-400">{formatDate(lead.createdAt)}</span>
-                    {lead.contract && (
-                      <Link
-                        href={`/portail/mes-contrats/${lead.contract.id}`}
-                        onClick={(e) => e.stopPropagation()}
-                        className="text-xs text-blue-600 hover:underline font-mono ml-auto"
-                      >
-                        {lead.contract.number}
-                      </Link>
-                    )}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
 
-          {/* Detail panel */}
-          {selected && (
-            <Card>
-              <CardContent className="p-6 space-y-4">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h2 className="text-lg font-bold text-gray-900">{selected.firstName} {selected.lastName}</h2>
-                    <p className="text-sm text-gray-500">{selected.phone}{selected.email ? ` · ${selected.email}` : ""}</p>
+                  {/* Status badge */}
+                  <div className="inline-flex items-center gap-1.5 bg-[#D1B280]/10 px-2.5 py-1 rounded-full mb-3">
+                    <div className={`w-2 h-2 rounded-full ${STATUS_DOT[lead.status] || "bg-gray-400"}`} />
+                    <span className="text-xs font-semibold text-[#D1B280]">{LEAD_STATUS_LABELS[lead.status]}</span>
                   </div>
-                  <button onClick={() => setSelected(null)} className="text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 p-1">✕</button>
-                </div>
 
-                <div className="flex items-center gap-2 flex-wrap">
-                  <Badge className="bg-slate-100 text-slate-700">
-                    {LEAD_TYPE_LABELS[selected.type] || selected.type}
-                  </Badge>
-                  {selected.status === "PERDU" && (
-                    <Badge className="bg-red-100 text-red-700">Perdu</Badge>
+                  {/* Location */}
+                  {lead.location && (
+                    <div className="flex items-start gap-2 mb-3">
+                      <MapPin className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
+                      <p className="text-sm text-gray-300">{lead.location}</p>
+                    </div>
                   )}
-                </div>
 
-                {/* Status timeline */}
-                <div className="overflow-x-auto -mx-2 px-2">
-                  <LeadTimeline status={selected.status} compact />
-                </div>
-
-                {(selected.location || selected.budget) && (
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-                    {selected.location && (
-                      <div className="bg-gray-50 rounded-lg p-3">
-                        <p className="text-gray-500 text-xs">Localisation</p>
-                        <p className="font-medium mt-0.5">{selected.location}</p>
-                      </div>
-                    )}
-                    {selected.budget && (
-                      <div className="bg-gray-50 rounded-lg p-3">
-                        <p className="text-gray-500 text-xs">Budget</p>
-                        <p className="font-medium mt-0.5">{selected.budget}</p>
-                      </div>
+                  {/* Name + contract */}
+                  <div className="flex items-center justify-between">
+                    <p className="text-base font-semibold text-white">{lead.firstName} {lead.lastName}</p>
+                    {lead.contract && (
+                      <span className="text-[10px] text-[#D1B280] font-mono bg-[#D1B280]/10 px-2 py-0.5 rounded-full">
+                        {lead.contract.number}
+                      </span>
                     )}
                   </div>
-                )}
-
-                {selected.description && (
-                  <div>
-                    <p className="text-gray-500 text-xs mb-1">Description</p>
-                    <p className="text-sm text-gray-700 bg-gray-50 rounded-lg p-3">{selected.description}</p>
-                  </div>
-                )}
-
-                <div className="pt-2 border-t border-gray-100">
-                  <p className="text-xs text-gray-400">
-                    Recommandé le {formatDate(selected.createdAt)}
-                  </p>
-                  <p className="text-xs text-gray-400 mt-1">
-                    Notre équipe suit ce dossier. Vous serez notifié de chaque avancement.
-                  </p>
                 </div>
-              </CardContent>
-            </Card>
-          )}
+              </button>
+            );
+          })}
         </div>
       )}
     </div>

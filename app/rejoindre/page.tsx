@@ -82,7 +82,7 @@ function RegisterForm() {
   if (done) {
     return (
       <div className="text-center py-12 px-6">
-        <div className="w-16 h-16 bg-green-100 flex items-center justify-center mx-auto mb-4">
+        <div className="w-16 h-16 bg-green-100 rounded-xl flex items-center justify-center mx-auto mb-4">
           <CheckCircle2 className="w-8 h-8 text-green-600" />
         </div>
         <h2 className="text-2xl font-bold text-gray-900 mb-2">Bienvenue dans The Club !</h2>
@@ -91,7 +91,7 @@ function RegisterForm() {
         </p>
         <a
           href="/auth/connexion"
-          className="inline-flex items-center gap-2 bg-[#D1B280] text-white px-8 py-3 font-semibold text-sm uppercase tracking-wider hover:bg-[#b89960] transition-colors"
+          className="inline-flex items-center gap-2 bg-[#D1B280] text-white px-8 py-3 font-semibold text-sm uppercase tracking-wider rounded-lg hover:bg-[#b89960] transition-colors"
         >
           Se connecter
           <ArrowRight className="w-4 h-4" />
@@ -103,7 +103,7 @@ function RegisterForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {error && (
-        <div className="bg-red-50 border-l-3 border-red-500 p-3">
+        <div className="bg-red-50 border-l-3 border-red-500 p-3 rounded-lg">
           <p className="text-sm text-red-700">{error}</p>
         </div>
       )}
@@ -214,7 +214,7 @@ function RegisterForm() {
               key={opt.value}
               type="button"
               onClick={() => setForm(f => ({ ...f, legalStatus: opt.value }))}
-              className={`px-3 py-2.5 text-sm font-medium border transition-colors ${
+              className={`px-3 py-2.5 text-sm font-medium border rounded-lg transition-colors ${
                 form.legalStatus === opt.value
                   ? "border-[#D1B280] bg-[#f9f6f1] text-[#030A24]"
                   : "border-gray-200 text-gray-500 hover:border-gray-300"
@@ -238,7 +238,7 @@ function RegisterForm() {
               <select
                 value={form.companyLegalForm}
                 onChange={e => setForm(f => ({ ...f, companyLegalForm: e.target.value }))}
-                className="w-full px-3 py-2.5 text-sm border border-gray-300 bg-white focus:outline-none focus:border-[#D1B280]"
+                className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:border-[#D1B280]"
               >
                 <option value="">Forme juridique</option>
                 <option value="Auto-entrepreneur">Auto-entrepreneur</option>
@@ -307,7 +307,7 @@ function RegisterForm() {
           <select
             value={form.selectedAgencyId}
             onChange={e => setForm(f => ({ ...f, selectedAgencyId: e.target.value, selectedNegotiatorId: "" }))}
-            className="w-full px-3 py-2.5 text-sm border border-gray-300 bg-white focus:outline-none focus:border-[#D1B280]"
+            className="w-full px-3 py-2.5 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:border-[#D1B280]"
           >
             <option value="">Je ne connais pas d&apos;agence</option>
             {agencies.map(a => (
@@ -320,7 +320,7 @@ function RegisterForm() {
             <select
               value={form.selectedNegotiatorId}
               onChange={e => setForm(f => ({ ...f, selectedNegotiatorId: e.target.value }))}
-              className="w-full mt-2 px-3 py-2.5 text-sm border border-gray-300 bg-white focus:outline-none focus:border-[#D1B280]"
+              className="w-full mt-2 px-3 py-2.5 text-sm border border-gray-300 rounded-lg bg-white focus:outline-none focus:border-[#D1B280]"
             >
               <option value="">Je ne connais pas de conseiller</option>
               {selectedAgency.negotiators.map(n => (
@@ -330,7 +330,7 @@ function RegisterForm() {
           )}
 
           {!form.selectedAgencyId && (
-            <div className="flex items-start gap-2 mt-2 px-3 py-2 bg-blue-50 border border-blue-100">
+            <div className="flex items-start gap-2 mt-2 px-3 py-2 bg-blue-50 border border-blue-100 rounded-lg">
               <Info className="w-3.5 h-3.5 text-blue-500 mt-0.5 flex-shrink-0" />
               <p className="text-xs text-blue-700">
                 Pas de souci ! Un agent vous sera attribué rapidement en fonction de votre lieu de domicile.
@@ -341,7 +341,7 @@ function RegisterForm() {
       )}
 
       {code && (
-        <div className="bg-[#f9f6f1] border-l-3 border-[#D1B280] p-3">
+        <div className="bg-[#f9f6f1] border-l-3 border-[#D1B280] p-3 rounded-lg">
           <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold mb-1">Code parrainage</p>
           <p className="text-sm font-mono font-bold text-[#030A24]">{code}</p>
         </div>
@@ -391,7 +391,7 @@ export default function RejoindrePublicPage() {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Header */}
-      <header className="bg-white border-b border-gray-100 px-4 sm:px-6 py-3">
+      <header className="bg-white/80 backdrop-blur-lg border-b border-gray-100 px-4 sm:px-6 py-3 sticky top-0 z-50">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo.png" alt="La Brie Immobilière" style={{ height: 56, width: "auto", objectFit: "contain" }} className="sm:h-14" />
@@ -421,7 +421,7 @@ export default function RejoindrePublicPage() {
             <div className="space-y-4">
               {advantages.map((adv) => (
                 <div key={adv.title} className="flex items-start gap-3">
-                  <div className="w-10 h-10 bg-[#f9f6f1] flex items-center justify-center flex-shrink-0">
+                  <div className="w-10 h-10 bg-[#f9f6f1] rounded-xl flex items-center justify-center flex-shrink-0">
                     <adv.icon className="w-5 h-5 text-[#D1B280]" />
                   </div>
                   <div>
@@ -432,7 +432,7 @@ export default function RejoindrePublicPage() {
               ))}
             </div>
 
-            <div className="bg-[#030A24] p-5">
+            <div className="bg-[#030A24] p-5 rounded-xl">
               <p className="text-[#D1B280] text-sm font-style italic leading-relaxed" style={{ fontFamily: "Georgia, serif" }}>
                 &laquo; Chaque recommandation est une marque de confiance.
                 Nous nous engageons à offrir le même niveau d&apos;exigence à vos contacts. &raquo;
@@ -443,7 +443,7 @@ export default function RejoindrePublicPage() {
 
           {/* Right: Form */}
           <div>
-            <div className="bg-white shadow-sm border border-gray-100 p-8">
+            <div className="bg-white shadow-sm border border-gray-100 p-8 rounded-xl">
               <div className="mb-6">
                 <h2 className="text-xl font-bold text-[#030A24]">Créer mon compte</h2>
                 <p className="text-gray-500 mt-1 text-sm">
@@ -451,7 +451,7 @@ export default function RejoindrePublicPage() {
                 </p>
               </div>
 
-              <Suspense fallback={<div className="animate-pulse h-96 bg-gray-100" />}>
+              <Suspense fallback={<div className="animate-pulse h-96 bg-gray-100 rounded-lg" />}>
                 <RegisterForm />
               </Suspense>
             </div>
