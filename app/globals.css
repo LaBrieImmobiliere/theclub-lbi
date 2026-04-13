@@ -89,6 +89,11 @@ h1, h2, h3, h4, h5, h6 {
   to { opacity: 1; transform: scale(1); }
 }
 
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
 .animate-in { animation: fadeInUp 0.3s ease-out both; }
 .fade-in { animation: fadeIn 0.3s ease-out both; }
 .slide-in-from-bottom { animation: slideInBottom 0.3s ease-out both; }

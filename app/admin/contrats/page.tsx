@@ -137,8 +137,8 @@ export default function ContratsPage() {
       {showForm && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
           <Card className="w-full max-w-lg max-h-[90vh] overflow-y-auto">
-            <div className="px-6 py-4 border-b border-gray-100 flex items-center justify-between sticky top-0 bg-white z-10">
-              <h2 className="font-semibold text-gray-900">Nouveau contrat CAA</h2>
+            <div className="px-6 py-4 border-b border-gray-100 dark:border-white/10 flex items-center justify-between sticky top-0 bg-white dark:bg-gray-900 z-10">
+              <h2 className="font-semibold text-gray-900 dark:text-white">Nouveau contrat CAA</h2>
               <button onClick={() => setShowForm(false)} className="text-gray-400 hover:text-gray-600">
                 <X className="w-5 h-5" />
               </button>
@@ -250,7 +250,7 @@ export default function ContratsPage() {
           <div className="space-y-3 md:hidden">
             {filtered.map((contract) => (
               <Link key={contract.id} href={`/admin/contrats/${contract.id}`} className="block">
-                <div className="bg-white border border-gray-100 shadow-sm rounded-lg p-4">
+                <div className="bg-white dark:bg-white/5 border border-gray-100 dark:border-white/10 shadow-sm rounded-lg p-4">
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
                       <p className="font-mono text-xs font-medium text-gray-900">{contract.number}</p>

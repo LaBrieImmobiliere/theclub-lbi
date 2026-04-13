@@ -240,7 +240,7 @@ export default function NegociateurRecommandationsPage() {
               <button
                 key={s}
                 onClick={() => setFilterStatus(s)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full whitespace-nowrap transition-all ${
+                className={`flex items-center gap-1.5 px-3.5 py-2 min-h-[44px] text-xs font-medium rounded-full whitespace-nowrap transition-all ${
                   isActive
                     ? "bg-[#D1B280] text-[#030A24] shadow-sm"
                     : "bg-white/10 text-gray-400 border border-white/10 hover:border-[#D1B280] hover:text-[#D1B280]"
@@ -308,8 +308,8 @@ export default function NegociateurRecommandationsPage() {
                         }}
                       />
                     </div>
-                    <span className="text-[10px] text-gray-400 tabular-nums">{progress}%</span>
-                    <ChevronRight className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 flex-shrink-0" />
+                    <span className="text-[10px] text-gray-400 tabular-nums flex-shrink-0 w-7 text-right">{progress}%</span>
+                    <ChevronRight className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 flex-shrink-0 hidden sm:block" />
                   </div>
                 </button>
               );
@@ -320,18 +320,22 @@ export default function NegociateurRecommandationsPage() {
         {/* Detail panel — mobile: full-screen overlay, desktop: side panel */}
         {selected && (
           <div className="fixed inset-0 z-40 xl:relative xl:inset-auto xl:z-auto">
-            {/* Backdrop on mobile */}
-            <div className="absolute inset-0 bg-black/40 xl:hidden" onClick={() => setSelected(null)} />
-            <div className="absolute bottom-0 left-0 right-0 max-h-[90vh] xl:relative xl:max-h-none xl:bottom-auto bg-white border border-gray-100 shadow-xl xl:shadow-sm overflow-hidden rounded-t-2xl xl:rounded-t-none xl:rounded-lg">
+            {/* Backdrop on mobile — fade in */}
+            <div
+              className="absolute inset-0 bg-black/40 xl:hidden animate-[fadeIn_200ms_ease-out]"
+              onClick={() => setSelected(null)}
+            />
+            {/* Panel — slide up on mobile */}
+            <div className="absolute bottom-0 left-0 right-0 max-h-[90vh] xl:relative xl:max-h-none xl:bottom-auto bg-white dark:bg-[#0c1425] border border-gray-100 dark:border-white/10 shadow-xl xl:shadow-sm overflow-hidden rounded-t-2xl xl:rounded-t-none xl:rounded-lg animate-[slideUp_300ms_ease-out] xl:animate-none">
             {/* Drag handle on mobile */}
             <div className="xl:hidden flex justify-center pt-2 pb-1">
-              <div className="w-10 h-1 bg-gray-300 rounded-full" />
+              <div className="w-10 h-1 bg-gray-300 dark:bg-white/20 rounded-full" />
             </div>
-            <div className="px-5 py-3 xl:py-4 border-b border-gray-100 flex items-start justify-between">
+            <div className="px-5 py-3 xl:py-4 border-b border-gray-100 dark:border-white/10 flex items-start justify-between">
               <div>
-                <h2 className="font-bold text-gray-900 text-lg">{selected.firstName} {selected.lastName}</h2>
+                <h2 className="font-bold text-gray-900 dark:text-white text-lg">{selected.firstName} {selected.lastName}</h2>
                 <p className="text-xs text-gray-400 mt-0.5">
-                  Ambassadeur : <span className="font-medium text-gray-600">{selected.ambassador.user.name}</span>
+                  Ambassadeur : <span className="font-medium text-gray-600 dark:text-gray-300">{selected.ambassador.user.name}</span>
                 </p>
               </div>
               <button

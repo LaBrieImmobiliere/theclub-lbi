@@ -109,8 +109,8 @@ export default function RecommandationsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Recommandations</h1>
-          <p className="text-gray-500 mt-1">{leads.length} recommandation{leads.length > 1 ? "s" : ""} au total</p>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Recommandations</h1>
+          <p className="text-gray-500 dark:text-gray-400 mt-1">{leads.length} recommandation{leads.length > 1 ? "s" : ""} au total</p>
         </div>
         <CsvExport
           data={filtered.map(l => ({
@@ -175,38 +175,38 @@ export default function RecommandationsPage() {
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-gray-100 text-left">
-                      <th className="px-6 py-3 font-medium text-gray-500">Prospect</th>
-                      <th className="px-6 py-3 font-medium text-gray-500 hidden sm:table-cell">Type</th>
-                      <th className="px-6 py-3 font-medium text-gray-500">Ambassadeur</th>
-                      <th className="px-6 py-3 font-medium text-gray-500">Statut</th>
-                      <th className="px-6 py-3 font-medium text-gray-500 hidden sm:table-cell">Date</th>
+                    <tr className="border-b border-gray-100 dark:border-white/10 text-left">
+                      <th className="px-6 py-3 font-medium text-gray-500 dark:text-gray-400">Prospect</th>
+                      <th className="px-6 py-3 font-medium text-gray-500 dark:text-gray-400 hidden sm:table-cell">Type</th>
+                      <th className="px-6 py-3 font-medium text-gray-500 dark:text-gray-400">Ambassadeur</th>
+                      <th className="px-6 py-3 font-medium text-gray-500 dark:text-gray-400">Statut</th>
+                      <th className="px-6 py-3 font-medium text-gray-500 dark:text-gray-400 hidden sm:table-cell">Date</th>
                       <th className="px-6 py-3"></th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-50">
+                  <tbody className="divide-y divide-gray-50 dark:divide-white/5">
                     {filtered.map((lead) => (
                       <tr
                         key={lead.id}
-                        className={`hover:bg-gray-50/50 cursor-pointer ${selected?.id === lead.id ? "bg-blue-50/50" : ""}`}
+                        className={`hover:bg-gray-50/50 dark:hover:bg-white/5 cursor-pointer ${selected?.id === lead.id ? "bg-blue-50/50 dark:bg-blue-500/10" : ""}`}
                         onClick={() => setSelected(lead)}
                       >
                         <td className="px-6 py-3">
-                          <p className="font-medium text-gray-900">{lead.firstName} {lead.lastName}</p>
-                          <p className="text-xs text-gray-500">{lead.phone}</p>
+                          <p className="font-medium text-gray-900 dark:text-white">{lead.firstName} {lead.lastName}</p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">{lead.phone}</p>
                         </td>
                         <td className="px-6 py-3 hidden sm:table-cell">
                           <Badge className="bg-slate-100 text-slate-700">
                             {LEAD_TYPE_LABELS[lead.type] || lead.type}
                           </Badge>
                         </td>
-                        <td className="px-6 py-3 text-gray-600">{lead.ambassador.user.name}</td>
+                        <td className="px-6 py-3 text-gray-600 dark:text-gray-400">{lead.ambassador.user.name}</td>
                         <td className="px-6 py-3">
                           <Badge className={LEAD_STATUS_COLORS[lead.status]}>
                             {LEAD_STATUS_LABELS[lead.status]}
                           </Badge>
                         </td>
-                        <td className="px-6 py-3 text-gray-500 hidden sm:table-cell">{formatDate(lead.createdAt)}</td>
+                        <td className="px-6 py-3 text-gray-500 dark:text-gray-400 hidden sm:table-cell">{formatDate(lead.createdAt)}</td>
                         <td className="px-6 py-3">
                           {lead.contract && (
                             <Link href={`/admin/contrats/${lead.contract.id}`} onClick={(e) => e.stopPropagation()}>
@@ -229,8 +229,8 @@ export default function RecommandationsPage() {
             <CardContent className="p-6 space-y-4">
               <div className="flex items-start justify-between">
                 <div>
-                  <h2 className="text-lg font-bold text-gray-900">{selected.firstName} {selected.lastName}</h2>
-                  <p className="text-sm text-gray-500">{selected.phone}{selected.email ? ` · ${selected.email}` : ""}</p>
+                  <h2 className="text-lg font-bold text-gray-900 dark:text-white">{selected.firstName} {selected.lastName}</h2>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{selected.phone}{selected.email ? ` · ${selected.email}` : ""}</p>
                 </div>
                 <button onClick={() => setSelected(null)} className="text-gray-400 hover:text-gray-600">
                   <X className="w-5 h-5" />
@@ -263,7 +263,7 @@ export default function RecommandationsPage() {
               {selected.description && (
                 <div>
                   <p className="text-gray-500 text-xs mb-1">Description</p>
-                  <p className="text-sm text-gray-700 bg-gray-50 rounded-lg p-3">{selected.description}</p>
+                  <p className="text-sm text-gray-700 dark:text-gray-300 bg-gray-50 dark:bg-white/5 rounded-lg p-3">{selected.description}</p>
                 </div>
               )}
 
@@ -276,7 +276,7 @@ export default function RecommandationsPage() {
                   const isLost = selected.status === "PERDU" || selected.status === "ANNULE" || selected.status === "EN_PAUSE";
                   if (isLost) {
                     return (
-                      <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 border rounded mb-3">
+                      <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 dark:bg-white/5 border dark:border-white/10 rounded-lg mb-3">
                         <div className={`w-2 h-2 rounded-full ${selected.status === "PERDU" ? "bg-red-400" : "bg-gray-400"}`} />
                         <span className={`text-sm font-medium ${selected.status === "PERDU" ? "text-red-600" : "text-gray-600"}`}>
                           {LEAD_STATUS_LABELS[selected.status]}
@@ -286,8 +286,8 @@ export default function RecommandationsPage() {
                   }
                   return (
                     <div className="relative pt-1 mb-3">
-                      <div className="absolute top-4 left-4 right-4 h-0.5 bg-gray-100" />
-                      <div className="absolute top-4 left-4 h-0.5 bg-blue-500 transition-all duration-500"
+                      <div className="absolute top-5 left-4 right-4 h-0.5 bg-gray-100 dark:bg-white/10" />
+                      <div className="absolute top-5 left-4 h-0.5 bg-blue-500 transition-all duration-500"
                         style={{ width: currentIndex <= 0 ? "0%" : `${(currentIndex / (LEAD_STATUS_STEPS.length - 1)) * 100}%` }} />
                       <div className="relative flex justify-between">
                         {LEAD_STATUS_STEPS.map((key, i) => {
@@ -298,8 +298,8 @@ export default function RecommandationsPage() {
                             <div key={key} className="flex flex-col items-center gap-1.5" style={{ width: "20%" }}>
                               <button type="button" onClick={() => isClickable && requestStatusChange(selected.id, key)}
                                 disabled={!isClickable}
-                                className={`w-7 h-7 rounded-full flex items-center justify-center border-2 transition-all ${
-                                  isDone ? "bg-blue-500 border-blue-500" : isCurrent ? "bg-white border-blue-500 shadow-sm" : "bg-white border-gray-200"
+                                className={`w-9 h-9 rounded-full flex items-center justify-center border-2 transition-all ${
+                                  isDone ? "bg-blue-500 border-blue-500" : isCurrent ? "bg-white dark:bg-gray-900 border-blue-500 shadow-sm" : "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-600"
                                 } ${isClickable ? "cursor-pointer hover:scale-110 hover:shadow-md" : ""}`}
                                 title={isClickable ? `Passer en "${LEAD_STATUS_LABELS[key]}"` : ""}>
                                 {isDone ? <Check className="w-3 h-3 text-white" /> : isCurrent ? <div className="w-2 h-2 rounded-full bg-blue-500" /> : <div className="w-1.5 h-1.5 rounded-full bg-gray-200" />}
@@ -318,22 +318,22 @@ export default function RecommandationsPage() {
                 <div className="flex flex-wrap gap-2">
                   {selected.status === "COMMISSION_VERSEE" && (
                     <button onClick={() => requestStatusChange(selected.id, "CLOTURE")} disabled={!!updatingStatus}
-                      className="px-3 py-1.5 text-xs font-medium rounded-full border border-slate-400 text-slate-600 bg-slate-50 hover:bg-slate-100 hover:border-slate-500 transition-colors disabled:opacity-50">
+                      className="min-h-[44px] px-4 py-2 text-xs font-medium rounded-full border border-slate-400 text-slate-600 bg-slate-50 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-600 hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors disabled:opacity-50">
                       ✅ Clore le dossier
                     </button>
                   )}
                   {selected.status === "CLOTURE" && (
                     <button onClick={() => requestStatusChange(selected.id, "COMMISSION_VERSEE")} disabled={!!updatingStatus}
-                      className="px-3 py-1.5 text-xs font-medium rounded-full border border-blue-300 text-blue-600 bg-blue-50 hover:bg-blue-100 hover:border-blue-400 transition-colors disabled:opacity-50">
+                      className="min-h-[44px] px-4 py-2 text-xs font-medium rounded-full border border-blue-300 text-blue-600 bg-blue-50 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-700 hover:bg-blue-100 dark:hover:bg-blue-900/50 transition-colors disabled:opacity-50">
                       🔄 Réouvrir le dossier
                     </button>
                   )}
                   <button onClick={() => requestStatusChange(selected.id, "EN_PAUSE")} disabled={!!updatingStatus || selected.status === "EN_PAUSE"}
-                    className="px-3 py-1.5 text-xs font-medium rounded-full border border-gray-300 text-gray-500 hover:border-gray-500 hover:text-gray-700 transition-colors disabled:opacity-50">
+                    className="min-h-[44px] px-4 py-2 text-xs font-medium rounded-full border border-gray-300 dark:border-gray-600 text-gray-500 dark:text-gray-400 hover:border-gray-500 hover:text-gray-700 dark:hover:text-gray-200 transition-colors disabled:opacity-50">
                     ⏸ En pause
                   </button>
                   <button onClick={() => requestStatusChange(selected.id, "PERDU")} disabled={!!updatingStatus || selected.status === "PERDU"}
-                    className="px-3 py-1.5 text-xs font-medium rounded-full border border-red-200 text-red-400 hover:border-red-400 hover:text-red-600 transition-colors disabled:opacity-50">
+                    className="min-h-[44px] px-4 py-2 text-xs font-medium rounded-full border border-red-200 dark:border-red-800 text-red-400 hover:border-red-400 hover:text-red-600 transition-colors disabled:opacity-50">
                     ✕ Perdu
                   </button>
                 </div>
