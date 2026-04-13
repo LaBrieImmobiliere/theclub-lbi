@@ -34,12 +34,12 @@ export default function LandingPage() {
             <img src="/logo.png" alt="La Brie Immobili\u00e8re" style={{ height: 52, width: "auto", objectFit: "contain" }} />
           </div>
           <div className="flex items-center gap-3 sm:gap-4">
-            <Link href="/auth/connexion" className="text-sm text-gray-600 hover:text-gray-900 hidden sm:inline">
+            <Link href="/rejoindre" className="text-sm text-gray-600 hover:text-gray-900 hidden sm:inline">
               Connexion
             </Link>
             <Link
-              href="/auth/connexion"
-              className="bg-[#D1B280] text-white text-xs sm:text-sm font-medium px-4 sm:px-5 py-2 sm:py-2.5 hover:bg-[#b89a65] transition-colors tracking-wide"
+              href="/rejoindre"
+              className="bg-[#D1B280] text-white text-xs sm:text-sm font-medium px-4 sm:px-5 py-2 sm:py-2.5 rounded-lg hover:bg-[#b89a65] transition-colors tracking-wide"
             >
               Devenir Ambassadeur
             </Link>
@@ -67,15 +67,15 @@ export default function LandingPage() {
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
                 <Link
-                  href="/auth/connexion"
-                  className="inline-flex items-center justify-center gap-2 bg-[#D1B280] hover:bg-[#b89a65] text-white font-semibold px-6 sm:px-8 py-3.5 transition-colors text-sm sm:text-base tracking-wide"
+                  href="/rejoindre"
+                  className="inline-flex items-center justify-center gap-2 bg-[#D1B280] hover:bg-[#b89a65] text-white font-semibold px-6 sm:px-8 py-3.5 rounded-lg transition-colors text-sm sm:text-base tracking-wide"
                 >
                   Rejoindre le programme
                   <ArrowRight className="w-5 h-5" />
                 </Link>
                 <a
                   href="#comment-ca-marche"
-                  className="inline-flex items-center justify-center gap-2 border border-white/20 hover:border-[#D1B280] text-white font-medium px-6 sm:px-8 py-3.5 transition-colors text-sm sm:text-base"
+                  className="inline-flex items-center justify-center gap-2 border border-white/20 hover:border-[#D1B280] text-white font-medium px-6 sm:px-8 py-3.5 rounded-lg transition-colors text-sm sm:text-base"
                 >
                   Comment &ccedil;a marche ?
                 </a>
@@ -84,7 +84,7 @@ export default function LandingPage() {
 
             {/* Right - Stats card */}
             <div className="hidden lg:block">
-              <div className="bg-white/5 backdrop-blur-sm border border-white/10 p-8 space-y-6">
+              <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl p-8 space-y-6">
                 <p className="text-[#D1B280] text-xs font-medium tracking-widest uppercase">En moyenne, nos ambassadeurs gagnent</p>
                 <div className="text-center">
                   <p className="text-6xl font-black text-white" style={{ fontFamily: "'Fira Sans', sans-serif" }}>700&euro;</p>
@@ -115,7 +115,7 @@ export default function LandingPage() {
               { value: "48h", label: "D\u00e9lai contact" },
               { value: "100%", label: "En ligne" },
             ].map(({ value, label }) => (
-              <div key={label} className="text-center bg-white/5 py-4 px-2">
+              <div key={label} className="text-center bg-white/5 py-4 px-2 rounded-lg">
                 <div className="text-2xl sm:text-3xl font-bold text-[#D1B280]">{value}</div>
                 <div className="text-[10px] sm:text-xs text-white/40 mt-1">{label}</div>
               </div>
@@ -137,7 +137,7 @@ export default function LandingPage() {
               { recos: 3, amount: "2 100 \u20AC", label: "3 recommandations", sub: "Un bon d\u00e9but !" },
               { recos: 5, amount: "3 500 \u20AC", label: "5 recommandations", sub: "Objectif atteignable", highlight: true },
             ].map(({ recos, amount, label, sub, highlight }) => (
-              <div key={recos} className={`p-6 ${highlight ? "bg-[#030A24] text-white" : "bg-white border border-gray-100"}`}>
+              <div key={recos} className={`p-6 rounded-xl ${highlight ? "bg-[#030A24] text-white shadow-lg scale-105" : "bg-white border border-gray-100"}`}>
                 <p className={`text-3xl sm:text-4xl font-black ${highlight ? "text-[#D1B280]" : "text-[#030A24]"}`} style={{ fontFamily: "'Fira Sans', sans-serif" }}>
                   {amount}
                 </p>
@@ -160,8 +160,8 @@ export default function LandingPage() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {steps.map(({ num, title, desc, icon: Icon, color }) => (
               <div key={num} className="relative">
-                <div className="bg-white p-6 border border-gray-100 h-full hover:border-[#D1B280]/30 hover:shadow-sm transition-all">
-                  <div className={`w-10 h-10 ${color} text-white flex items-center justify-center mb-4`}>
+                <div className="bg-white p-6 border border-gray-100 rounded-xl h-full hover:border-[#D1B280]/30 hover:shadow-md transition-all">
+                  <div className={`w-10 h-10 ${color} text-white rounded-xl flex items-center justify-center mb-4`}>
                     <Icon className="w-5 h-5" />
                   </div>
                   <div className="text-xs text-gray-400 font-medium mb-2">&Eacute;tape {num}</div>
@@ -197,7 +197,7 @@ export default function LandingPage() {
                   { icon: Shield, text: "Signature \u00e9lectronique int\u00e9gr\u00e9e" },
                 ].map(({ icon: I, text }) => (
                   <div key={text} className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-[#D1B280]/20 flex items-center justify-center flex-shrink-0">
+                    <div className="w-8 h-8 bg-[#D1B280]/20 rounded-lg flex items-center justify-center flex-shrink-0">
                       <I className="w-4 h-4 text-[#D1B280]" />
                     </div>
                     <p className="text-sm text-white/80">{text}</p>
@@ -206,8 +206,8 @@ export default function LandingPage() {
               </div>
             </div>
             <div className="hidden lg:flex justify-center">
-              <div className="bg-white/5 border border-white/10 p-8 w-64 text-center">
-                <div className="w-16 h-16 bg-[#D1B280]/20 mx-auto mb-4 flex items-center justify-center">
+              <div className="bg-white/5 border border-white/10 rounded-xl p-8 w-64 text-center">
+                <div className="w-16 h-16 bg-[#D1B280]/20 rounded-2xl mx-auto mb-4 flex items-center justify-center">
                   <Smartphone className="w-8 h-8 text-[#D1B280]" />
                 </div>
                 <p className="font-bold text-white mb-1">The Club LBI</p>
@@ -230,8 +230,8 @@ export default function LandingPage() {
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {avantages.map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="p-5 sm:p-6 border border-gray-100 hover:border-[#D1B280]/30 hover:shadow-sm transition-all">
-                <div className="w-10 h-10 bg-[#f9f6f1] flex items-center justify-center mb-4">
+              <div key={title} className="p-5 sm:p-6 border border-gray-100 rounded-xl hover:border-[#D1B280]/30 hover:shadow-md transition-all">
+                <div className="w-10 h-10 bg-[#f9f6f1] rounded-xl flex items-center justify-center mb-4">
                   <Icon className="w-5 h-5 text-[#D1B280]" />
                 </div>
                 <h3 className="font-semibold text-[#030A24] mb-2 text-sm">{title}</h3>
@@ -250,7 +250,7 @@ export default function LandingPage() {
           </div>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {temoignages.map(({ name, role, text, stars, amount }) => (
-              <div key={name} className="bg-white p-5 sm:p-6 border border-gray-100">
+              <div key={name} className="bg-white p-5 sm:p-6 border border-gray-100 rounded-xl">
                 <div className="flex items-center justify-between mb-4">
                   <div className="flex gap-0.5">
                     {Array.from({ length: stars }).map((_, i) => (
@@ -278,8 +278,8 @@ export default function LandingPage() {
             Rejoignez notre r&eacute;seau d&apos;ambassadeurs et commencez &agrave; &ecirc;tre r&eacute;mun&eacute;r&eacute; pour vos recommandations.
           </p>
           <Link
-            href="/auth/connexion"
-            className="inline-flex items-center gap-2 bg-[#D1B280] hover:bg-[#b89a65] text-white font-bold px-8 sm:px-10 py-3.5 sm:py-4 transition-colors text-sm sm:text-lg tracking-wide"
+            href="/rejoindre"
+            className="inline-flex items-center gap-2 bg-[#D1B280] hover:bg-[#b89a65] text-white font-bold px-8 sm:px-10 py-3.5 sm:py-4 rounded-lg transition-colors text-sm sm:text-lg tracking-wide"
           >
             Cr&eacute;er mon espace ambassadeur
             <ArrowRight className="w-5 h-5" />
@@ -303,7 +303,7 @@ export default function LandingPage() {
             <img src="/logo-white.png" alt="La Brie Immobili\u00e8re" style={{ height: 28, width: "auto", objectFit: "contain" }} />
           </div>
           <div className="flex flex-wrap justify-center gap-4 sm:gap-6 text-xs sm:text-sm">
-            <Link href="/auth/connexion" className="hover:text-white transition-colors">Connexion</Link>
+            <Link href="/rejoindre" className="hover:text-white transition-colors">Connexion</Link>
             <Link href="/mentions-legales" className="hover:text-white transition-colors">Mentions l&eacute;gales</Link>
             <Link href="/politique-confidentialite" className="hover:text-white transition-colors">Confidentialit&eacute;</Link>
             <Link href="/cgu" className="hover:text-white transition-colors">CGU</Link>
