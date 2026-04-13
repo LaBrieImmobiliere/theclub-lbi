@@ -143,6 +143,7 @@ export default function NegociateurRecommandationsPage() {
   const [notes, setNotes] = useState("");
   const [savingNotes, setSavingNotes] = useState(false);
   const [filterStatus, setFilterStatus] = useState<string>("ALL");
+  const [search, setSearch] = useState("");
   const [confirmAction, setConfirmAction] = useState<{ status: string; label: string } | null>(null);
 
   const fetchLeads = useCallback(async () => {
@@ -196,7 +197,11 @@ export default function NegociateurRecommandationsPage() {
     } finally { setSavingNotes(false); }
   };
 
-  const filtered = filterStatus === "ALL" ? leads : leads.filter((l) => l.status === filterStatus);
+  const filtered = leads.filter((l) => {
+    const matchStatus = filterStatus === "ALL" || l.status === filterStatus;
+    const matchSearch = !search || `${l.firstName} ${l.lastName} ${l.location || ""} ${l.ambassador.user.name || ""}`.toLowerCase().includes(search.toLowerCase());
+    return matchStatus && matchSearch;
+  });
 
   // ─── DETAIL VIEW (full page on mobile) ─────────────────────────
   if (selected) {
@@ -360,106 +365,105 @@ export default function NegociateurRecommandationsPage() {
   // ─── LIST VIEW ──────────────────────────────────────────────────
   return (
     <PullToRefresh onRefresh={fetchLeads}>
-    <div className="space-y-5">
-      <div>
+    <div className="space-y-4">
+      {/* Header + search */}
+      <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold text-white" style={{ fontFamily: "'Fira Sans', sans-serif" }}>
           Recommandations
         </h1>
-        <p className="text-gray-400 mt-1 text-sm">{leads.length} recommandation{leads.length > 1 ? "s" : ""}</p>
+        <span className="text-xs text-gray-500 bg-white/5 px-2.5 py-1 rounded-full">{filtered.length}/{leads.length}</span>
       </div>
 
-      {/* Filters */}
-      <div className="overflow-x-auto -mx-4 px-4 pb-2 scrollbar-hide">
-        <div className="flex gap-2 min-w-max">
-          {["ALL", "NOUVEAU", "PRIS_EN_CHARGE", "CONTACTE", "RDV_PLANIFIE", "EN_NEGOCIATION", "MANDAT_SIGNE", "SOUS_OFFRE", "COMPROMIS_SIGNE", "ACTE_SIGNE", "RECONNAISSANCE_HONORAIRES", "COMMISSION_VERSEE", "CLOTURE", "EN_PAUSE", "PERDU"].map((s) => {
-            const count = s === "ALL" ? leads.length : leads.filter((l) => l.status === s).length;
-            const isActive = filterStatus === s;
+      {/* Search bar + filter dropdown */}
+      <div className="flex gap-2">
+        <div className="flex-1 relative">
+          <ChevronRight className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 rotate-[0deg]" style={{ display: "none" }} />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Rechercher..."
+            className="w-full h-11 pl-4 pr-4 text-sm bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-[#D1B280]"
+          />
+        </div>
+        <select
+          value={filterStatus}
+          onChange={(e) => setFilterStatus(e.target.value)}
+          className="h-11 px-3 text-sm bg-white/5 border border-white/10 rounded-xl text-gray-300 focus:outline-none focus:border-[#D1B280] appearance-none min-w-[130px]"
+          style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ca3af' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E")`, backgroundRepeat: "no-repeat", backgroundPosition: "right 10px center" }}
+        >
+          <option value="ALL">Tous ({leads.length})</option>
+          {["NOUVEAU", "PRIS_EN_CHARGE", "CONTACTE", "RDV_PLANIFIE", "EN_NEGOCIATION", "MANDAT_SIGNE", "SOUS_OFFRE", "COMPROMIS_SIGNE", "ACTE_SIGNE", "RECONNAISSANCE_HONORAIRES", "COMMISSION_VERSEE", "CLOTURE", "EN_PAUSE", "PERDU"].map((s) => {
+            const count = leads.filter((l) => l.status === s).length;
             return (
-              <button
-                key={s}
-                onClick={() => setFilterStatus(s)}
-                className={`flex items-center gap-1.5 px-3.5 py-2 min-h-[44px] text-xs font-medium rounded-full whitespace-nowrap transition-all ${
-                  isActive
-                    ? "bg-[#D1B280] text-[#030A24] shadow-sm"
-                    : "bg-white/5 text-gray-400 border border-white/10 hover:border-[#D1B280] hover:text-[#D1B280]"
-                }`}
-              >
-                {s === "ALL" ? "Tous" : STATUS_LABEL[s]}
-                {count > 0 && (
-                  <span className={`text-[10px] ${isActive ? "bg-[#030A24]/30 text-[#030A24]" : "bg-white/10 text-gray-500"} rounded-full px-1.5 py-0.5 min-w-[20px] text-center`}>
-                    {count}
-                  </span>
-                )}
-              </button>
+              <option key={s} value={s}>{STATUS_LABEL[s]} ({count})</option>
             );
           })}
-        </div>
+        </select>
       </div>
 
       {/* Cards */}
       <div className="space-y-3">
         {filtered.length === 0 ? (
           <div className="bg-white/5 border border-white/10 rounded-xl px-6 py-16 text-center">
-            <p className="text-gray-400 text-sm">Aucune recommandation{filterStatus !== "ALL" ? " dans ce statut" : ""}</p>
+            <p className="text-gray-400 text-sm">Aucune recommandation trouvée</p>
           </div>
         ) : (
           filtered.map((lead) => {
             const statusIdx = STATUS_STEPS.findIndex(s => s.key === lead.status);
-            const progress = statusIdx >= 0 ? Math.round(((statusIdx + 1) / STATUS_STEPS.length) * 100) : 0;
             const TypeIcon = TYPE_ICON[lead.type] || Home;
 
             return (
               <button
                 key={lead.id}
                 onClick={() => handleSelectLead(lead)}
-                className="w-full text-left bg-white/5 border border-white/10 rounded-xl overflow-hidden transition-all hover:bg-white/[0.07] hover:border-white/20 active:scale-[0.99]"
+                className="w-full text-left bg-white/5 border border-white/10 rounded-xl overflow-hidden transition-all hover:bg-white/[0.07] active:scale-[0.99]"
               >
-                {/* Segmented progress bar (like mareco) */}
-                <div className="flex gap-0.5 px-4 pt-4">
+                {/* Segmented progress bar */}
+                <div className="flex gap-[2px] px-3 pt-3">
                   {STATUS_STEPS.map((_, i) => (
-                    <div key={i} className={`h-1 flex-1 rounded-full ${i <= statusIdx ? "bg-[#D1B280]" : "bg-white/10"}`} />
+                    <div key={i} className={`h-[3px] flex-1 rounded-full ${i <= statusIdx ? "bg-[#D1B280]" : "bg-white/10"}`} />
                   ))}
                 </div>
 
-                <div className="p-4 pt-3">
-                  {/* Top row: date + type */}
-                  <div className="flex items-center justify-between mb-2">
+                <div className="px-3 pb-3 pt-2.5 space-y-2">
+                  {/* Date + type */}
+                  <div className="flex items-center justify-between">
                     <span className="text-[11px] text-gray-500">{formatDate(lead.createdAt)}</span>
-                    <div className="flex items-center gap-1.5 text-gray-400">
-                      <TypeIcon className="w-3.5 h-3.5" />
+                    <div className="flex items-center gap-1 text-gray-500">
+                      <TypeIcon className="w-3 h-3" />
                       <span className="text-[11px]">{LEAD_TYPE_LABELS[lead.type] || lead.type}</span>
                     </div>
                   </div>
 
-                  {/* Status badge */}
-                  <div className="inline-flex items-center gap-1.5 bg-[#D1B280]/10 px-2.5 py-1 rounded-full mb-3">
-                    <div className={`w-2 h-2 rounded-full ${STATUS_DOT[lead.status] || "bg-gray-400"}`} />
-                    <span className="text-xs font-semibold text-[#D1B280]">{STATUS_LABEL[lead.status]}</span>
+                  {/* Status */}
+                  <div className="inline-flex items-center gap-1.5 bg-[#D1B280]/10 px-2 py-0.5 rounded-full">
+                    <div className={`w-1.5 h-1.5 rounded-full ${STATUS_DOT[lead.status] || "bg-gray-400"}`} />
+                    <span className="text-[11px] font-semibold text-[#D1B280]">{STATUS_LABEL[lead.status]}</span>
                   </div>
 
                   {/* Location */}
                   {lead.location && (
-                    <div className="flex items-start gap-2 mb-3">
-                      <MapPin className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
-                      <p className="text-sm text-gray-300">{lead.location}</p>
+                    <div className="flex items-center gap-1.5">
+                      <MapPin className="w-3.5 h-3.5 text-gray-500 flex-shrink-0" />
+                      <p className="text-[13px] text-gray-300 truncate">{lead.location}</p>
                     </div>
                   )}
 
-                  {/* Contact row: name + actions */}
+                  {/* Name + contact */}
                   <div className="flex items-center justify-between pt-2 border-t border-white/5">
                     <div className="min-w-0 flex-1">
-                      <p className="text-base font-semibold text-white truncate">{lead.firstName} {lead.lastName}</p>
-                      <p className="text-xs text-gray-500 mt-0.5">Ambassadeur : {lead.ambassador.user.name}</p>
+                      <p className="text-[15px] font-semibold text-white truncate">{lead.firstName} {lead.lastName}</p>
+                      <p className="text-[11px] text-gray-500">Amb. {lead.ambassador.user.name}</p>
                     </div>
-                    <div className="flex gap-2 flex-shrink-0 ml-3">
+                    <div className="flex gap-1.5 flex-shrink-0 ml-2">
                       <a href={`tel:${lead.phone}`} onClick={(e) => e.stopPropagation()}
-                        className="w-10 h-10 rounded-full border border-[#D1B280]/30 flex items-center justify-center hover:bg-[#D1B280]/10 transition-colors">
-                        <Phone className="w-4 h-4 text-[#D1B280]" />
+                        className="w-9 h-9 rounded-full border border-[#D1B280]/30 flex items-center justify-center">
+                        <Phone className="w-3.5 h-3.5 text-[#D1B280]" />
                       </a>
                       {lead.email && (
                         <a href={`mailto:${lead.email}`} onClick={(e) => e.stopPropagation()}
-                          className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center hover:bg-white/5 transition-colors">
-                          <Mail className="w-4 h-4 text-gray-400" />
+                          className="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center">
+                          <Mail className="w-3.5 h-3.5 text-gray-400" />
                         </a>
                       )}
                     </div>

@@ -55,6 +55,7 @@ const STEPS = [
 export default function MesRecommandationsPage() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [selected, setSelected] = useState<Lead | null>(null);
+  const [search, setSearch] = useState("");
 
   const fetchLeads = useCallback(async () => {
     const res = await fetch("/api/recommandations");
@@ -165,89 +166,92 @@ export default function MesRecommandationsPage() {
   // ─── LIST VIEW ──────────────────────────────────────────────────
   return (
     <PullToRefresh onRefresh={fetchLeads}>
-    <div className="space-y-5">
+    <div className="space-y-4">
+      {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-white" style={{ fontFamily: "'Fira Sans', sans-serif" }}>
-            Mes recommandations
-          </h1>
-          <p className="text-gray-400 mt-1 text-sm">{leads.length} contact{leads.length > 1 ? "s" : ""} transmis</p>
-        </div>
+        <h1 className="text-2xl font-bold text-white" style={{ fontFamily: "'Fira Sans', sans-serif" }}>
+          Mes recommandations
+        </h1>
         <Link href="/portail/recommander"
-          className="flex items-center gap-2 bg-[#D1B280] text-[#030A24] px-4 py-2.5 rounded-lg text-sm font-semibold min-h-[44px] hover:bg-[#b89a65] transition-colors">
-          <Plus className="w-4 h-4" /> Recommander
+          className="flex items-center gap-1.5 bg-[#D1B280] text-[#030A24] px-3.5 py-2 rounded-lg text-sm font-semibold min-h-[44px]">
+          <Plus className="w-4 h-4" /> Nouveau
         </Link>
       </div>
 
-      {leads.length === 0 ? (
-        <div className="bg-white/5 border border-white/10 rounded-xl px-6 py-16 text-center">
-          <ClipboardList className="w-12 h-12 text-gray-600 mx-auto mb-4" />
-          <h3 className="font-medium text-white mb-2">Aucune recommandation</h3>
-          <p className="text-sm text-gray-400 mb-6">Transmettez les coordonnées d&apos;un contact pour commencer.</p>
-          <Link href="/portail/recommander"
-            className="inline-flex items-center gap-2 bg-[#D1B280] text-[#030A24] px-5 py-2.5 rounded-lg text-sm font-semibold hover:bg-[#b89a65] transition-colors">
-            Faire ma première recommandation
-          </Link>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {leads.map((lead) => {
-            const statusIdx = STEPS.indexOf(lead.status);
-            const progress = statusIdx >= 0 ? Math.round(((statusIdx + 1) / STEPS.length) * 100) : 0;
-            const TypeIcon = TYPE_ICON[lead.type] || Home;
+      {/* Search */}
+      <input
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        placeholder="Rechercher un contact..."
+        className="w-full h-11 px-4 text-sm bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-[#D1B280]"
+      />
 
-            return (
-              <button
-                key={lead.id}
-                onClick={() => setSelected(lead)}
-                className="w-full text-left bg-white/5 border border-white/10 rounded-xl overflow-hidden transition-all hover:bg-white/[0.07] hover:border-white/20 active:scale-[0.99]"
-              >
-                {/* Segmented progress bar (like mareco) */}
-                <div className="flex gap-0.5 px-4 pt-4">
-                  {STEPS.map((_, i) => (
-                    <div key={i} className={`h-1 flex-1 rounded-full ${i <= statusIdx ? "bg-[#D1B280]" : "bg-white/10"}`} />
-                  ))}
-                </div>
-
-                <div className="p-4 pt-3">
-                  {/* Top: date + type */}
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-[11px] text-gray-500">{formatDate(lead.createdAt)}</span>
-                    <div className="flex items-center gap-1.5 text-gray-400">
-                      <TypeIcon className="w-3.5 h-3.5" />
-                      <span className="text-[11px]">{LEAD_TYPE_LABELS[lead.type] || lead.type}</span>
-                    </div>
+      {(() => {
+        const searchFiltered = leads.filter((l) => !search || `${l.firstName} ${l.lastName} ${l.location || ""}`.toLowerCase().includes(search.toLowerCase()));
+        return searchFiltered.length === 0 ? (
+          <div className="bg-white/5 border border-white/10 rounded-xl px-6 py-16 text-center">
+            <ClipboardList className="w-12 h-12 text-gray-600 mx-auto mb-4" />
+            <h3 className="font-medium text-white mb-2">{leads.length === 0 ? "Aucune recommandation" : "Aucun résultat"}</h3>
+            {leads.length === 0 && (
+              <>
+                <p className="text-sm text-gray-400 mb-6">Transmettez les coordonnées d&apos;un contact pour commencer.</p>
+                <Link href="/portail/recommander"
+                  className="inline-flex items-center gap-2 bg-[#D1B280] text-[#030A24] px-5 py-2.5 rounded-lg text-sm font-semibold">
+                  Faire ma première recommandation
+                </Link>
+              </>
+            )}
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {searchFiltered.map((lead) => {
+              const statusIdx = STEPS.indexOf(lead.status);
+              const TypeIcon = TYPE_ICON[lead.type] || Home;
+              return (
+                <button
+                  key={lead.id}
+                  onClick={() => setSelected(lead)}
+                  className="w-full text-left bg-white/5 border border-white/10 rounded-xl overflow-hidden transition-all hover:bg-white/[0.07] active:scale-[0.99]"
+                >
+                  {/* Segmented progress */}
+                  <div className="flex gap-[2px] px-3 pt-3">
+                    {STEPS.map((_, i) => (
+                      <div key={i} className={`h-[3px] flex-1 rounded-full ${i <= statusIdx ? "bg-[#D1B280]" : "bg-white/10"}`} />
+                    ))}
                   </div>
-
-                  {/* Status badge */}
-                  <div className="inline-flex items-center gap-1.5 bg-[#D1B280]/10 px-2.5 py-1 rounded-full mb-3">
-                    <div className={`w-2 h-2 rounded-full ${STATUS_DOT[lead.status] || "bg-gray-400"}`} />
-                    <span className="text-xs font-semibold text-[#D1B280]">{LEAD_STATUS_LABELS[lead.status]}</span>
-                  </div>
-
-                  {/* Location */}
-                  {lead.location && (
-                    <div className="flex items-start gap-2 mb-3">
-                      <MapPin className="w-4 h-4 text-gray-500 mt-0.5 flex-shrink-0" />
-                      <p className="text-sm text-gray-300">{lead.location}</p>
+                  <div className="px-3 pb-3 pt-2.5 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] text-gray-500">{formatDate(lead.createdAt)}</span>
+                      <div className="flex items-center gap-1 text-gray-500">
+                        <TypeIcon className="w-3 h-3" />
+                        <span className="text-[11px]">{LEAD_TYPE_LABELS[lead.type] || lead.type}</span>
+                      </div>
                     </div>
-                  )}
-
-                  {/* Name + contract */}
-                  <div className="flex items-center justify-between">
-                    <p className="text-base font-semibold text-white">{lead.firstName} {lead.lastName}</p>
-                    {lead.contract && (
-                      <span className="text-[10px] text-[#D1B280] font-mono bg-[#D1B280]/10 px-2 py-0.5 rounded-full">
-                        {lead.contract.number}
-                      </span>
+                    <div className="inline-flex items-center gap-1.5 bg-[#D1B280]/10 px-2 py-0.5 rounded-full">
+                      <div className={`w-1.5 h-1.5 rounded-full ${STATUS_DOT[lead.status] || "bg-gray-400"}`} />
+                      <span className="text-[11px] font-semibold text-[#D1B280]">{LEAD_STATUS_LABELS[lead.status]}</span>
+                    </div>
+                    {lead.location && (
+                      <div className="flex items-center gap-1.5">
+                        <MapPin className="w-3.5 h-3.5 text-gray-500 flex-shrink-0" />
+                        <p className="text-[13px] text-gray-300 truncate">{lead.location}</p>
+                      </div>
                     )}
+                    <div className="flex items-center justify-between pt-2 border-t border-white/5">
+                      <p className="text-[15px] font-semibold text-white truncate">{lead.firstName} {lead.lastName}</p>
+                      {lead.contract && (
+                        <span className="text-[10px] text-[#D1B280] font-mono bg-[#D1B280]/10 px-2 py-0.5 rounded-full flex-shrink-0">
+                          {lead.contract.number}
+                        </span>
+                      )}
+                    </div>
                   </div>
-                </div>
-              </button>
-            );
-          })}
-        </div>
-      )}
+                </button>
+              );
+            })}
+          </div>
+        );
+      })()}
     </div>
     </PullToRefresh>
   );
