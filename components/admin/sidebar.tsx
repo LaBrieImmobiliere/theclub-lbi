@@ -15,6 +15,8 @@ import {
   Megaphone,
   MessageSquare,
   Trophy,
+  Shield,
+  Star,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { NotificationsBell } from "@/components/notifications-bell";
@@ -34,7 +36,9 @@ const nav = [
   { href: "/admin/agences-stats", label: "Comparatif agences", icon: BarChart2 },
   { href: "/admin/actualites", label: "Fil d'actualité", icon: Megaphone },
   { href: "/admin/messagerie", label: "Messagerie", icon: MessageSquare },
+  { href: "/admin/avis", label: "Avis", icon: Star },
   { href: "/admin/stats", label: "Statistiques", icon: BarChart2 },
+  { href: "/admin/audit-log", label: "Journal d'audit", icon: Shield },
 ];
 
 function SidebarContent() {

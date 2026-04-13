@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
@@ -49,7 +50,11 @@ export default async function NegociateurContratsPage() {
             <tbody className="divide-y divide-gray-50">
               {contracts.map(c => (
                 <tr key={c.id} className="hover:bg-gray-50/50">
-                  <td className="px-6 py-3 font-mono text-xs text-gray-700">{c.number}</td>
+                  <td className="px-6 py-3 font-mono text-xs">
+                    <Link href={`/negociateur/mes-contrats/${c.id}`} className="text-brand-deep hover:text-brand-gold underline-offset-2 hover:underline">
+                      {c.number}
+                    </Link>
+                  </td>
                   <td className="px-6 py-3 text-gray-700">{c.propertyAddress ?? "—"}</td>
                   <td className="px-6 py-3 text-gray-900 font-medium">
                     {c.commissionAmount ? `${c.commissionAmount.toLocaleString("fr-FR")} €` : "—"}

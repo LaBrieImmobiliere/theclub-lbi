@@ -14,6 +14,7 @@ import {
   UserPlus,
   Hash,
   ClipboardList,
+  Pencil,
 } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import DeleteAgencyButton from "./delete-agency-button";
@@ -59,13 +60,20 @@ export default async function AgenceDetailPage({
             Code : <code className="bg-brand-cream px-1.5 py-0.5 text-sm font-mono text-brand-deep">{agency.code}</code>
           </p>
         </div>
-        <DeleteAgencyButton
-          agencyId={agency.id}
-          agencyName={agency.name}
-          negotiatorCount={agency.negotiators.length}
-          ambassadorCount={agency.ambassadors.length}
-          leadCount={agency.leads.length}
-        />
+        <div className="flex items-center gap-3">
+          <Link href={`/admin/agences/${agency.id}/modifier`}>
+            <Button className="bg-brand-gold text-white hover:bg-brand-gold-dark rounded-none">
+              <Pencil className="w-4 h-4" /> Modifier
+            </Button>
+          </Link>
+          <DeleteAgencyButton
+            agencyId={agency.id}
+            agencyName={agency.name}
+            negotiatorCount={agency.negotiators.length}
+            ambassadorCount={agency.ambassadors.length}
+            leadCount={agency.leads.length}
+          />
+        </div>
       </div>
 
       {/* Agency info banner */}
