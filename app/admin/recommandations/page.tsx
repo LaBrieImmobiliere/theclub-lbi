@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select } from "@/components/ui/select";
 import { ClipboardList, Search, Plus, X, FileText, Check } from "lucide-react";
 import { CsvExport } from "@/components/admin/csv-export";
+import { ConfirmModal } from "@/components/confirm-modal";
 import {
   formatDate,
   LEAD_STATUS_LABELS,
@@ -66,6 +67,7 @@ export default function RecommandationsPage() {
   const [typeFilter, setTypeFilter] = useState("");
   const [selected, setSelected] = useState<Lead | null>(null);
   const [updatingStatus, setUpdatingStatus] = useState("");
+  const [confirmAction, setConfirmAction] = useState<{ id: string; status: string; label: string } | null>(null);
 
   const fetchLeads = useCallback(async () => {
     const res = await fetch(`/api/recommandations${statusFilter ? `?status=${statusFilter}` : ""}`);
@@ -85,7 +87,13 @@ export default function RecommandationsPage() {
     return matchSearch && matchType;
   });
 
+  const requestStatusChange = (id: string, status: string) => {
+    const label = LEAD_STATUS_LABELS[status] || status;
+    setConfirmAction({ id, status, label });
+  };
+
   const updateStatus = async (id: string, status: string) => {
+    setConfirmAction(null);
     setUpdatingStatus(id + status);
     await fetch(`/api/recommandations/${id}`, {
       method: "PATCH",
@@ -288,7 +296,7 @@ export default function RecommandationsPage() {
                           const isClickable = !updatingStatus && !isCurrent;
                           return (
                             <div key={key} className="flex flex-col items-center gap-1.5" style={{ width: "20%" }}>
-                              <button type="button" onClick={() => isClickable && updateStatus(selected.id, key)}
+                              <button type="button" onClick={() => isClickable && requestStatusChange(selected.id, key)}
                                 disabled={!isClickable}
                                 className={`w-7 h-7 rounded-full flex items-center justify-center border-2 transition-all ${
                                   isDone ? "bg-blue-500 border-blue-500" : isCurrent ? "bg-white border-blue-500 shadow-sm" : "bg-white border-gray-200"
@@ -297,7 +305,7 @@ export default function RecommandationsPage() {
                                 {isDone ? <Check className="w-3 h-3 text-white" /> : isCurrent ? <div className="w-2 h-2 rounded-full bg-blue-500" /> : <div className="w-1.5 h-1.5 rounded-full bg-gray-200" />}
                               </button>
                               <span className={`text-[9px] text-center leading-tight ${isCurrent ? "text-blue-600 font-semibold" : isDone ? "text-gray-500" : "text-gray-300"}`}
-                                onClick={() => isClickable && updateStatus(selected.id, key)} style={{ cursor: isClickable ? "pointer" : "default" }}>
+                                onClick={() => isClickable && requestStatusChange(selected.id, key)} style={{ cursor: isClickable ? "pointer" : "default" }}>
                                 {LEAD_STATUS_LABELS[key]?.replace("Commission versée", "Commission").replace("Reconnaissance d'honoraires", "Reco. hon.").replace("Clôturé", "Clos")}
                               </span>
                             </div>
@@ -309,22 +317,22 @@ export default function RecommandationsPage() {
                 })()}
                 <div className="flex flex-wrap gap-2">
                   {selected.status === "COMMISSION_VERSEE" && (
-                    <button onClick={() => updateStatus(selected.id, "CLOTURE")} disabled={!!updatingStatus}
+                    <button onClick={() => requestStatusChange(selected.id, "CLOTURE")} disabled={!!updatingStatus}
                       className="px-3 py-1.5 text-xs font-medium rounded-full border border-slate-400 text-slate-600 bg-slate-50 hover:bg-slate-100 hover:border-slate-500 transition-colors disabled:opacity-50">
                       ✅ Clore le dossier
                     </button>
                   )}
                   {selected.status === "CLOTURE" && (
-                    <button onClick={() => updateStatus(selected.id, "COMMISSION_VERSEE")} disabled={!!updatingStatus}
+                    <button onClick={() => requestStatusChange(selected.id, "COMMISSION_VERSEE")} disabled={!!updatingStatus}
                       className="px-3 py-1.5 text-xs font-medium rounded-full border border-blue-300 text-blue-600 bg-blue-50 hover:bg-blue-100 hover:border-blue-400 transition-colors disabled:opacity-50">
                       🔄 Réouvrir le dossier
                     </button>
                   )}
-                  <button onClick={() => updateStatus(selected.id, "EN_PAUSE")} disabled={!!updatingStatus || selected.status === "EN_PAUSE"}
+                  <button onClick={() => requestStatusChange(selected.id, "EN_PAUSE")} disabled={!!updatingStatus || selected.status === "EN_PAUSE"}
                     className="px-3 py-1.5 text-xs font-medium rounded-full border border-gray-300 text-gray-500 hover:border-gray-500 hover:text-gray-700 transition-colors disabled:opacity-50">
                     ⏸ En pause
                   </button>
-                  <button onClick={() => updateStatus(selected.id, "PERDU")} disabled={!!updatingStatus || selected.status === "PERDU"}
+                  <button onClick={() => requestStatusChange(selected.id, "PERDU")} disabled={!!updatingStatus || selected.status === "PERDU"}
                     className="px-3 py-1.5 text-xs font-medium rounded-full border border-red-200 text-red-400 hover:border-red-400 hover:text-red-600 transition-colors disabled:opacity-50">
                     ✕ Perdu
                   </button>
@@ -342,6 +350,18 @@ export default function RecommandationsPage() {
           </Card>
         )}
       </div>
+
+      {/* Confirm status change modal */}
+      <ConfirmModal
+        open={!!confirmAction}
+        title="Changer le statut"
+        message={confirmAction ? `Passer cette recommandation en « ${confirmAction.label} » ?` : ""}
+        confirmLabel="Confirmer"
+        cancelLabel="Annuler"
+        variant={confirmAction?.status === "PERDU" ? "danger" : "default"}
+        onConfirm={() => confirmAction && updateStatus(confirmAction.id, confirmAction.status)}
+        onCancel={() => setConfirmAction(null)}
+      />
     </div>
   );
 }

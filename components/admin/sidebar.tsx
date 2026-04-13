@@ -21,7 +21,7 @@ import {
 import { signOut } from "next-auth/react";
 import { NotificationsBell } from "@/components/notifications-bell";
 import { PwaInstallButton } from "@/components/pwa-install-button";
-import { GlobalSearch } from "@/components/admin/global-search";
+import { GlobalSearch } from "@/components/global-search";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { SidebarDrawer, MobileOverlay, MobileHeader, useSidebar } from "@/components/mobile-sidebar";
 
@@ -60,7 +60,7 @@ function SidebarContent() {
 
       {/* Search + label */}
       <div className="px-4 py-3 border-b border-white/10 space-y-2">
-        <GlobalSearch />
+        <GlobalSearch basePath="/admin" />
         <p className="text-[10px] text-white/50 tracking-widest uppercase">Administration</p>
       </div>
 

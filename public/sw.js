@@ -1,5 +1,7 @@
-const CACHE_NAME = "theclub-v2";
+const CACHE_NAME = "theclub-v3";
 const OFFLINE_URL = "/offline.html";
+const API_CACHE = "theclub-api-v1";
+const API_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
 // Assets to pre-cache
 const PRECACHE_ASSETS = [
@@ -28,7 +30,7 @@ self.addEventListener("activate", (event) => {
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames
-          .filter((name) => name !== CACHE_NAME)
+          .filter((name) => name !== CACHE_NAME && name !== API_CACHE)
           .map((name) => caches.delete(name))
       );
     })
@@ -44,10 +46,31 @@ self.addEventListener("fetch", (event) => {
   // Skip non-GET requests
   if (request.method !== "GET") return;
 
-  // Skip API routes and auth (always go to network)
-  if (url.pathname.startsWith("/api/") || url.pathname.startsWith("/auth/")) {
+  // Auth routes → always network
+  if (url.pathname.startsWith("/auth/")) {
     return;
   }
+
+  // API GET routes → network-first with cache fallback for offline
+  if (url.pathname.startsWith("/api/") && request.method === "GET") {
+    // Skip push/auth APIs
+    if (url.pathname.includes("/push") || url.pathname.includes("/auth")) return;
+    event.respondWith(
+      fetch(request)
+        .then((response) => {
+          if (response.ok) {
+            const clone = response.clone();
+            caches.open(API_CACHE).then((cache) => cache.put(request, clone));
+          }
+          return response;
+        })
+        .catch(() => caches.match(request).then((cached) => cached || new Response('{"error":"offline"}', { status: 503, headers: { "Content-Type": "application/json" } })))
+    );
+    return;
+  }
+
+  // Skip non-GET API routes
+  if (url.pathname.startsWith("/api/")) return;
 
   // Skip _next/webpack-hmr for dev
   if (url.pathname.includes("webpack-hmr") || url.pathname.includes("_next/static/development")) {

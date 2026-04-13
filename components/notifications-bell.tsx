@@ -36,11 +36,23 @@ export function NotificationsBell() {
     if (res.ok) setNotifications(await res.json());
   }, []);
 
+  const prevUnreadRef = useRef(0);
+  const unread = notifications.filter(n => !n.read).length;
+
   useEffect(() => {
     fetchNotifications();
-    const interval = setInterval(fetchNotifications, 30000);
+    const interval = setInterval(fetchNotifications, 15000);
     return () => clearInterval(interval);
   }, [fetchNotifications]);
+
+  // Notify when new unread notifications arrive
+  useEffect(() => {
+    if (unread > prevUnreadRef.current && prevUnreadRef.current !== 0) {
+      // Vibrate on mobile if supported
+      if (navigator.vibrate) navigator.vibrate(200);
+    }
+    prevUnreadRef.current = unread;
+  }, [unread]);
 
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
@@ -49,8 +61,6 @@ export function NotificationsBell() {
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, []);
-
-  const unread = notifications.filter(n => !n.read).length;
 
   const markAllRead = async () => {
     await fetch("/api/notifications", {

@@ -86,12 +86,15 @@ export async function PATCH(
     return NextResponse.json(updated);
   }
 
-  // Admin full update
+  // Admin full update — auto-calculate commission
+  const cType = body.commissionType || contract.commissionType;
+  const cValue = body.commissionValue ?? contract.commissionValue;
+  const cHonoraires = body.honoraires ?? contract.honoraires;
   let commissionAmount = contract.commissionAmount;
-  if (body.commissionType === "PERCENTAGE" && body.honoraires) {
-    commissionAmount = (body.honoraires * body.commissionValue) / 100;
-  } else if (body.commissionType === "FIXED" && body.commissionValue) {
-    commissionAmount = body.commissionValue;
+  if (cType === "PERCENTAGE" && cHonoraires && cValue) {
+    commissionAmount = (cHonoraires * cValue) / 100;
+  } else if (cType === "FIXED" && cValue) {
+    commissionAmount = cValue;
   }
 
   const updated = await prisma.contract.update({

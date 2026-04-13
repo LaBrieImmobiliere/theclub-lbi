@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Check, ChevronRight, Phone, Mail, MapPin, Euro } from "lucide-react";
 import { formatDate, LEAD_TYPE_LABELS } from "@/lib/utils";
 import { LeadTimeline } from "@/components/lead-timeline";
+import { ConfirmModal } from "@/components/confirm-modal";
 
 type Lead = {
   id: string;
@@ -154,6 +155,7 @@ export default function NegociateurRecommandationsPage() {
   const [notes, setNotes] = useState("");
   const [savingNotes, setSavingNotes] = useState(false);
   const [filterStatus, setFilterStatus] = useState<string>("ALL");
+  const [confirmAction, setConfirmAction] = useState<{ status: string; label: string } | null>(null);
 
   const fetchLeads = useCallback(async () => {
     const res = await fetch("/api/recommandations?role=negotiator");
@@ -172,8 +174,15 @@ export default function NegociateurRecommandationsPage() {
     setNotes(lead.notes || "");
   };
 
+  const requestStatusChange = (newStatus: string) => {
+    if (!selected || updatingStatus) return;
+    const label = STATUS_LABEL[newStatus] || newStatus;
+    setConfirmAction({ status: newStatus, label });
+  };
+
   const handleStatusChange = async (newStatus: string) => {
     if (!selected || updatingStatus) return;
+    setConfirmAction(null);
     setUpdatingStatus(true);
     try {
       const res = await fetch(`/api/recommandations/${selected.id}`, {
@@ -335,7 +344,7 @@ export default function NegociateurRecommandationsPage() {
               <div>
                 <p className="text-xs text-gray-400 mb-1 font-medium uppercase tracking-wide">Avancement</p>
                 <p className="text-[10px] text-gray-300 mb-3">Cliquez sur une étape pour avancer ou reculer</p>
-                <StatusTimeline status={selected.status} onStepClick={handleStatusChange} disabled={updatingStatus} />
+                <StatusTimeline status={selected.status} onStepClick={requestStatusChange} disabled={updatingStatus} />
               </div>
 
               {/* Quick action buttons */}
@@ -343,7 +352,7 @@ export default function NegociateurRecommandationsPage() {
                 <div className="flex flex-wrap gap-2">
                     {selected.status === "COMMISSION_VERSEE" && (
                       <button
-                        onClick={() => handleStatusChange("CLOTURE")}
+                        onClick={() => requestStatusChange("CLOTURE")}
                         disabled={updatingStatus}
                         className="px-3 py-1.5 text-xs font-medium border border-slate-400 text-slate-600 bg-slate-50 hover:bg-slate-100 hover:border-slate-500 transition-colors disabled:opacity-50"
                       >
@@ -351,14 +360,14 @@ export default function NegociateurRecommandationsPage() {
                       </button>
                     )}
                     <button
-                      onClick={() => handleStatusChange("EN_PAUSE")}
+                      onClick={() => requestStatusChange("EN_PAUSE")}
                       disabled={updatingStatus || selected.status === "EN_PAUSE"}
                       className="px-3 py-1.5 text-xs font-medium border border-gray-300 text-gray-500 hover:border-gray-500 hover:text-gray-700 transition-colors disabled:opacity-50"
                     >
                       ⏸ En pause
                     </button>
                     <button
-                      onClick={() => handleStatusChange("PERDU")}
+                      onClick={() => requestStatusChange("PERDU")}
                       disabled={updatingStatus}
                       className="px-3 py-1.5 text-xs font-medium border border-red-200 text-red-400 hover:border-red-400 hover:text-red-600 transition-colors disabled:opacity-50"
                     >
@@ -397,6 +406,18 @@ export default function NegociateurRecommandationsPage() {
           </div>
         )}
       </div>
+
+      {/* Confirm status change modal */}
+      <ConfirmModal
+        open={!!confirmAction}
+        title="Changer le statut"
+        message={confirmAction ? `Passer cette recommandation en « ${confirmAction.label} » ?` : ""}
+        confirmLabel="Confirmer"
+        cancelLabel="Annuler"
+        variant={confirmAction?.status === "PERDU" ? "danger" : "default"}
+        onConfirm={() => confirmAction && handleStatusChange(confirmAction.status)}
+        onCancel={() => setConfirmAction(null)}
+      />
     </div>
   );
 }

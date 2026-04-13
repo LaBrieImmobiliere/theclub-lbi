@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { sendPushToUser } from "@/lib/push";
-import { sendNotificationEmail } from "@/lib/email";
+import { sendNotificationEmail, sendAcknowledgmentEmail } from "@/lib/email";
+import { generateAcknowledgmentPDFBuffer } from "@/lib/pdf-server";
 
 export async function PATCH(
   req: NextRequest,
@@ -136,6 +137,51 @@ export async function PATCH(
       );
     } catch (err) {
       console.error("Failed to notify ambassador of countersignature:", err);
+    }
+
+    // Send signed PDF to both parties
+    try {
+      const fullAck = await prisma.honoraryAcknowledgment.findUnique({
+        where: { id: ackId },
+        include: {
+          contract: {
+            include: {
+              ambassador: { include: { user: true } },
+              lead: true,
+            },
+          },
+        },
+      });
+      if (fullAck) {
+        const pdfBuffer = generateAcknowledgmentPDFBuffer(fullAck, fullAck.contract);
+        const leadName = fullAck.contract.lead
+          ? `${fullAck.contract.lead.firstName} ${fullAck.contract.lead.lastName}`
+          : fullAck.number;
+
+        // Send to ambassador
+        const ambUser = fullAck.contract.ambassador.user;
+        await sendAcknowledgmentEmail(
+          ambUser.email!,
+          ambUser.name || "Ambassadeur",
+          fullAck.number,
+          leadName,
+          pdfBuffer
+        );
+
+        // Send to all admins
+        const admins = await prisma.user.findMany({ where: { role: "ADMIN" } });
+        for (const admin of admins) {
+          await sendAcknowledgmentEmail(
+            admin.email,
+            admin.name || "Admin",
+            fullAck.number,
+            leadName,
+            pdfBuffer
+          );
+        }
+      }
+    } catch (pdfErr) {
+      console.error("Failed to send acknowledgment PDF:", pdfErr);
     }
 
     return NextResponse.json(updated);

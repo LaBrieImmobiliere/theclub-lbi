@@ -183,6 +183,12 @@ export default function ContratDetailPage() {
     generateContractPDF(contract);
   };
 
+  const downloadAllAcksPDF = async () => {
+    if (!contract || contract.honoraryAcknowledgments.length === 0) return;
+    const { generateAllAcknowledgmentsPDF } = await import("@/lib/pdf");
+    generateAllAcknowledgmentsPDF(contract.honoraryAcknowledgments, contract);
+  };
+
   const downloadAckPDF = async (ack: HonoraryAck) => {
     if (!contract) return;
     const { generateAcknowledgmentPDF } = await import("@/lib/pdf");
@@ -514,9 +520,16 @@ export default function ContratDetailPage() {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <h2 className="font-semibold text-gray-900">Reconnaissances d&apos;honoraires</h2>
-                <Button size="sm" variant="outline" onClick={() => setShowAckForm(!showAckForm)}>
-                  <Plus className="w-4 h-4" /> Ajouter
-                </Button>
+                <div className="flex gap-2">
+                  {contract.honoraryAcknowledgments.length > 1 && (
+                    <Button size="sm" variant="outline" onClick={downloadAllAcksPDF}>
+                      <Download className="w-3 h-3" /> Tout exporter
+                    </Button>
+                  )}
+                  <Button size="sm" variant="outline" onClick={() => setShowAckForm(!showAckForm)}>
+                    <Plus className="w-4 h-4" /> Ajouter
+                  </Button>
+                </div>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -581,6 +594,13 @@ export default function ContratDetailPage() {
                             {ack.adminSignature ? "Contresigné par l'agence" : "Attente contresignature"}
                           </span>
                         </div>
+                      </div>
+                      {/* Event history */}
+                      <div className="flex flex-wrap gap-x-6 gap-y-1 text-[11px] text-gray-400 border-t border-gray-50 pt-2">
+                        <span>📄 Créée le {formatDate(ack.createdAt)}</span>
+                        {ack.signedAt && <span>✍️ Signée ambassadeur le {formatDate(ack.signedAt)}</span>}
+                        {ack.countersignedAt && <span>✅ Contresignée le {formatDate(ack.countersignedAt)}</span>}
+                        {ack.paidAt && <span>💰 Payée le {formatDate(ack.paidAt)}</span>}
                       </div>
                       {/* Actions */}
                       <div className="flex items-center gap-2">

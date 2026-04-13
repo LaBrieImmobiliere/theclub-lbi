@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { NotificationsBell } from "@/components/notifications-bell";
+import { GlobalSearch } from "@/components/global-search";
 import { PwaInstallButton } from "@/components/pwa-install-button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { ThemedLogo } from "@/components/themed-logo";
@@ -43,7 +44,8 @@ function SidebarContent() {
         <ThemedLogo height={70} />
         <div className="flex-1" />
         <ThemeToggle />
-        <div className="hidden lg:block">
+        <div className="hidden lg:flex items-center gap-2">
+          <GlobalSearch basePath="/negociateur" />
           <NotificationsBell />
         </div>
       </div>

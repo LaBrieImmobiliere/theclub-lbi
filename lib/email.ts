@@ -330,6 +330,58 @@ export async function sendNegotiatorWelcomeEmail(
   }
 }
 
+export async function sendAcknowledgmentEmail(
+  to: string,
+  name: string,
+  ackNumber: string,
+  leadName: string,
+  pdfBuffer: Buffer
+) {
+  const { emailLayout } = await import("./email-template");
+  const appUrl = process.env.NEXTAUTH_URL || "https://theclub.labrieimmobiliere.fr";
+
+  const html = emailLayout({
+    preheader: `Reconnaissance d'honoraires ${ackNumber} signée`,
+    title: "Reconnaissance d'honoraires signée ✅",
+    greeting: `Bonjour ${name},`,
+    body: `
+      <p style="margin:0 0 15px;font-size:14px;color:#030A24;line-height:1.7;">
+        La reconnaissance d'honoraires <strong>${ackNumber}</strong> pour <strong>${leadName}</strong> a été signée par les deux parties.
+      </p>
+      <div style="background:#ECFDF5;border-left:3px solid #059669;padding:15px 20px;margin:0 0 20px;">
+        <p style="margin:0;font-size:14px;color:#065F46;line-height:1.6;">
+          ✅ Vous trouverez le document signé en pièce jointe de cet email.
+        </p>
+      </div>
+      <p style="margin:0;font-size:13px;color:#666;line-height:1.6;">
+        Conservez ce document pour vos archives comptables.
+      </p>
+    `,
+    cta: { label: "Voir mes contrats", url: `${appUrl}/portail/mes-contrats` },
+  });
+
+  try {
+    await transporter.sendMail({
+      from: fromAddress,
+      to,
+      subject: `Reconnaissance d'honoraires ${ackNumber} signée — The Club`,
+      html,
+      attachments: [
+        {
+          filename: `reconnaissance-honoraires-${ackNumber}.pdf`,
+          content: pdfBuffer,
+          contentType: "application/pdf",
+        },
+      ],
+    });
+    console.log(`[email] Acknowledgment PDF sent to ${to}`);
+    return true;
+  } catch (error) {
+    console.error("[email] Failed to send acknowledgment email:", error);
+    return false;
+  }
+}
+
 export async function sendNewAmbassadorEmail(
   to: string,
   negotiatorName: string,

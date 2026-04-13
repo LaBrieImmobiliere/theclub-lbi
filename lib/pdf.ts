@@ -694,3 +694,92 @@ export function generateAcknowledgmentPDF(ack: any, contract: any) {
 
   doc.save(`reconnaissance-honoraires-${ack.number}.pdf`);
 }
+
+// ─── BATCH EXPORT: all acknowledgments for a contract ──────────────
+export function generateAllAcknowledgmentsPDF(acks: any[], contract: any) {
+  if (acks.length === 0) return;
+  if (acks.length === 1) return generateAcknowledgmentPDF(acks[0], contract);
+
+  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+  const pageW = 210;
+  const M = 20;
+
+  acks.forEach((ack, index) => {
+    if (index > 0) doc.addPage();
+    let y = M;
+
+    // Header
+    doc.setFillColor(30, 64, 175);
+    doc.rect(0, 0, pageW, 30, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(16);
+    doc.setFont("helvetica", "bold");
+    doc.text(agency.name, M, 14);
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+    doc.text("Reconnaissance d'Honoraires", M, 21);
+    doc.text(`N\u00B0 ${ack.number}`, pageW - M, 14, { align: "right" });
+    doc.text(`${index + 1} / ${acks.length}`, pageW - M, 21, { align: "right" });
+
+    y = 45;
+    doc.setTextColor(30, 41, 59);
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text("RECONNAISSANCE D'HONORAIRES", pageW / 2, y, { align: "center" });
+    y += 10;
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(100, 116, 139);
+    doc.text(`R\u00E9f\u00E9rence contrat : ${contract.number}`, pageW / 2, y, { align: "center" });
+    y += 15;
+
+    // Ambassador info
+    doc.setTextColor(30, 41, 59);
+    doc.setFontSize(10);
+    const ambassadorFullName = contract.ambassador?.user?.name || "_______________";
+    doc.text(`Ambassadeur : ${ambassadorFullName}`, M, y);
+    y += 8;
+
+    // Amount
+    const amountHT = ack.amount;
+    doc.setFillColor(236, 253, 245);
+    doc.roundedRect(M, y, pageW - M * 2, 20, 3, 3, "F");
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(18);
+    doc.setTextColor(5, 150, 105);
+    doc.text(fmt(amountHT), pageW / 2, y + 14, { align: "center" });
+    y += 28;
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.setTextColor(30, 41, 59);
+    if (ack.description) { doc.text(`Motif : ${ack.description}`, M, y); y += 7; }
+    doc.text(`Statut : ${ack.status}`, M, y); y += 7;
+    if (ack.paidAt) { doc.text(`Pay\u00E9e le : ${fmtDate(ack.paidAt)}`, M, y); y += 7; }
+    y += 10;
+
+    // Signatures
+    const sigBoxW = (pageW - M * 2 - 10) / 2;
+    doc.setDrawColor(203, 213, 225);
+    doc.roundedRect(M, y, sigBoxW, 35, 2, 2, "S");
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(8);
+    doc.setTextColor(100, 116, 139);
+    doc.text(`L'AGENCE`, M + 3, y + 6);
+    const ackAdminSig = ack.adminSignature || contract.adminSignature;
+    if (ackAdminSig?.startsWith("data:image")) {
+      try { doc.addImage(ackAdminSig, "PNG", M + 5, y + 8, sigBoxW - 10, 20); } catch { /* skip */ }
+    }
+
+    const sigX2 = M + sigBoxW + 10;
+    doc.roundedRect(sigX2, y, sigBoxW, 35, 2, 2, "S");
+    doc.text(`LE PARRAIN`, sigX2 + 3, y + 6);
+    if (ack.ambassadorSignature?.startsWith("data:image")) {
+      try { doc.addImage(ack.ambassadorSignature, "PNG", sigX2 + 5, y + 8, sigBoxW - 10, 20); } catch { /* skip */ }
+    }
+
+    addFooter(doc, M);
+  });
+
+  doc.save(`reconnaissances-${contract.number}.pdf`);
+}
