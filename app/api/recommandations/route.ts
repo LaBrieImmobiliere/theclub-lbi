@@ -95,9 +95,17 @@ export async function POST(req: NextRequest) {
 
   if (!ambassadorId) return NextResponse.json({ error: "Ambassadeur requis" }, { status: 400 });
 
+  // Auto-assign the negotiator linked to this ambassador
+  const ambForNeg = await prisma.ambassador.findUnique({
+    where: { id: ambassadorId },
+    select: { negotiatorId: true, agencyId: true },
+  });
+
   const lead = await prisma.lead.create({
     data: {
       ambassadorId,
+      negotiatorId: ambForNeg?.negotiatorId || null,
+      agencyId: ambForNeg?.agencyId || null,
       firstName,
       lastName,
       email,
