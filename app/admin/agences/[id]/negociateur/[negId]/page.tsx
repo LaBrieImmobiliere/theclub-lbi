@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
-import { ArrowLeft, Save, Camera, Trash2 } from "lucide-react";
+import { ArrowLeft, Save, Camera, Trash2, X, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 
 export default function EditNegociateurPage() {
@@ -18,6 +18,10 @@ export default function EditNegociateurPage() {
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [reassignTo, setReassignTo] = useState("");
+  const [otherNegotiators, setOtherNegotiators] = useState<{ id: string; name: string; agency: string }[]>([]);
+  const [ambassadorCount, setAmbassadorCount] = useState(0);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [fetching, setFetching] = useState(true);
@@ -41,6 +45,7 @@ export default function EditNegociateurPage() {
           });
           setCode(data.code || "");
           setCurrentPhoto(data.user?.image || null);
+          setAmbassadorCount(data._count?.ambassadors || 0);
         }
         setFetching(false);
       })
@@ -48,6 +53,19 @@ export default function EditNegociateurPage() {
         setError("Erreur lors du chargement");
         setFetching(false);
       });
+  }, [negId]);
+
+  useEffect(() => {
+    fetch("/api/negotiators")
+      .then(r => r.json())
+      .then((list: { id: string; user: { name: string }; agency: { name: string } }[]) => {
+        setOtherNegotiators(
+          list
+            .filter(n => n.id !== negId)
+            .map(n => ({ id: n.id, name: n.user?.name || "Sans nom", agency: n.agency?.name || "" }))
+        );
+      })
+      .catch(() => {});
   }, [negId]);
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -103,17 +121,24 @@ export default function EditNegociateurPage() {
     setSuccess("Négociateur mis à jour avec succès");
   };
 
-  const handleDelete = async () => {
-    if (!confirm("Supprimer ce négociateur ? Cette action est irréversible.")) return;
-    setDeleting(true);
+  const openDeleteModal = () => {
+    setReassignTo("");
+    setShowDeleteModal(true);
+  };
 
-    const res = await fetch(`/api/negotiators/${negId}`, { method: "DELETE" });
+  const handleDelete = async () => {
+    setDeleting(true);
+    const url = reassignTo
+      ? `/api/negotiators/${negId}?reassignTo=${reassignTo}`
+      : `/api/negotiators/${negId}`;
+    const res = await fetch(url, { method: "DELETE" });
     if (res.ok) {
       router.push(`/admin/agences/${agencyId}`);
     } else {
       const data = await res.json();
       setError(data.error || "Erreur lors de la suppression");
       setDeleting(false);
+      setShowDeleteModal(false);
     }
   };
 
@@ -153,7 +178,7 @@ export default function EditNegociateurPage() {
               </p>
             </div>
             <button
-              onClick={handleDelete}
+              onClick={openDeleteModal}
               disabled={deleting}
               className="text-red-400 hover:text-red-300 p-2 transition-colors"
               title="Supprimer le négociateur"
@@ -282,6 +307,78 @@ export default function EditNegociateurPage() {
           </button>
         </form>
       </div>
+
+      {/* Delete confirmation modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white w-full max-w-md mx-4 shadow-xl">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-red-50">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="w-5 h-5 text-red-600" />
+                <h2 className="font-semibold text-red-900" style={{ fontFamily: "'Fira Sans', sans-serif" }}>
+                  Supprimer le négociateur
+                </h2>
+              </div>
+              <button onClick={() => setShowDeleteModal(false)} className="text-gray-400 hover:text-gray-600">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="px-6 py-5 space-y-4">
+              <p className="text-sm text-gray-700">
+                Vous êtes sur le point de supprimer ce négociateur. Cette action est <strong>irréversible</strong>.
+              </p>
+
+              {ambassadorCount > 0 && (
+                <div className="bg-amber-50 border border-amber-200 px-4 py-3">
+                  <p className="text-sm text-amber-800 font-medium">
+                    Ce négociateur a {ambassadorCount} ambassadeur{ambassadorCount > 1 ? "s" : ""} rattaché{ambassadorCount > 1 ? "s" : ""}.
+                  </p>
+                  <p className="text-xs text-amber-700 mt-1">
+                    Vous pouvez les réattribuer à un autre négociateur ci-dessous, ou ils seront détachés.
+                  </p>
+                </div>
+              )}
+
+              {otherNegotiators.length > 0 && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                    Réattribuer les ambassadeurs et leads à :
+                  </label>
+                  <select
+                    value={reassignTo}
+                    onChange={(e) => setReassignTo(e.target.value)}
+                    className="w-full px-4 py-2.5 border border-gray-300 text-sm focus:outline-none focus:border-brand-gold focus:ring-1 focus:ring-brand-gold bg-white"
+                  >
+                    <option value="">Ne pas réattribuer (détacher)</option>
+                    {otherNegotiators.map((n) => (
+                      <option key={n.id} value={n.id}>
+                        {n.name} — {n.agency}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+
+            <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
+              >
+                Annuler
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={deleting}
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors disabled:opacity-50"
+              >
+                {deleting ? "Suppression..." : "Supprimer définitivement"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

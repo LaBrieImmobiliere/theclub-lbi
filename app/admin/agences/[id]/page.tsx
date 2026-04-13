@@ -16,6 +16,7 @@ import {
   ClipboardList,
 } from "lucide-react";
 import { formatDate } from "@/lib/utils";
+import DeleteAgencyButton from "./delete-agency-button";
 
 export const dynamic = "force-dynamic";
 
@@ -58,6 +59,13 @@ export default async function AgenceDetailPage({
             Code : <code className="bg-brand-cream px-1.5 py-0.5 text-sm font-mono text-brand-deep">{agency.code}</code>
           </p>
         </div>
+        <DeleteAgencyButton
+          agencyId={agency.id}
+          agencyName={agency.name}
+          negotiatorCount={agency.negotiators.length}
+          ambassadorCount={agency.ambassadors.length}
+          leadCount={agency.leads.length}
+        />
       </div>
 
       {/* Agency info banner */}
