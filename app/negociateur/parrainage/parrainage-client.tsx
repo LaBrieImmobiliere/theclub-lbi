@@ -282,11 +282,11 @@ export function NegociateurParrainagePage({ code, inscriptionUrl, ambassadorCoun
           <QrCode className="w-4 h-4 text-[#D1B280]" />
           <h2 className="font-semibold text-white text-sm sm:text-base">Votre QR Code de recrutement</h2>
         </div>
-        <div className="p-4 sm:p-6 flex flex-col sm:flex-row items-center gap-4 sm:gap-6">
-          <div className="bg-white p-2 sm:p-3 flex-shrink-0 w-[160px] sm:w-[240px] mx-auto sm:mx-0">
+        <div className="p-4 sm:p-6 flex flex-col items-center gap-4 sm:gap-6">
+          <div className="bg-white p-3 sm:p-4 flex-shrink-0 w-[200px] sm:w-[240px] rounded-lg shadow-lg">
             <canvas ref={canvasRef} className="w-full h-auto" />
           </div>
-          <div className="space-y-3 flex-1 text-center sm:text-left">
+          <div className="space-y-3 flex-1 text-center">
             <div>
               <p className="text-[#D1B280] text-xs tracking-widest uppercase mb-1">Code de recrutement</p>
               <p className="text-white text-lg sm:text-2xl font-bold font-mono tracking-wider sm:tracking-widest break-all">{code}</p>
@@ -294,11 +294,11 @@ export function NegociateurParrainagePage({ code, inscriptionUrl, ambassadorCoun
             <p className="text-white/60 text-xs leading-relaxed">
               Imprimez ou partagez ce QR code. Chaque scan redirige vers le formulaire d&apos;inscription ambassadeur.
             </p>
-            <div className="flex flex-col sm:flex-row gap-2">
+            <div className="flex flex-col sm:flex-row gap-2 justify-center">
               <button
                 onClick={downloadJpg}
                 disabled={!!downloading}
-                className="inline-flex items-center gap-2 px-4 py-2 bg-[#D1B280] text-[#030A24] text-sm font-semibold hover:bg-[#b89a65] transition-colors disabled:opacity-50"
+                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#D1B280] text-[#030A24] text-sm font-semibold hover:bg-[#b89a65] transition-colors disabled:opacity-50 rounded"
               >
                 <FileImage className="w-4 h-4" />
                 {downloading === "jpg" ? "Export..." : "Télécharger JPG"}
@@ -306,7 +306,7 @@ export function NegociateurParrainagePage({ code, inscriptionUrl, ambassadorCoun
               <button
                 onClick={downloadPdf}
                 disabled={!!downloading}
-                className="inline-flex items-center gap-2 px-4 py-2 border border-[#D1B280]/40 text-white text-sm font-medium hover:bg-white/10 transition-colors disabled:opacity-50"
+                className="inline-flex items-center justify-center gap-2 px-4 py-2.5 border border-[#D1B280]/40 text-white text-sm font-medium hover:bg-white/10 transition-colors disabled:opacity-50 rounded"
               >
                 <FileText className="w-4 h-4" />
                 {downloading === "pdf" ? "Export..." : "Télécharger PDF"}

@@ -230,26 +230,30 @@ export default function NegociateurRecommandationsPage() {
         <p className="text-gray-500 mt-1 text-sm">{leads.length} recommandation{leads.length > 1 ? "s" : ""} au total</p>
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-2">
-        {["ALL", "NOUVEAU", "PRIS_EN_CHARGE", "CONTACTE", "RDV_PLANIFIE", "EN_NEGOCIATION", "MANDAT_SIGNE", "SOUS_OFFRE", "COMPROMIS_SIGNE", "ACTE_SIGNE", "RECONNAISSANCE_HONORAIRES", "COMMISSION_VERSEE", "CLOTURE", "EN_PAUSE", "PERDU"].map((s) => (
-          <button
-            key={s}
-            onClick={() => setFilterStatus(s)}
-            className={`px-3 py-1 text-xs font-medium border transition-colors ${
-              filterStatus === s
-                ? "bg-[#030A24] text-white border-[#030A24]"
-                : "bg-white text-gray-500 border-gray-200 hover:border-gray-400"
-            }`}
-          >
-            {s === "ALL" ? "Tous" : STATUS_LABEL[s]}
-            {s !== "ALL" && (
-              <span className="ml-1.5 opacity-60">
-                {leads.filter((l) => l.status === s).length}
-              </span>
-            )}
-          </button>
-        ))}
+      {/* Filters — horizontal scroll on mobile */}
+      <div className="overflow-x-auto -mx-4 px-4 pb-2 scrollbar-hide">
+        <div className="flex gap-2 min-w-max">
+          {["ALL", "NOUVEAU", "PRIS_EN_CHARGE", "CONTACTE", "RDV_PLANIFIE", "EN_NEGOCIATION", "MANDAT_SIGNE", "SOUS_OFFRE", "COMPROMIS_SIGNE", "ACTE_SIGNE", "RECONNAISSANCE_HONORAIRES", "COMMISSION_VERSEE", "CLOTURE", "EN_PAUSE", "PERDU"].map((s) => {
+            const count = s === "ALL" ? leads.length : leads.filter((l) => l.status === s).length;
+            const isActive = filterStatus === s;
+            return (
+              <button
+                key={s}
+                onClick={() => setFilterStatus(s)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full whitespace-nowrap transition-all ${
+                  isActive
+                    ? "bg-[#030A24] text-white shadow-sm"
+                    : "bg-white text-gray-500 border border-gray-200 hover:border-[#D1B280] hover:text-[#D1B280]"
+                }`}
+              >
+                {s === "ALL" ? "Tous" : STATUS_LABEL[s]}
+                <span className={`text-[10px] ${isActive ? "bg-white/20 text-white" : "bg-gray-100 text-gray-400"} rounded-full px-1.5 py-0.5 min-w-[20px] text-center`}>
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       <div className={`grid gap-6 ${selected ? "grid-cols-1 xl:grid-cols-2" : "grid-cols-1"}`}>
