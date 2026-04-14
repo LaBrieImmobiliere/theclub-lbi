@@ -29,35 +29,68 @@ export function emailLayout(options: {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  ${preheader ? `<span style="display:none!important;font-size:1px;color:${COLORS.deep};line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;">${preheader}</span>` : ""}
+  <meta name="x-apple-disable-message-reformatting">
+  <meta name="color-scheme" content="light only">
+  <meta name="supported-color-schemes" content="light only">
+  <title>${title}</title>
+  <style type="text/css">
+    :root {
+      color-scheme: light only;
+      supported-color-schemes: light only;
+    }
+    /* Gmail mobile app: empêche l'inversion automatique */
+    [data-ogsc] .lbi-header,
+    [data-ogsb] .lbi-header { background-color: #1a2744 !important; color: #ffffff !important; }
+    [data-ogsc] .lbi-title,
+    [data-ogsb] .lbi-title { background-color: #f9f6f1 !important; color: #030A24 !important; }
+    [data-ogsc] .lbi-title p,
+    [data-ogsb] .lbi-title p { color: #030A24 !important; }
+    [data-ogsc] .lbi-body,
+    [data-ogsb] .lbi-body { background-color: #ffffff !important; color: #374151 !important; }
+    [data-ogsc] .lbi-body p,
+    [data-ogsb] .lbi-body p { color: #374151 !important; }
+    [data-ogsc] .lbi-footer,
+    [data-ogsb] .lbi-footer { background-color: #1a2744 !important; color: #ffffff !important; }
+    [data-ogsc] .lbi-wrapper,
+    [data-ogsb] .lbi-wrapper { background-color: #f3f4f6 !important; }
+    /* Certains clients dark mode iOS/Outlook */
+    u + .body .lbi-title { background-color: #f9f6f1 !important; color: #030A24 !important; }
+    @media (prefers-color-scheme: dark) {
+      .lbi-header { background-color: #1a2744 !important; }
+      .lbi-title { background-color: #f9f6f1 !important; color: #030A24 !important; }
+      .lbi-body { background-color: #ffffff !important; color: #374151 !important; }
+      .lbi-footer { background-color: #1a2744 !important; }
+    }
+  </style>
 </head>
-<body style="margin:0;padding:0;background:${COLORS.lightGray};font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:${COLORS.lightGray};padding:30px 0;">
+<body class="body" style="margin:0;padding:0;background:${COLORS.lightGray};font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
+  ${preheader ? `<div style="display:none;font-size:1px;color:#fffffe;line-height:1px;max-height:0;max-width:0;opacity:0;overflow:hidden;mso-hide:all;">${preheader}</div>` : ""}
+  <table class="lbi-wrapper" width="100%" cellpadding="0" cellspacing="0" style="background:${COLORS.lightGray};padding:30px 0;" bgcolor="${COLORS.lightGray}">
     <tr><td align="center">
-      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:${COLORS.white};border-radius:0;overflow:hidden;">
+      <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:${COLORS.white};border-radius:0;overflow:hidden;" bgcolor="${COLORS.white}">
 
         <!-- Header -->
         <tr>
-          <td align="center" style="background:#1a2744;padding:40px 40px 30px;">
+          <td class="lbi-header" align="center" style="background:#1a2744;padding:40px 40px 30px;" bgcolor="#1a2744">
             <img src="${appUrl}/logo-white.png" alt="La Brie Immobilière" width="180" height="180" style="display:block;width:180px;height:180px;margin:0 auto 16px;" />
             <p style="color:${COLORS.gold};font-size:13px;letter-spacing:5px;margin:0 0 4px;text-transform:uppercase;font-weight:600;font-family:Arial,sans-serif;">The Club</p>
-            <p style="color:rgba(255,255,255,0.7);font-size:12px;letter-spacing:1px;margin:0;font-family:Arial,sans-serif;">La Brie Immobilière</p>
+            <p style="color:#ffffff;font-size:12px;letter-spacing:1px;margin:0;font-family:Arial,sans-serif;opacity:0.7;">La Brie Immobilière</p>
           </td>
         </tr>
 
         <!-- Gold accent line -->
-        <tr><td style="background:${COLORS.gold};height:4px;font-size:0;line-height:0;">&nbsp;</td></tr>
+        <tr><td style="background:${COLORS.gold};height:4px;font-size:0;line-height:0;" bgcolor="${COLORS.gold}">&nbsp;</td></tr>
 
         <!-- Title bar -->
         <tr>
-          <td style="background:${COLORS.cream};padding:22px 40px;border-bottom:1px solid #e5e7eb;">
+          <td class="lbi-title" style="background:${COLORS.cream};padding:22px 40px;border-bottom:1px solid #e5e7eb;" bgcolor="${COLORS.cream}">
             <p style="margin:0;font-size:18px;font-weight:700;color:${COLORS.deep};font-family:'Fira Sans',Arial,sans-serif;">${title}</p>
           </td>
         </tr>
 
         <!-- Body -->
         <tr>
-          <td style="padding:30px 40px;">
+          <td class="lbi-body" style="padding:30px 40px;background:${COLORS.white};" bgcolor="${COLORS.white}">
             <p style="color:${COLORS.deep};font-size:16px;line-height:1.7;margin:0 0 20px;font-weight:500;font-family:Arial,sans-serif;">
               ${greeting}
             </p>
@@ -95,7 +128,7 @@ export function emailLayout(options: {
 
         <!-- Footer -->
         <tr>
-          <td style="background:#1a2744;padding:30px 40px;text-align:center;" align="center">
+          <td class="lbi-footer" style="background:#1a2744;padding:30px 40px;text-align:center;" align="center" bgcolor="#1a2744">
             <table cellpadding="0" cellspacing="0" width="100%"><tr><td align="center">
               <img src="${appUrl}/logo-white.png" alt="LBI" width="55" height="55" style="display:block;width:55px;height:55px;margin:0 auto 10px;opacity:0.7;" />
             </td></tr></table>
