@@ -1,5 +1,11 @@
 import Link from "next/link";
 import { Gift, FileText, TrendingUp, Users, CheckCircle2, ArrowRight, Star, Euro, Clock, Shield, Smartphone, Zap, BarChart2, Bell } from "lucide-react";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Devenez ambassadeur",
+  description: "Rejoignez le réseau d'ambassadeurs de La Brie Immobilière. Recommandez vos proches ayant un projet immobilier et touchez 5% de commission sur les honoraires.",
+};
 
 export default function LandingPage() {
   const steps = [

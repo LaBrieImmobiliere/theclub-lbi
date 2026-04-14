@@ -36,6 +36,7 @@ export default async function AdminDashboardPage() {
     prisma.contract.count(),
     prisma.lead.count({ where: { status: "NOUVEAU" } }),
     prisma.contract.findMany({
+      take: 500,
       select: { commissionAmount: true, honoraires: true, status: true, createdAt: true },
     }),
     prisma.lead.findMany({
@@ -49,6 +50,7 @@ export default async function AdminDashboardPage() {
       include: { ambassador: { include: { user: { select: { name: true } } } } },
     }),
     prisma.lead.findMany({
+      take: 500,
       select: { createdAt: true, contract: { select: { createdAt: true } } },
     }),
     prisma.ambassador.findMany({

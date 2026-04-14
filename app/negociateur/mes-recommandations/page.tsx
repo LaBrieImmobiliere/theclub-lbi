@@ -122,7 +122,7 @@ function StatusTimeline({ status, onStepClick, disabled }: { status: string; onS
               isCurrent ? "border-[#D1B280] bg-transparent" :
               "border-gray-600 bg-transparent"
             }`}>
-              {isDone ? <Check className="w-3.5 h-3.5 text-white" /> :
+              {isDone ? <Check className="w-3.5 h-3.5 text-gray-900 dark:text-white" /> :
                <span className="text-[10px] text-gray-400 font-medium">{i + 1}</span>}
             </div>
             <span className={`text-sm ${isCurrent ? "text-[#D1B280] font-semibold" : isDone ? "text-gray-400" : "text-gray-500"}`}>
@@ -225,7 +225,7 @@ export default function NegociateurRecommandationsPage() {
                 <span className="text-[#D1B280] text-lg font-bold">{selected.firstName[0]}{selected.lastName[0]}</span>
               </div>
               <div>
-                <h1 className="text-xl font-bold text-white">{selected.firstName} {selected.lastName}</h1>
+                <h1 className="text-xl font-bold text-gray-900 dark:text-white">{selected.firstName} {selected.lastName}</h1>
                 <div className="flex items-center gap-2 mt-1">
                   <div className={`w-2 h-2 rounded-full ${STATUS_DOT[selected.status] || "bg-gray-400"}`} />
                   <span className="text-sm text-gray-400">{STATUS_LABEL[selected.status]}</span>
@@ -269,7 +269,7 @@ export default function NegociateurRecommandationsPage() {
               <div className="flex items-center gap-2 text-gray-400 text-xs mb-1">
                 <MapPin className="w-3 h-3" /> Localisation
               </div>
-              <p className="text-sm text-white">{selected.location}</p>
+              <p className="text-sm text-gray-900 dark:text-white">{selected.location}</p>
             </div>
           )}
           {selected.budget && (
@@ -282,11 +282,11 @@ export default function NegociateurRecommandationsPage() {
           )}
           <div className="bg-white/5 border border-white/10 rounded-lg p-3">
             <p className="text-gray-400 text-xs mb-1">Ambassadeur</p>
-            <p className="text-sm text-white">{selected.ambassador.user.name}</p>
+            <p className="text-sm text-gray-900 dark:text-white">{selected.ambassador.user.name}</p>
           </div>
           <div className="bg-white/5 border border-white/10 rounded-lg p-3">
             <p className="text-gray-400 text-xs mb-1">Date</p>
-            <p className="text-sm text-white">{formatDate(selected.createdAt)}</p>
+            <p className="text-sm text-gray-900 dark:text-white">{formatDate(selected.createdAt)}</p>
           </div>
           {selected.contract && (
             <div className="bg-white/5 border border-white/10 rounded-lg p-3">
@@ -368,7 +368,7 @@ export default function NegociateurRecommandationsPage() {
     <div className="space-y-4">
       {/* Header + search */}
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-white" style={{ fontFamily: "'Fira Sans', sans-serif" }}>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white" style={{ fontFamily: "'Fira Sans', sans-serif" }}>
           Recommandations
         </h1>
         <span className="text-xs text-gray-500 bg-white/5 px-2.5 py-1 rounded-full">{filtered.length}/{leads.length}</span>

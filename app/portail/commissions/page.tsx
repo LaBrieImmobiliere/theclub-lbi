@@ -57,6 +57,23 @@ export default async function CommissionsPage() {
     .filter((c) => new Date(c.createdAt).getFullYear() === currentYear)
     .reduce((s, c) => s + getCommission(c), 0);
 
+  // Monthly commission data (last 6 months) for chart
+  const now = new Date();
+  const monthNames = ["Jan","Fev","Mar","Avr","Mai","Juin","Juil","Aout","Sep","Oct","Nov","Dec"];
+  const monthlyCommissions = Array.from({ length: 6 }, (_, i) => {
+    const d = new Date(now.getFullYear(), now.getMonth() - (5 - i), 1);
+    const y = d.getFullYear();
+    const m = d.getMonth();
+    const amount = contracts
+      .filter((c) => {
+        const cd = new Date(c.createdAt);
+        return cd.getFullYear() === y && cd.getMonth() === m && (c.status === "PAYE" || c.status === "SIGNE");
+      })
+      .reduce((s, c) => s + getCommission(c), 0);
+    return { name: monthNames[m], amount };
+  });
+  const maxCommission = Math.max(...monthlyCommissions.map((m) => m.amount), 1);
+
   const STATUS_LABEL: Record<string, string> = {
     BROUILLON: "Brouillon",
     ENVOYE: "En attente signature",
@@ -76,7 +93,7 @@ export default async function CommissionsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-white">Mes commissions</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Mes commissions</h1>
         <p className="text-gray-400 mt-1 text-sm">Suivi de vos gains depuis le d&eacute;but de votre activit&eacute;</p>
       </div>
 
@@ -100,7 +117,7 @@ export default async function CommissionsPage() {
             </div>
             <p className="text-[10px] text-gray-500 font-medium uppercase tracking-wide">En attente</p>
           </div>
-          <p className="text-xl font-bold text-white">{formatCurrency(commissionTTC(totalPending, ls))}</p>
+          <p className="text-xl font-bold text-gray-900 dark:text-white">{formatCurrency(commissionTTC(totalPending, ls))}</p>
           <p className="text-[10px] text-gray-500 mt-1">HT : {formatCurrency(totalPending)}</p>
         </div>
 
@@ -111,7 +128,7 @@ export default async function CommissionsPage() {
             </div>
             <p className="text-[10px] text-gray-500 font-medium uppercase tracking-wide">{currentYear}</p>
           </div>
-          <p className="text-xl font-bold text-white">{formatCurrency(commissionTTC(yearTotal, ls))}</p>
+          <p className="text-xl font-bold text-gray-900 dark:text-white">{formatCurrency(commissionTTC(yearTotal, ls))}</p>
           <p className="text-[10px] text-gray-500 mt-1">HT : {formatCurrency(yearTotal)}</p>
         </div>
 
@@ -122,8 +139,30 @@ export default async function CommissionsPage() {
             </div>
             <p className="text-[10px] text-gray-500 font-medium uppercase tracking-wide">Total cumul&eacute;</p>
           </div>
-          <p className="text-xl font-bold text-white">{formatCurrency(commissionTTC(totalAll, ls))}</p>
+          <p className="text-xl font-bold text-gray-900 dark:text-white">{formatCurrency(commissionTTC(totalAll, ls))}</p>
           <p className="text-[10px] text-gray-500 mt-1">HT : {formatCurrency(totalAll)} &middot; {signedCount} transaction{signedCount !== 1 ? "s" : ""}</p>
+        </div>
+      </div>
+
+      {/* Commission history chart */}
+      <div className="bg-white/5 border border-white/10 rounded-xl p-4">
+        <h2 className="font-semibold text-white mb-4">&Eacute;volution des gains</h2>
+        <div className="flex items-end gap-2 h-32">
+          {monthlyCommissions.map((m) => (
+            <div key={m.name} className="flex-1 flex flex-col items-center gap-1">
+              <span className="text-[9px] text-gray-400 font-medium">
+                {m.amount > 0 ? formatCurrency(m.amount) : ""}
+              </span>
+              <div
+                className="w-full bg-[#D1B280] rounded-t transition-all duration-500"
+                style={{
+                  height: `${(m.amount / maxCommission) * 100}%`,
+                  minHeight: m.amount > 0 ? 4 : 0,
+                }}
+              />
+              <span className="text-[9px] text-gray-500">{m.name}</span>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -160,7 +199,7 @@ export default async function CommissionsPage() {
                 <div className="flex items-center justify-between pt-2 border-t border-white/5">
                   <div>
                     <p className="text-[10px] text-gray-500">Commission</p>
-                    <p className={`text-lg font-bold ${c.status === "PAYE" ? "text-green-400" : "text-white"}`}>
+                    <p className={`text-lg font-bold ${c.status === "PAYE" ? "text-green-400" : "text-gray-900 dark:text-white"}`}>
                       {getCommission(c) > 0 ? formatCurrency(commissionTTC(getCommission(c), ls)) : `${c.commissionValue}%`}
                     </p>
                   </div>

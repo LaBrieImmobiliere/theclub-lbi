@@ -42,14 +42,15 @@ export default async function PortalDashboardPage() {
       where: { userId: user.id },
       include: {
         leads: {
+          take: 100,
           orderBy: { createdAt: "desc" },
           include: { contract: true },
         },
         ambassadors: {
+          take: 50,
           include: {
             user: { select: { name: true, email: true } },
-            leads: true,
-            contracts: true,
+            _count: { select: { leads: true, contracts: true } },
           },
           orderBy: { createdAt: "desc" },
         },
@@ -211,7 +212,7 @@ export default async function PortalDashboardPage() {
                       <div>
                         <p className="text-sm font-medium text-gray-900">{amb.user.name}</p>
                         <p className="text-xs text-gray-500">
-                          {amb.leads.length} recommandation{amb.leads.length !== 1 ? "s" : ""} &middot; {amb.contracts.length} contrat{amb.contracts.length !== 1 ? "s" : ""}
+                          {amb._count.leads} recommandation{amb._count.leads !== 1 ? "s" : ""} &middot; {amb._count.contracts} contrat{amb._count.contracts !== 1 ? "s" : ""}
                         </p>
                       </div>
                       <code className="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-mono">
@@ -233,10 +234,12 @@ export default async function PortalDashboardPage() {
     where: { userId: user.id },
     include: {
       leads: {
+        take: 100,
         orderBy: { createdAt: "desc" },
         include: { contract: true },
       },
       contracts: {
+        take: 100,
         orderBy: { createdAt: "desc" },
         include: { honoraryAcknowledgments: true },
       },
@@ -248,7 +251,11 @@ export default async function PortalDashboardPage() {
   // Calculate ranking
   const allAmbassadors = await prisma.ambassador.findMany({
     where: { status: "ACTIVE" },
-    include: { contracts: { select: { commissionAmount: true } } },
+    take: 200,
+    select: {
+      id: true,
+      contracts: { select: { commissionAmount: true } },
+    },
   });
   const rankedAmbs = allAmbassadors
     .map((a) => ({ id: a.id, total: a.contracts.reduce((s, c) => s + (c.commissionAmount || 0), 0) }))

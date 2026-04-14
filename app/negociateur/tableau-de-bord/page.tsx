@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import DashboardChart from "@/components/portal/dashboard-chart";
 import { CAGauge } from "@/components/admin/ca-gauge";
+import { KPIComparison } from "@/components/admin/kpi-comparison";
 import { formatCurrency } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -26,6 +27,7 @@ export default async function NegociateurDashboardPage() {
     include: {
       agency: true,
       leads: {
+        take: 200,
         orderBy: { createdAt: "desc" },
         include: {
           ambassador: { include: { user: { select: { name: true } } } },
@@ -33,6 +35,7 @@ export default async function NegociateurDashboardPage() {
         },
       },
       ambassadors: {
+        take: 50,
         include: {
           user: { select: { name: true, email: true } },
           _count: { select: { leads: true } },
@@ -74,6 +77,22 @@ export default async function NegociateurDashboardPage() {
   const commissionsPotentielles = contractLeads.filter(l => ["ENVOYE", "SIGNE"].includes(l.contract!.status)).reduce((s, l) => s + (l.contract!.commissionAmount || 0), 0);
   // Vert: Commissions versées
   const commissionsVersees = contractLeads.filter(l => l.contract!.status === "PAYE").reduce((s, l) => s + (l.contract!.commissionAmount || 0), 0);
+
+  // Month-over-month KPIs
+  const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+  const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+
+  const thisMonthLeads = allLeads.filter(l => new Date(l.createdAt) >= thisMonthStart).length;
+  const lastMonthLeads = allLeads.filter(l => new Date(l.createdAt) >= lastMonthStart && new Date(l.createdAt) < thisMonthStart).length;
+
+  const thisMonthContracts = contractLeads.filter(l => new Date(l.contract!.createdAt) >= thisMonthStart).length;
+  const lastMonthContracts = contractLeads.filter(l => new Date(l.contract!.createdAt) >= lastMonthStart && new Date(l.contract!.createdAt) < thisMonthStart).length;
+
+  const thisMonthCommissions = contractLeads.filter(l => new Date(l.contract!.createdAt) >= thisMonthStart).reduce((s, l) => s + (l.contract!.commissionAmount || 0), 0);
+  const lastMonthCommissions = contractLeads.filter(l => new Date(l.contract!.createdAt) >= lastMonthStart && new Date(l.contract!.createdAt) < thisMonthStart).reduce((s, l) => s + (l.contract!.commissionAmount || 0), 0);
+
+  const thisMonthConversion = thisMonthLeads > 0 ? Math.round((thisMonthContracts / thisMonthLeads) * 100) : 0;
+  const lastMonthConversion = lastMonthLeads > 0 ? Math.round((lastMonthContracts / lastMonthLeads) * 100) : 0;
 
   const recentLeads = allLeads.slice(0, 5);
   const activeAmbassadors = negotiator.ambassadors.filter((a) => a.status === "ACTIVE");
@@ -181,6 +200,21 @@ export default async function NegociateurDashboardPage() {
             </div>
           </CardContent>
         </Card>
+
+      {/* KPIs mois/mois */}
+      <Card>
+        <CardHeader>
+          <h2 className="font-semibold text-gray-900" style={{ fontFamily: "'Fira Sans', sans-serif" }}>
+            Performance mois en cours vs pr&eacute;c&eacute;dent
+          </h2>
+        </CardHeader>
+        <CardContent className="divide-y divide-gray-100">
+          <KPIComparison label="Recommandations" current={thisMonthLeads} previous={lastMonthLeads} />
+          <KPIComparison label="Contrats" current={thisMonthContracts} previous={lastMonthContracts} />
+          <KPIComparison label="Commissions" current={thisMonthCommissions} previous={lastMonthCommissions} format="currency" />
+          <KPIComparison label="Taux de conversion" current={thisMonthConversion} previous={lastMonthConversion} format="percent" />
+        </CardContent>
+      </Card>
 
       {/* Alerte leads en attente */}
       {newLeads > 0 && (

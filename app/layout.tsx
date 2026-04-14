@@ -8,11 +8,25 @@ import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   title: {
-    default: "The Club",
-    template: "%s | The Club",
+    default: "The Club - La Brie Immobilière",
+    template: "%s | The Club LBI",
   },
-  description: "Plateforme de gestion des ambassadeurs et apporteurs d'affaire",
+  description: "Recommandez vos proches ayant un projet immobilier et touchez 5% de commission sur les honoraires. Rejoignez le réseau d'ambassadeurs de La Brie Immobilière.",
+  keywords: ["immobilier", "parrainage", "commission", "ambassadeur", "La Brie Immobilière", "apporteur d'affaires"],
+  openGraph: {
+    title: "The Club - La Brie Immobilière",
+    description: "Recommandez et gagnez 5% de commission sur chaque transaction immobilière.",
+    url: "https://theclub.labrieimmobiliere.fr",
+    siteName: "The Club LBI",
+    locale: "fr_FR",
+    type: "website",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
   manifest: "/manifest.json",
+  themeColor: "#030A24",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
