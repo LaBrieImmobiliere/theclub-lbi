@@ -6,7 +6,6 @@ export function logError(error: unknown, context?: Record<string, unknown>) {
 
   // Dynamically import Sentry only if available
   try {
-    // @ts-expect-error - Sentry may not be installed yet
     import("@sentry/nextjs").then((Sentry) => {
       Sentry.captureException(error, { extra: context });
     }).catch(() => {});
