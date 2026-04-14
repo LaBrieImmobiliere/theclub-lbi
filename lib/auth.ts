@@ -78,7 +78,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   ],
   session: {
     strategy: "jwt",
-    maxAge: 8 * 60 * 60, // 8 hours
+    maxAge: 30 * 24 * 60 * 60, // 30 days
     updateAge: 60 * 60, // 1 hour
   },
   cookies: {
@@ -89,7 +89,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         sameSite: "lax" as const,
         path: "/",
         secure: process.env.NODE_ENV === "production",
-        maxAge: 8 * 60 * 60, // 8 hours
+        maxAge: 30 * 24 * 60 * 60, // 30 days
         // Domain not set = cookie valid for exact domain only (best for PWA)
       },
     },
@@ -100,7 +100,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         sameSite: "lax" as const,
         path: "/",
         secure: process.env.NODE_ENV === "production",
-        maxAge: 8 * 60 * 60, // 8 hours
+        maxAge: 30 * 24 * 60 * 60, // 30 days
       },
     },
     callbackUrl: {
@@ -109,7 +109,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         sameSite: "lax" as const,
         path: "/",
         secure: process.env.NODE_ENV === "production",
-        maxAge: 8 * 60 * 60, // 8 hours
+        maxAge: 30 * 24 * 60 * 60, // 30 days
       },
     },
   },

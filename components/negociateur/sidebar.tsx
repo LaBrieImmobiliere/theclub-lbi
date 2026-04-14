@@ -44,14 +44,16 @@ function SidebarContent() {
         <ThemedLogo height={70} />
         <div className="flex-1" />
         <ThemeToggle />
-        <div className="hidden lg:flex items-center gap-2">
-          <GlobalSearch basePath="/negociateur" />
+        <div className="hidden lg:block">
           <NotificationsBell />
         </div>
       </div>
 
-      {/* Role label */}
-      <div className="px-4 py-3 border-b border-gray-100">
+      {/* Search + Role label */}
+      <div className="px-4 py-3 border-b border-gray-100 space-y-2">
+        <div className="hidden lg:block">
+          <GlobalSearch basePath="/negociateur" />
+        </div>
         <p className="text-[10px] text-gray-400 tracking-widest uppercase">
           Espace N&eacute;gociateur
         </p>
