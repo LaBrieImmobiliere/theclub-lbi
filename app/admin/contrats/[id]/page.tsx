@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Image from "next/image";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -485,8 +486,7 @@ export default function ContratDetailPage() {
               <div>
                 <p className="text-xs text-gray-500 mb-2">Signature agence</p>
                 {contract.adminSignature?.startsWith("data:image") ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={contract.adminSignature} alt="Signature agence" className="border rounded-lg max-h-24 w-full object-contain bg-white" />
+                  <Image src={contract.adminSignature} alt="Signature agence" width={400} height={96} className="border rounded-lg max-h-24 w-full object-contain bg-white" unoptimized />
                 ) : contract.adminSignature ? (
                   <div className="border rounded-lg h-24 flex items-center justify-center bg-white">
                     <p className="text-sm italic text-blue-700 font-medium">{contract.adminSignature}</p>
@@ -500,8 +500,7 @@ export default function ContratDetailPage() {
               <div>
                 <p className="text-xs text-gray-500 mb-2">Signature ambassadeur</p>
                 {contract.ambassadorSignature?.startsWith("data:image") ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={contract.ambassadorSignature} alt="Signature ambassadeur" className="border rounded-lg max-h-24 w-full object-contain bg-white" />
+                  <Image src={contract.ambassadorSignature} alt="Signature ambassadeur" width={400} height={96} className="border rounded-lg max-h-24 w-full object-contain bg-white" unoptimized />
                 ) : contract.ambassadorSignature ? (
                   <div className="border rounded-lg h-24 flex items-center justify-center bg-white">
                     <p className="text-sm italic text-blue-700 font-medium">{contract.ambassadorSignature}</p>

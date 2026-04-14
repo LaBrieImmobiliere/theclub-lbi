@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
+import Image from "next/image";
 import { UserCog, Phone, Mail, Building2, ArrowRight } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 
@@ -36,8 +37,7 @@ export default async function AdminNegociateursPage() {
             <CardContent className="p-5">
               <div className="flex items-start gap-3">
                 {neg.user.image ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={neg.user.image} alt={neg.user.name || ""} className="w-12 h-12 object-cover flex-shrink-0" />
+                  <Image src={neg.user.image} alt={neg.user.name || ""} width={48} height={48} className="w-12 h-12 object-cover flex-shrink-0" unoptimized />
                 ) : (
                   <div className="w-12 h-12 bg-[#030A24] text-white flex items-center justify-center text-lg font-bold flex-shrink-0">
                     {(neg.user.name || neg.user.email)[0].toUpperCase()}

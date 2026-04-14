@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import Link from "next/link";
+import Image from "next/image";
 import { Gift, Users, TrendingUp, Shield, ArrowRight, CheckCircle2 } from "lucide-react";
 
 export default async function HomePage() {
@@ -18,8 +19,7 @@ export default async function HomePage() {
       <header className="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-lg border-b border-gray-100">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo.png" alt="La Brie Immobilière" className="h-10 w-auto" />
+            <Image src="/logo.png" alt="La Brie Immobilière" width={120} height={40} className="h-10 w-auto" />
             <span className="text-xs font-semibold text-[#D1B280] tracking-widest uppercase hidden sm:block">The Club</span>
           </div>
           <div className="flex items-center gap-3">
@@ -142,8 +142,7 @@ export default async function HomePage() {
       <footer className="bg-[#030A24] border-t border-white/10 px-6 py-8">
         <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-white.png" alt="La Brie Immobilière" className="h-8 w-auto opacity-50" />
+            <Image src="/logo-white.png" alt="La Brie Immobilière" width={96} height={32} className="h-8 w-auto opacity-50" />
           </div>
           <div className="flex gap-6 text-xs text-white/30">
             <Link href="/mentions-legales" className="hover:text-white/60">Mentions légales</Link>

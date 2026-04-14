@@ -1,7 +1,8 @@
-const CACHE_NAME = "theclub-v3";
+const CACHE_NAME = "theclub-v4";
 const OFFLINE_URL = "/offline.html";
 const API_CACHE = "theclub-api-v1";
 const API_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+const QUEUE_STORE = "offline-actions-queue";
 
 // Assets to pre-cache
 const PRECACHE_ASSETS = [
@@ -160,4 +161,91 @@ self.addEventListener("notificationclick", (event) => {
       return clients.openWindow(url);
     })
   );
+});
+
+// ─── Offline Actions Queue (IndexedDB) ───
+function openDb() {
+  return new Promise((resolve, reject) => {
+    const req = indexedDB.open("theclub-offline", 1);
+    req.onupgradeneeded = () => {
+      const db = req.result;
+      if (!db.objectStoreNames.contains(QUEUE_STORE)) {
+        db.createObjectStore(QUEUE_STORE, { keyPath: "id", autoIncrement: true });
+      }
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+async function queueAction(action) {
+  const db = await openDb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(QUEUE_STORE, "readwrite");
+    const store = tx.objectStore(QUEUE_STORE);
+    const req = store.add({ ...action, createdAt: Date.now() });
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+async function getQueuedActions() {
+  const db = await openDb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(QUEUE_STORE, "readonly");
+    const store = tx.objectStore(QUEUE_STORE);
+    const req = store.getAll();
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+async function removeQueuedAction(id) {
+  const db = await openDb();
+  return new Promise((resolve) => {
+    const tx = db.transaction(QUEUE_STORE, "readwrite");
+    tx.objectStore(QUEUE_STORE).delete(id);
+    tx.oncomplete = () => resolve();
+  });
+}
+
+// Replay queued actions when back online
+self.addEventListener("sync", (event) => {
+  if (event.tag === "sync-offline-actions") {
+    event.waitUntil(
+      (async () => {
+        const actions = await getQueuedActions();
+        for (const action of actions) {
+          try {
+            const res = await fetch(action.url, {
+              method: action.method,
+              headers: action.headers,
+              body: action.body,
+            });
+            if (res.ok) {
+              await removeQueuedAction(action.id);
+              // Notify clients
+              const clients = await self.clients.matchAll();
+              clients.forEach((c) => c.postMessage({
+                type: "offline-action-synced",
+                url: action.url,
+              }));
+            }
+          } catch (err) {
+            console.error("[sw] Failed to replay action:", err);
+          }
+        }
+      })()
+    );
+  }
+});
+
+// Intercept failed POST/PATCH to queue them
+self.addEventListener("message", async (event) => {
+  if (event.data?.type === "queue-offline-action") {
+    await queueAction(event.data.action);
+    if ("sync" in self.registration) {
+      await self.registration.sync.register("sync-offline-actions");
+    }
+  }
 });

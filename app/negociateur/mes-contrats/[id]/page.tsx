@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useParams } from "next/navigation";
+import Image from "next/image";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Download, FileText, User, MapPin, Banknote } from "lucide-react";
@@ -245,8 +246,7 @@ export default function NegociateurContratDetailPage() {
             <div className="border border-gray-200 rounded-lg p-4 min-h-[100px]">
               <p className="text-xs text-gray-500 font-medium uppercase tracking-wider mb-2">Agence</p>
               {contract.adminSignature?.startsWith("data:image") ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={contract.adminSignature} alt="Signature agence" className="max-h-16 object-contain" />
+                <Image src={contract.adminSignature} alt="Signature agence" width={300} height={64} className="max-h-16 object-contain" unoptimized />
               ) : contract.adminSignature ? (
                 <p className="text-sm italic text-blue-700 font-medium">{contract.adminSignature}</p>
               ) : (
@@ -256,8 +256,7 @@ export default function NegociateurContratDetailPage() {
             <div className="border border-gray-200 rounded-lg p-4 min-h-[100px]">
               <p className="text-xs text-gray-500 font-medium uppercase tracking-wider mb-2">Ambassadeur</p>
               {contract.ambassadorSignature?.startsWith("data:image") ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={contract.ambassadorSignature} alt="Signature ambassadeur" className="max-h-16 object-contain" />
+                <Image src={contract.ambassadorSignature} alt="Signature ambassadeur" width={300} height={64} className="max-h-16 object-contain" unoptimized />
               ) : contract.ambassadorSignature ? (
                 <p className="text-sm italic text-blue-700 font-medium">{contract.ambassadorSignature}</p>
               ) : (

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowLeft, Mail } from "lucide-react";
 
 export default function MotDePasseOubliePage() {
@@ -34,8 +35,7 @@ export default function MotDePasseOubliePage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-10">
           <div className="flex justify-center mb-6">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-white.png" alt="La Brie Immobilière" style={{ height: 80, width: "auto", objectFit: "contain" }} />
+            <Image src="/logo-white.png" alt="La Brie Immobilière" width={240} height={80} style={{ height: 80, width: "auto", objectFit: "contain" }} priority />
           </div>
           <p className="text-brand-gold text-xs font-medium tracking-[0.3em] uppercase">The Club</p>
         </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, createContext, useContext } from "react";
+import Image from "next/image";
 import { Menu, X } from "lucide-react";
 import { NotificationsBell } from "@/components/notifications-bell";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -76,8 +77,7 @@ export function MobileHeader({ variant = "admin" }: { variant?: "admin" | "porta
 
       <div className="flex items-center gap-2">
         {isAdmin ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src="/logo-white.png" alt="La Brie Immobilière" style={{ height: 38, width: "auto", objectFit: "contain" }} />
+          <Image src="/logo-white.png" alt="La Brie Immobilière" width={114} height={38} style={{ height: 38, width: "auto", objectFit: "contain" }} />
         ) : (
           <ThemedLogo height={38} />
         )}

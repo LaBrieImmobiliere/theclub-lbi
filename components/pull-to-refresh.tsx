@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
+import { haptic } from "@/lib/haptic";
 
 interface PullToRefreshProps {
   onRefresh: () => Promise<void>;
@@ -65,6 +66,7 @@ export function PullToRefresh({ onRefresh, children }: PullToRefreshProps) {
         setPullDistance(40);
         try {
           await onRefresh();
+          haptic("success");
         } catch (err) {
           console.error("Refresh failed:", err);
         } finally {

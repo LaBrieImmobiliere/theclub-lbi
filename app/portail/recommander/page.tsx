@@ -7,13 +7,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { CheckCircle2, ArrowLeft } from "lucide-react";
+import { CheckCircle2, ArrowLeft, Sparkles } from "lucide-react";
 import Link from "next/link";
 
 export default function RecommandationPage() {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [suggesting, setSuggesting] = useState(false);
   const [done, setDone] = useState(false);
   const [form, setForm] = useState({
     firstName: "",
@@ -25,6 +26,29 @@ export default function RecommandationPage() {
     budget: "",
     location: "",
   });
+
+  const handleSuggest = async () => {
+    if (!form.type) return;
+    setSuggesting(true);
+    try {
+      const res = await fetch("/api/ai/suggest-description", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          type: form.type,
+          location: form.location,
+          budget: form.budget,
+          draft: form.description,
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data?.suggestion) setForm((f) => ({ ...f, description: data.suggestion }));
+      }
+    } finally {
+      setSuggesting(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -159,13 +183,27 @@ export default function RecommandationPage() {
                   onChange={(e) => setForm({ ...form, budget: e.target.value })}
                   placeholder="300 000 €"
                 />
-                <Textarea
-                  label="Description du projet"
-                  value={form.description}
-                  onChange={(e) => setForm({ ...form, description: e.target.value })}
-                  placeholder="Décrivez brièvement le projet de votre contact..."
-                  rows={4}
-                />
+                <div>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="block text-sm font-medium text-gray-700">Description du projet</label>
+                    <button
+                      type="button"
+                      onClick={handleSuggest}
+                      disabled={suggesting || !form.type}
+                      title={!form.type ? "Sélectionnez d'abord un type de projet" : "Générer une suggestion"}
+                      className="inline-flex items-center gap-1 text-xs font-medium text-[#D1B280] hover:text-[#b89a65] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      <Sparkles className="w-3.5 h-3.5" />
+                      {suggesting ? "Génération..." : "Suggérer"}
+                    </button>
+                  </div>
+                  <Textarea
+                    value={form.description}
+                    onChange={(e) => setForm({ ...form, description: e.target.value })}
+                    placeholder="Décrivez brièvement le projet de votre contact..."
+                    rows={4}
+                  />
+                </div>
                 <div className="flex gap-3 pt-2">
                   <Button type="button" variant="outline" onClick={() => setStep(1)} className="flex-1">
                     ← Retour

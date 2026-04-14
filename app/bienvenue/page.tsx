@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Gift, FileText, TrendingUp, Users, CheckCircle2, ArrowRight, Star, Euro, Clock, Shield, Smartphone, Zap, BarChart2, Bell } from "lucide-react";
 import type { Metadata } from "next";
 
@@ -36,8 +37,7 @@ export default function LandingPage() {
       <nav className="border-b border-gray-100 bg-white/95 backdrop-blur sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo.png" alt="La Brie Immobili\u00e8re" style={{ height: 52, width: "auto", objectFit: "contain" }} />
+            <Image src="/logo.png" alt="La Brie Immobili\u00e8re" width={156} height={52} style={{ height: 52, width: "auto", objectFit: "contain" }} />
           </div>
           <div className="flex items-center gap-3 sm:gap-4">
             <Link href="/rejoindre" className="text-sm text-gray-600 hover:text-gray-900 hidden sm:inline">
@@ -305,8 +305,7 @@ export default function LandingPage() {
       <footer className="bg-black text-white/40 py-8 sm:py-10 px-4 sm:px-6">
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-white.png" alt="La Brie Immobili\u00e8re" style={{ height: 28, width: "auto", objectFit: "contain" }} />
+            <Image src="/logo-white.png" alt="La Brie Immobili\u00e8re" width={84} height={28} style={{ height: 28, width: "auto", objectFit: "contain" }} />
           </div>
           <div className="flex flex-wrap justify-center gap-4 sm:gap-6 text-xs sm:text-sm">
             <Link href="/rejoindre" className="hover:text-white transition-colors">Connexion</Link>

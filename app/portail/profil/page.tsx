@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import Image from "next/image";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Camera, Check, AlertCircle, Download, Trash2, AlertTriangle, Award, Building2, Users, User } from "lucide-react";
+import { Camera, Check, AlertCircle, Download, Trash2, AlertTriangle, Award, Building2, Users, User, FileText, Upload, Paperclip } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { PushSubscribeButton } from "@/components/push-subscribe";
 
@@ -24,6 +25,20 @@ interface BadgeData {
   label: string;
   earnedAt: string;
 }
+
+interface UserDocumentData {
+  id: string;
+  name: string;
+  url: string;
+  type: string;
+  createdAt: string;
+}
+
+const DOCUMENT_TYPE_LABELS: Record<string, string> = {
+  RIB: "RIB",
+  ID: "Pi\u00e8ce d'identit\u00e9",
+  JUSTIFICATIF: "Justificatif",
+};
 
 const BADGE_ICONS: Record<string, string> = {
   FIRST_LEAD: "\uD83C\uDF1F",
@@ -128,6 +143,12 @@ export default function ProfilPage() {
   // Badges
   const [badges, setBadges] = useState<BadgeData[]>([]);
 
+  // Documents
+  const [documents, setDocuments] = useState<UserDocumentData[]>([]);
+  const [uploadingDocument, setUploadingDocument] = useState(false);
+  const [documentType, setDocumentType] = useState<string>("RIB");
+  const documentInputRef = useRef<HTMLInputElement>(null);
+
   // Toast
   const [toast, setToast] = useState<{ message: string; type: ToastType } | null>(null);
 
@@ -167,6 +188,12 @@ export default function ProfilPage() {
     fetch("/api/me/badges")
       .then((res) => res.ok ? res.json() : [])
       .then((data) => setBadges(data))
+      .catch(() => {});
+
+    // Fetch documents
+    fetch("/api/me/documents")
+      .then((res) => res.ok ? res.json() : [])
+      .then((data) => setDocuments(data))
       .catch(() => {});
   }, []);
 
@@ -274,6 +301,51 @@ export default function ProfilPage() {
     setEditingLegal(false);
   };
 
+  const handleDocumentUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingDocument(true);
+    try {
+      const formData = new FormData();
+      formData.append("document", file);
+      formData.append("type", documentType);
+      formData.append("name", file.name);
+
+      const res = await fetch("/api/upload-document", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        showToast(data.error || "Erreur lors de l\u2019envoi du document", "error");
+        return;
+      }
+      setDocuments((prev) => [data.document, ...prev]);
+      showToast("Document ajout\u00e9", "success");
+    } catch {
+      showToast("Erreur lors de l\u2019envoi du document", "error");
+    } finally {
+      setUploadingDocument(false);
+      if (documentInputRef.current) documentInputRef.current.value = "";
+    }
+  };
+
+  const handleDeleteDocument = async (id: string) => {
+    if (!confirm("Supprimer ce document ?")) return;
+    try {
+      const res = await fetch(`/api/me/documents/${id}`, { method: "DELETE" });
+      if (!res.ok) {
+        showToast("Erreur lors de la suppression", "error");
+        return;
+      }
+      setDocuments((prev) => prev.filter((d) => d.id !== id));
+      showToast("Document supprim\u00e9", "success");
+    } catch {
+      showToast("Erreur lors de la suppression", "error");
+    }
+  };
+
   const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !profile) return;
@@ -350,11 +422,13 @@ export default function ProfilPage() {
             <div className="relative">
               <div className="w-20 h-20 rounded-full bg-gray-200 overflow-hidden flex items-center justify-center">
                 {profile.image ? (
-                  /* eslint-disable-next-line @next/next/no-img-element */
-                  <img
+                  <Image
                     src={profile.image}
                     alt="Photo de profil"
+                    width={80}
+                    height={80}
                     className="w-full h-full object-cover"
+                    unoptimized
                   />
                 ) : (
                   <span className="text-2xl font-bold text-gray-400">
@@ -768,6 +842,96 @@ export default function ProfilPage() {
               {profile.rib ? "Modifier mon IBAN" : "Ajouter mon IBAN"}
             </button>
           </div>
+        </CardContent>
+      </Card>
+
+      {/* Documents */}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <FileText className="w-5 h-5 text-[#D1B280]" />
+            <h2 className="text-lg font-bold text-gray-900">Mes documents</h2>
+          </div>
+          <p className="text-xs text-gray-500">RIB, pi&egrave;ces d&apos;identit&eacute;, justificatifs (PDF ou image, max 10&nbsp;Mo)</p>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {/* Upload zone */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="sm:col-span-1">
+              <label className="block text-xs font-medium text-gray-500 mb-1.5">Type</label>
+              <select
+                value={documentType}
+                onChange={(e) => setDocumentType(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-[#D1B280] rounded-lg"
+                disabled={uploadingDocument}
+              >
+                <option value="RIB">RIB</option>
+                <option value="ID">Pi&egrave;ce d&apos;identit&eacute;</option>
+                <option value="JUSTIFICATIF">Justificatif</option>
+              </select>
+            </div>
+            <div className="sm:col-span-2 flex items-end">
+              <button
+                type="button"
+                onClick={() => documentInputRef.current?.click()}
+                disabled={uploadingDocument}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 border border-dashed border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:border-[#D1B280] hover:text-[#D1B280] transition-colors disabled:opacity-50"
+              >
+                <Upload className="w-4 h-4" />
+                {uploadingDocument ? "Envoi en cours..." : "Choisir un fichier (PDF, JPG, PNG)"}
+              </button>
+              <input
+                ref={documentInputRef}
+                type="file"
+                accept="application/pdf,image/jpeg,image/jpg,image/png,image/webp"
+                className="hidden"
+                onChange={handleDocumentUpload}
+              />
+            </div>
+          </div>
+
+          {/* Documents list */}
+          {documents.length === 0 ? (
+            <div className="text-center py-6 border border-gray-100 rounded-lg bg-gray-50/50">
+              <Paperclip className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+              <p className="text-xs text-gray-400">Aucun document ajout&eacute;</p>
+            </div>
+          ) : (
+            <ul className="divide-y divide-gray-100 border border-gray-100 rounded-lg">
+              {documents.map((doc) => (
+                <li key={doc.id} className="flex items-center gap-3 px-4 py-3">
+                  <div className="w-9 h-9 rounded bg-[#D1B280]/10 flex items-center justify-center flex-shrink-0">
+                    <FileText className="w-4 h-4 text-[#D1B280]" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-gray-900 truncate">{doc.name}</p>
+                    <p className="text-[11px] text-gray-500">
+                      {DOCUMENT_TYPE_LABELS[doc.type] || doc.type}
+                      {" \u00b7 "}
+                      {new Date(doc.createdAt).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" })}
+                    </p>
+                  </div>
+                  <a
+                    href={doc.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 text-gray-400 hover:text-[#D1B280] transition-colors"
+                    title="T\u00e9l\u00e9charger"
+                  >
+                    <Download className="w-4 h-4" />
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteDocument(doc.id)}
+                    className="p-2 text-gray-400 hover:text-red-600 transition-colors"
+                    title="Supprimer"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </CardContent>
       </Card>
 

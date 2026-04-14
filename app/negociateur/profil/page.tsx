@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
+import Image from "next/image";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -137,8 +138,7 @@ export default function NegociateurProfilPage() {
             <div className="relative">
               <div className="w-20 h-20 rounded-full bg-gray-200 overflow-hidden flex items-center justify-center">
                 {profile.image ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={profile.image} alt="Photo" className="w-full h-full object-cover" />
+                  <Image src={profile.image} alt="Photo" width={80} height={80} className="w-full h-full object-cover" unoptimized />
                 ) : (
                   <span className="text-2xl font-bold text-gray-400">{(profile.name || profile.email)[0]?.toUpperCase()}</span>
                 )}

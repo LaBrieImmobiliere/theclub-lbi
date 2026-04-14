@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { ArrowLeft, Save, Camera, Trash2, X, AlertTriangle } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function EditNegociateurPage() {
   const router = useRouter();
@@ -198,8 +199,7 @@ export default function EditNegociateurPage() {
                 className="w-20 h-20 border-2 border-dashed border-gray-300 flex items-center justify-center cursor-pointer hover:border-brand-gold transition-colors overflow-hidden bg-gray-50"
               >
                 {displayPhoto ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={displayPhoto} alt="Photo" className="w-full h-full object-cover" />
+                  <Image src={displayPhoto} alt="Photo" width={80} height={80} className="w-full h-full object-cover" unoptimized />
                 ) : (
                   <Camera className="w-6 h-6 text-gray-400" />
                 )}

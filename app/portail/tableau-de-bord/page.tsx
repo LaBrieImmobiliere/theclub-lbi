@@ -17,6 +17,7 @@ import {
   Users,
 } from "lucide-react";
 import { OnboardingModal } from "@/components/onboarding-modal";
+import { PersonalizedGreeting } from "@/components/portal/personalized-greeting";
 import {
   formatCurrency,
   formatDate,
@@ -337,14 +338,29 @@ export default async function PortalDashboardPage() {
   }, 0);
   const gainsPotentiels = totalCommissions;
 
+  // Days since last lead (pour greeting personnalisé)
+  const lastLead = allLeads.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
+  const daysSinceLastLead = lastLead
+    ? Math.floor((Date.now() - new Date(lastLead.createdAt).getTime()) / (1000 * 60 * 60 * 24))
+    : 999;
+  const totalEarned = allContracts
+    .filter((c) => c.status === "PAYE")
+    .reduce((s, c) => s + (c.commissionAmount || 0), 0);
+
   return (
-    <div className="space-y-8">
-      {/* Header */}
+    <div className="space-y-6">
+      {/* Personalized greeting */}
+      <PersonalizedGreeting
+        name={user.name || "Ambassadeur"}
+        totalLeads={totalLeads}
+        totalContracts={totalContracts}
+        totalEarned={totalEarned}
+        daysSinceLastLead={daysSinceLastLead}
+      />
+
+      {/* Code parrainage */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">
-          Bonjour, {user.name?.split(" ")[0] || "Ambassadeur"} 👋
-        </h1>
-        <p className="text-gray-500 mt-1">
+        <p className="text-gray-500 text-sm">
           Votre code parrainage :{" "}
           <code className="bg-[#D1B280]/10 text-[#D1B280] px-2.5 py-0.5 rounded-full font-mono font-medium">
             {ambassador.code}

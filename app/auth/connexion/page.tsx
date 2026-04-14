@@ -4,6 +4,7 @@ import { Suspense, useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { Eye, EyeOff, Mail, KeyRound, ArrowRight, Star, TrendingUp, Users } from "lucide-react";
 import { PwaInstallButton } from "@/components/pwa-install-button";
 
@@ -181,8 +182,7 @@ export default function ConnexionPage() {
           {/* Logo + branding */}
           <div className="text-center mb-8">
             <div className="flex justify-center mb-4">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src="/logo-white.png" alt="La Brie Immobilière" style={{ height: 90, width: "auto", objectFit: "contain" }} />
+              <Image src="/logo-white.png" alt="La Brie Immobilière" width={270} height={90} style={{ height: 90, width: "auto", objectFit: "contain" }} priority />
             </div>
             <p className="text-[#D1B280] text-xs font-medium tracking-[0.3em] uppercase">The Club</p>
             <p className="text-white/40 text-sm mt-1">Connectez-vous à votre espace</p>

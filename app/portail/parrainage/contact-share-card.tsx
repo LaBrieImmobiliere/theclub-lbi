@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import {
   Phone, Mail, MapPin, Copy, Check, Share2,
   MessageSquare, User, Smartphone,
@@ -135,11 +136,13 @@ export function ContactShareCard({ contact }: Props) {
           {contact.negotiatorName && (
             <div className="flex items-center gap-4">
               {contact.negotiatorImage ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
+                <Image
                   src={contact.negotiatorImage}
                   alt={contact.negotiatorName}
+                  width={56}
+                  height={56}
                   className="w-14 h-14 object-cover flex-shrink-0 border-2 border-brand-gold/40"
+                  unoptimized
                 />
               ) : (
                 <div className="w-14 h-14 bg-brand-gold/20 flex items-center justify-center flex-shrink-0 border-2 border-brand-gold/40">
@@ -158,10 +161,11 @@ export function ContactShareCard({ contact }: Props) {
           {/* Agency with logo */}
           <div className="bg-white/5 p-4 space-y-3">
             <div className="flex items-center gap-3">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <Image
                 src="/logo-white.png"
                 alt={contact.agencyName}
+                width={96}
+                height={32}
                 className="h-8 w-auto object-contain flex-shrink-0"
                 onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
               />

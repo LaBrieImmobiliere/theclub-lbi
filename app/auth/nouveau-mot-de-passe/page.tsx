@@ -3,6 +3,7 @@
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowLeft, Eye, EyeOff, CheckCircle } from "lucide-react";
 
 function NouveauMotDePasseForm() {
@@ -119,8 +120,7 @@ export default function NouveauMotDePassePage() {
       <div className="w-full max-w-md">
         <div className="text-center mb-10">
           <div className="flex justify-center mb-6">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-white.png" alt="La Brie Immobilière" style={{ height: 80, width: "auto", objectFit: "contain" }} />
+            <Image src="/logo-white.png" alt="La Brie Immobilière" width={240} height={80} style={{ height: 80, width: "auto", objectFit: "contain" }} />
           </div>
           <p className="text-brand-gold text-xs font-medium tracking-[0.3em] uppercase">The Club</p>
         </div>

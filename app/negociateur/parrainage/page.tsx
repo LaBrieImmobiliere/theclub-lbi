@@ -15,6 +15,7 @@ export default async function Page() {
   const negotiator = await prisma.negotiator.findUnique({
     where: { userId: user.id },
     include: {
+      user: { select: { name: true } },
       _count: { select: { ambassadors: true } },
       ambassadors: {
         orderBy: { createdAt: "desc" },
@@ -36,6 +37,7 @@ export default async function Page() {
     <NegociateurParrainagePage
       code={negotiator.code}
       inscriptionUrl={inscriptionUrl}
+      negotiatorName={negotiator.user?.name ?? null}
       ambassadorCount={negotiator._count.ambassadors}
       recentAmbassadors={negotiator.ambassadors.map((a) => ({
         name: a.user.name,

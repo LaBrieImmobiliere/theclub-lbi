@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 
 export function ThemedLogo({ height = 60, className = "" }: { height?: number; className?: string }) {
   const [dark, setDark] = useState(false);
@@ -14,10 +15,11 @@ export function ThemedLogo({ height = 60, className = "" }: { height?: number; c
   }, []);
 
   return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
+    <Image
       src={dark ? "/logo-white.png" : "/logo.png"}
       alt="La Brie Immobilière"
+      width={Math.round(height * 3)}
+      height={height}
       style={{ height, width: "auto", objectFit: "contain" }}
       className={className}
     />

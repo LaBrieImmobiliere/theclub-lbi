@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
+import Image from "next/image";
 import { CheckCircle2, ArrowRight, Eye, EyeOff, UserPlus, Gift, MessageSquare, TrendingUp, MapPin, Building2, Info, Briefcase } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -393,8 +394,7 @@ export default function RejoindrePublicPage() {
       {/* Header */}
       <header className="bg-white/80 backdrop-blur-lg border-b border-gray-100 px-4 sm:px-6 py-3 sticky top-0 z-50">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.png" alt="La Brie Immobilière" style={{ height: 56, width: "auto", objectFit: "contain" }} className="sm:h-14" />
+          <Image src="/logo.png" alt="La Brie Immobilière" width={168} height={56} style={{ height: 56, width: "auto", objectFit: "contain" }} className="sm:h-14" priority />
           <a href="/auth/connexion" className="text-xs sm:text-sm text-[#D1B280] font-medium hover:underline">
             Déjà inscrit ? Se connecter
           </a>

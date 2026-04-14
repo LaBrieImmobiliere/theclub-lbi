@@ -1,13 +1,15 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Copy, Check, Users, Link2, QrCode, Share2, Smartphone, FileImage, FileText, MessageSquare, Download } from "lucide-react";
+import { Copy, Check, Users, Link2, QrCode, Share2, Smartphone, FileImage, FileText, MessageSquare, Download, ContactRound } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import QRCodeLib from "qrcode";
+import { ShareButton } from "@/components/share-button";
 
 interface Props {
   code: string;
   inscriptionUrl: string;
+  negotiatorName?: string | null;
   ambassadorCount: number;
   recentAmbassadors: {
     name: string | null;
@@ -15,6 +17,28 @@ interface Props {
     leadsCount: number;
     createdAt: string;
   }[];
+}
+
+// vCard 3.0 spec: escape backslash, comma, semicolon, and newline
+function vcardEscape(value: string): string {
+  return value
+    .replace(/\\/g, "\\\\")
+    .replace(/\n/g, "\\n")
+    .replace(/,/g, "\\,")
+    .replace(/;/g, "\\;");
+}
+
+function buildVCard(name: string, url: string, code: string): string {
+  return [
+    "BEGIN:VCARD",
+    "VERSION:3.0",
+    `FN:${vcardEscape(name)}`,
+    "ORG:La Brie Immobili\u00e8re",
+    "TITLE:N\u00e9gociateur",
+    `URL:${vcardEscape(url)}`,
+    `NOTE:Code de parrainage: ${vcardEscape(code)}`,
+    "END:VCARD",
+  ].join("\n");
 }
 
 const MESSAGE_STYLES = [
@@ -44,24 +68,31 @@ const MESSAGE_STYLES = [
   },
 ];
 
-export function NegociateurParrainagePage({ code, inscriptionUrl, ambassadorCount, recentAmbassadors }: Props) {
+export function NegociateurParrainagePage({ code, inscriptionUrl, negotiatorName, ambassadorCount, recentAmbassadors }: Props) {
   const [copiedLink, setCopiedLink] = useState(false);
   const [copiedCode, setCopiedCode] = useState(false);
   const [copiedMsg, setCopiedMsg] = useState(false);
   const [messageStyle, setMessageStyle] = useState("fun");
   const currentMessage = (MESSAGE_STYLES.find((s) => s.id === messageStyle) || MESSAGE_STYLES[0]).message(inscriptionUrl);
   const [downloading, setDownloading] = useState<"jpg" | "pdf" | null>(null);
+  const [qrMode, setQrMode] = useState<"link" | "vcard">("link");
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  const displayName = negotiatorName?.trim() || "N\u00e9gociateur La Brie Immobili\u00e8re";
+  const qrPayload =
+    qrMode === "vcard"
+      ? buildVCard(displayName, inscriptionUrl, code)
+      : inscriptionUrl;
 
   useEffect(() => {
     if (canvasRef.current) {
-      QRCodeLib.toCanvas(canvasRef.current, inscriptionUrl, {
+      QRCodeLib.toCanvas(canvasRef.current, qrPayload, {
         width: 240, margin: 2,
         color: { dark: "#030A24", light: "#ffffff" },
         errorCorrectionLevel: "H",
       });
     }
-  }, [inscriptionUrl]);
+  }, [qrPayload]);
 
   const copyLink = async () => {
     await navigator.clipboard.writeText(inscriptionUrl);
@@ -283,6 +314,31 @@ export function NegociateurParrainagePage({ code, inscriptionUrl, ambassadorCoun
           <h2 className="font-semibold text-white text-sm sm:text-base">Votre QR Code de recrutement</h2>
         </div>
         <div className="p-4 sm:p-6 flex flex-col items-center gap-4 sm:gap-6">
+          {/* QR mode toggle */}
+          <div className="inline-flex rounded-lg border border-[#D1B280]/40 overflow-hidden">
+            <button
+              onClick={() => setQrMode("link")}
+              className={`inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium transition-colors ${
+                qrMode === "link"
+                  ? "bg-[#D1B280] text-[#030A24]"
+                  : "bg-transparent text-white/70 hover:text-white hover:bg-white/5"
+              }`}
+            >
+              <Link2 className="w-3.5 h-3.5" />
+              Lien d&apos;inscription
+            </button>
+            <button
+              onClick={() => setQrMode("vcard")}
+              className={`inline-flex items-center gap-1.5 px-3 py-2 text-xs font-medium transition-colors ${
+                qrMode === "vcard"
+                  ? "bg-[#D1B280] text-[#030A24]"
+                  : "bg-transparent text-white/70 hover:text-white hover:bg-white/5"
+              }`}
+            >
+              <ContactRound className="w-3.5 h-3.5" />
+              Ma carte vCard
+            </button>
+          </div>
           <div className="bg-white p-3 sm:p-4 flex-shrink-0 w-[200px] sm:w-[240px] rounded-lg shadow-lg">
             <canvas ref={canvasRef} className="w-full h-auto" />
           </div>
@@ -292,7 +348,9 @@ export function NegociateurParrainagePage({ code, inscriptionUrl, ambassadorCoun
               <p className="text-white text-lg sm:text-2xl font-bold font-mono tracking-wider sm:tracking-widest break-all">{code}</p>
             </div>
             <p className="text-white/60 text-xs leading-relaxed">
-              Imprimez ou partagez ce QR code. Chaque scan redirige vers le formulaire d&apos;inscription ambassadeur.
+              {qrMode === "vcard"
+                ? "En scannant ce QR, vos contacts ajoutent directement votre fiche contact (vCard) \u00e0 leur t\u00e9l\u00e9phone."
+                : "Imprimez ou partagez ce QR code. Chaque scan redirige vers le formulaire d\u2019inscription ambassadeur."}
             </p>
             <div className="flex flex-col sm:flex-row gap-2 justify-center">
               <button
@@ -342,11 +400,21 @@ export function NegociateurParrainagePage({ code, inscriptionUrl, ambassadorCoun
             <div className="w-full bg-gray-50 border border-gray-200 px-3 py-3 text-[10px] sm:text-sm text-gray-600 font-mono break-all overflow-hidden">
               {inscriptionUrl}
             </div>
-            <button onClick={copyLink}
-              className="w-full mt-2 flex items-center justify-center gap-2 px-4 py-2.5 border border-gray-200 hover:border-[#D1B280] text-sm font-medium text-gray-600 hover:text-[#D1B280] transition-colors">
-              {copiedLink ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
-              {copiedLink ? "Copié !" : "Copier le lien"}
-            </button>
+            <div className="mt-2 flex flex-col sm:flex-row gap-2">
+              <button onClick={copyLink}
+                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 border border-gray-200 hover:border-[#D1B280] text-sm font-medium text-gray-600 hover:text-[#D1B280] transition-colors">
+                {copiedLink ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
+                {copiedLink ? "Copié !" : "Copier le lien"}
+              </button>
+              <ShareButton
+                title="Deviens ambassadeur La Brie Immobili\u00e8re"
+                text={`Rejoins le r\u00e9seau ambassadeurs La Brie Immobili\u00e8re. Code : ${code}`}
+                url={inscriptionUrl}
+                className="flex-1 inline-flex items-center justify-center gap-2 bg-[#D1B280] text-[#030A24] px-4 py-2.5 text-sm font-semibold hover:bg-[#b89a65] transition-colors"
+              >
+                Partager
+              </ShareButton>
+            </div>
           </div>
 
           {/* Share button */}

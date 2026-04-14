@@ -36,6 +36,18 @@ model User {
   pushSubscriptions PushSubscription[]
   badges            Badge[]
   reviews           Review[]
+  documents         UserDocument[]
+}
+
+model UserDocument {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  url       String
+  type      String   // "RIB", "ID", "JUSTIFICATIF"
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Account {

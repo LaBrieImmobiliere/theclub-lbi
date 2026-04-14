@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 const GRADIENTS = [
   "from-violet-500 to-purple-600",
   "from-blue-500 to-cyan-500",
@@ -30,19 +32,30 @@ const SIZES = {
   lg: "w-14 h-14 text-xl",
 };
 
+const SIZE_PIXELS = {
+  sm: 32,
+  md: 40,
+  lg: 56,
+};
+
 export function Avatar({ name, image, size = "md", className = "" }: AvatarProps) {
   const displayName = name || "?";
   const initial = displayName[0].toUpperCase();
   const sizeClass = SIZES[size];
+  const px = SIZE_PIXELS[size];
 
   if (image) {
     return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
-        src={image}
-        alt={displayName}
-        className={`${sizeClass} object-cover flex-shrink-0 ${className}`}
-      />
+      <div className={`${sizeClass} relative overflow-hidden flex-shrink-0 ${className}`}>
+        <Image
+          src={image}
+          alt={displayName}
+          width={px}
+          height={px}
+          className="w-full h-full object-cover"
+          unoptimized
+        />
+      </div>
     );
   }
 

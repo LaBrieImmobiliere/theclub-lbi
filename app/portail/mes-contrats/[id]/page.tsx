@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useParams } from "next/navigation";
+import Image from "next/image";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -239,8 +240,7 @@ export default function ContratPortalDetailPage() {
           <div>
             <p className="text-xs text-gray-400 mb-2">La Brie Immobilière</p>
             {contract.adminSignature?.startsWith("data:image") ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={contract.adminSignature} alt="Signature agence" className="border rounded-lg max-h-24 w-full object-contain bg-white" />
+              <Image src={contract.adminSignature} alt="Signature agence" width={400} height={96} className="border rounded-lg max-h-24 w-full object-contain bg-white" unoptimized />
             ) : contract.adminSignature ? (
               <div className="border rounded-lg h-20 flex items-center justify-center bg-white">
                 <p className="text-sm italic text-blue-700 font-medium">{contract.adminSignature}</p>
@@ -254,8 +254,7 @@ export default function ContratPortalDetailPage() {
           <div>
             <p className="text-xs text-gray-400 mb-2">Votre signature</p>
             {contract.ambassadorSignature?.startsWith("data:image") ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={contract.ambassadorSignature} alt="Votre signature" className="border rounded-lg max-h-24 w-full object-contain bg-white" />
+              <Image src={contract.ambassadorSignature} alt="Votre signature" width={400} height={96} className="border rounded-lg max-h-24 w-full object-contain bg-white" unoptimized />
             ) : contract.ambassadorSignature ? (
               <div className="border rounded-lg h-20 flex items-center justify-center bg-white">
                 <p className="text-sm italic text-blue-700 font-medium">{contract.ambassadorSignature}</p>

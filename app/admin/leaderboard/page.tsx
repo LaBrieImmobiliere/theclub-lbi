@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Trophy, Medal, Star, TrendingUp, Users, ClipboardList } from "lucide-react";
@@ -100,8 +101,7 @@ export default async function LeaderboardPage() {
                   <div key={a.id} className={`border ${podiumBg[i]} p-4 text-center`}>
                     <Icon className={`w-8 h-8 ${podiumColors[i]} mx-auto mb-2`} />
                     {a.image ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={a.image} alt={a.name} className="w-14 h-14 object-cover mx-auto mb-2" />
+                      <Image src={a.image} alt={a.name} width={56} height={56} className="w-14 h-14 object-cover mx-auto mb-2" unoptimized />
                     ) : (
                       <div className="w-14 h-14 bg-[#030A24] text-white flex items-center justify-center text-xl font-bold mx-auto mb-2">
                         {a.name[0].toUpperCase()}

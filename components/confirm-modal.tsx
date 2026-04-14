@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { haptic } from "@/lib/haptic";
 
 interface ConfirmModalProps {
   open: boolean;
@@ -59,7 +60,10 @@ export function ConfirmModal({
           </button>
           <button
             ref={confirmRef}
-            onClick={onConfirm}
+            onClick={() => {
+              haptic("medium");
+              onConfirm();
+            }}
             className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${btnClass}`}
           >
             {confirmLabel}

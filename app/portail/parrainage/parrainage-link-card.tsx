@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Copy, Check, Share2, Link2, ExternalLink, MessageSquare, Smartphone, Download, FileImage, FileText, QrCode } from "lucide-react";
 import QRCodeLib from "qrcode";
+import { ShareButton } from "@/components/share-button";
 
 const SMS_MESSAGE = (url: string) =>
   "Salut !\n\nJe fais partie du club ambassadeurs La Brie Immobili\u00e8re et je pense que \u00e7a pourrait t\u2019int\u00e9resser \uD83D\uDE0A\n\nSi tu connais quelqu\u2019un qui cherche \u00e0 acheter, vendre ou investir dans l\u2019immobilier, tu peux le recommander via mon lien et toucher une commission de 5% sur chaque transaction r\u00e9alis\u00e9e.\n\nC\u2019est 100% gratuit, sans engagement, et \u00e7a prend 30 secondes pour s\u2019inscrire \uD83D\uDC49\n" + url + "\n\n\uD83D\uDCF1 Une fois inscrit(e), installe l\u2019app sur ton t\u00e9l\u00e9phone : tu acc\u00e8des \u00e0 ton espace en un clic depuis ton \u00e9cran d\u2019accueil !\n\n\uD83D\uDCA1 Petit conseil : partage ce lien \u00e0 tes proches qui ont un projet immobilier, m\u00eame \u00e0 long terme. Une simple mise en relation peut te rapporter gros !\n\nBelle journ\u00e9e \u00e0 toi \u2728";
@@ -327,6 +328,15 @@ export function ParrainageLinkCard({ code }: { code: string }) {
               </Button>
             </div>
           </div>
+
+          <ShareButton
+            title="La Brie Immobili\u00e8re \u2014 Espace Ambassadeur"
+            text={`Rejoins le club ambassadeurs La Brie Immobili\u00e8re ! Code : ${code}`}
+            url={referralUrl}
+            className="w-full inline-flex items-center justify-center gap-2 bg-[#D1B280] text-[#030A24] px-4 py-2.5 rounded-lg text-sm font-semibold hover:bg-[#b89a65] transition-colors min-h-[44px]"
+          >
+            Partager mon code parrainage
+          </ShareButton>
 
           <p className="text-xs text-gray-500">
             {"Partagez ce lien \u00e0 vos contacts. Chaque recommandation soumise via ce lien vous sera automatiquement attribu\u00e9e."}

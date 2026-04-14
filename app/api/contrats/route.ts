@@ -13,13 +13,39 @@ export async function GET(req: NextRequest) {
   const user = session.user as { role?: string; id?: string };
   const { searchParams } = new URL(req.url);
   const status = searchParams.get("status");
+  const negotiatorId = searchParams.get("negotiatorId");
+  const agencyId = searchParams.get("agencyId");
+  const dateFrom = searchParams.get("dateFrom");
+  const dateTo = searchParams.get("dateTo");
 
   if (user.role === "ADMIN") {
+    const where: Record<string, unknown> = {};
+    if (status) where.status = status;
+
+    // Filter by lead.negotiatorId or lead.agencyId
+    const leadFilter: Record<string, unknown> = {};
+    if (negotiatorId) leadFilter.negotiatorId = negotiatorId;
+    if (agencyId) leadFilter.agencyId = agencyId;
+    if (Object.keys(leadFilter).length > 0) {
+      where.lead = { is: leadFilter };
+    }
+
+    if (dateFrom || dateTo) {
+      const created: { gte?: Date; lte?: Date } = {};
+      if (dateFrom) created.gte = new Date(dateFrom);
+      if (dateTo) {
+        const end = new Date(dateTo);
+        end.setHours(23, 59, 59, 999);
+        created.lte = end;
+      }
+      where.createdAt = created;
+    }
+
     const contracts = await prisma.contract.findMany({
-      where: status ? { status } : undefined,
+      where,
       include: {
         ambassador: { include: { user: { select: { name: true, email: true } } } },
-        lead: true,
+        lead: { include: { negotiator: { include: { user: { select: { name: true } } } }, agency: true } },
         honoraryAcknowledgments: true,
       },
       orderBy: { createdAt: "desc" },
