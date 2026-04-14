@@ -1,21 +1,36 @@
 import { NextRequest, NextResponse } from "next/server";
-import { sendWelcomeEmail, sendNegotiatorWelcomeEmail, sendNewAmbassadorEmail } from "@/lib/email";
+import { sendWelcomeEmail, sendNegotiatorWelcomeEmail, sendNewAmbassadorEmail, sendNotificationEmail } from "@/lib/email";
+import { auth } from "@/lib/auth";
 
 export async function POST(req: NextRequest) {
+  // En prod: réservé aux admins
   if (process.env.NODE_ENV === "production") {
-    return NextResponse.json({ error: "Non disponible en production" }, { status: 403 });
+    const session = await auth();
+    const role = (session?.user as { role?: string } | undefined)?.role;
+    if (role !== "ADMIN") {
+      return NextResponse.json({ error: "Admin requis" }, { status: 403 });
+    }
   }
 
   const { searchParams } = new URL(req.url);
   const type = searchParams.get("type") || "ambassador";
+  const to = searchParams.get("to") || "contact@labrieimmobiliere.fr";
 
   try {
     let result: boolean;
 
-    if (type === "negotiator") {
+    if (type === "notification") {
+      // Test: email de notification (utilisé pour "Dossier clôturé" etc.)
+      result = await sendNotificationEmail(
+        to,
+        "Alexandre BRITES",
+        "Dossier clôturé ✅",
+        "Le dossier Jean Dupont est désormais clôturé et archivé. Merci pour votre recommandation !"
+      );
+    } else if (type === "negotiator") {
       // Test: email de bienvenue négociateur (avec QR code)
       result = await sendNegotiatorWelcomeEmail(
-        "contact@labrieimmobiliere.fr",
+        to,
         "Alexandre Brites",
         "TestMotDePasse123",
         "NEG-ABC123",
@@ -30,7 +45,7 @@ export async function POST(req: NextRequest) {
     } else if (type === "new-ambassador") {
       // Test: email envoyé au négociateur quand un ambassadeur s'inscrit
       result = await sendNewAmbassadorEmail(
-        "contact@labrieimmobiliere.fr",
+        to,
         "Alexandre Brites",
         "Sophie Martin",
         "sophie.martin@example.com",
@@ -40,7 +55,7 @@ export async function POST(req: NextRequest) {
     } else {
       // Test: email de bienvenue ambassadeur (avec infos négociateur)
       result = await sendWelcomeEmail(
-        "contact@labrieimmobiliere.fr",
+        to,
         "Sophie Martin",
         "TestMotDePasse123",
         "AMBASSADOR",
@@ -56,7 +71,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: result,
       message: result
-        ? `Email "${type}" envoyé avec succès à contact@labrieimmobiliere.fr`
+        ? `Email "${type}" envoyé avec succès à ${to}`
         : "Échec de l'envoi - vérifiez les logs serveur",
     });
   } catch (error) {
