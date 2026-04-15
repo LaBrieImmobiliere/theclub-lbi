@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import path from "path";
-import fs from "fs";
+import { deleteFile } from "@/lib/storage";
 
-export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth();
   if (!session) {
     return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
@@ -21,24 +20,8 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     return NextResponse.json({ error: "Document introuvable" }, { status: 404 });
   }
 
-  // Best-effort file removal
-  try {
-    if (doc.url.startsWith("/documents/")) {
-      const filename = doc.url.replace("/documents/", "");
-      const candidates = [
-        path.resolve(process.cwd(), "public/documents", filename),
-        path.resolve(process.cwd(), "app-lbi/public/documents", filename),
-      ];
-      for (const p of candidates) {
-        if (fs.existsSync(p)) {
-          fs.unlinkSync(p);
-          break;
-        }
-      }
-    }
-  } catch {
-    // ignore filesystem errors
-  }
+  // Best-effort file removal (Blob ou filesystem selon env)
+  await deleteFile(doc.url);
 
   await prisma.userDocument.delete({ where: { id } });
 

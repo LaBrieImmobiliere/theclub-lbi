@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import path from "path";
-import fs from "fs";
+import { uploadFile } from "@/lib/storage";
 
 const ALLOWED_TYPES = ["RIB", "ID", "JUSTIFICATIF"];
 const ALLOWED_MIME = ["application/pdf", "image/jpeg", "image/jpg", "image/png", "image/webp"];
@@ -38,29 +37,10 @@ export async function POST(req: NextRequest) {
 
   const bytes = await file.arrayBuffer();
   const buffer = Buffer.from(bytes);
-
   const ext = (file.name.split(".").pop() || "pdf").toLowerCase().replace(/[^a-z0-9]/g, "");
   const filename = `${sessionUser.id}-${type}-${Date.now()}.${ext}`;
 
-  // Find public/documents directory
-  const candidates = [
-    path.resolve(process.cwd(), "public/documents"),
-    path.resolve(process.cwd(), "app-lbi/public/documents"),
-  ];
-
-  let docsDir = candidates[0];
-  for (const p of candidates) {
-    if (fs.existsSync(p)) { docsDir = p; break; }
-  }
-
-  if (!fs.existsSync(docsDir)) {
-    fs.mkdirSync(docsDir, { recursive: true });
-  }
-
-  const filePath = path.join(docsDir, filename);
-  fs.writeFileSync(filePath, buffer);
-
-  const url = `/documents/${filename}`;
+  const url = await uploadFile("documents", filename, buffer, file.type);
   const displayName = customName || file.name;
 
   const doc = await prisma.userDocument.create({

@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import path from "path";
-import fs from "fs";
+import { uploadFile } from "@/lib/storage";
+
+const ALLOWED_MIME = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+const MAX_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB
 
 export async function POST(req: NextRequest) {
   const session = await auth();
@@ -17,32 +19,19 @@ export async function POST(req: NextRequest) {
   if (!file || !userId) {
     return NextResponse.json({ error: "Photo et userId requis" }, { status: 400 });
   }
+  if (!ALLOWED_MIME.includes(file.type)) {
+    return NextResponse.json({ error: "Format non supporté (JPG, PNG, WebP)" }, { status: 400 });
+  }
+  if (file.size > MAX_SIZE_BYTES) {
+    return NextResponse.json({ error: "Image trop volumineuse (max 5 Mo)" }, { status: 400 });
+  }
 
   const bytes = await file.arrayBuffer();
   const buffer = Buffer.from(bytes);
-
-  const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+  const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "");
   const filename = `${userId}.${ext}`;
 
-  // Find public/photos directory
-  const candidates = [
-    path.resolve(process.cwd(), "public/photos"),
-    path.resolve(process.cwd(), "app-lbi/public/photos"),
-  ];
-
-  let photosDir = candidates[0];
-  for (const p of candidates) {
-    if (fs.existsSync(p)) { photosDir = p; break; }
-  }
-
-  if (!fs.existsSync(photosDir)) {
-    fs.mkdirSync(photosDir, { recursive: true });
-  }
-
-  const filePath = path.join(photosDir, filename);
-  fs.writeFileSync(filePath, buffer);
-
-  const imageUrl = `/photos/${filename}`;
+  const imageUrl = await uploadFile("photos", filename, buffer, file.type);
 
   await prisma.user.update({
     where: { id: userId },
