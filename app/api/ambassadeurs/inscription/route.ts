@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { generateCode } from "@/lib/utils";
 import bcrypt from "bcryptjs";
-import { sendWelcomeEmail, sendNewAmbassadorEmail } from "@/lib/email";
+import { sendWelcomeEmail, sendNewAmbassadorEmail, sendNotificationEmail } from "@/lib/email";
 import { auditLog } from "@/lib/audit";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { sanitize } from "@/lib/sanitize";
@@ -215,6 +215,53 @@ export async function POST(req: NextRequest) {
         agencyName
       );
     }
+  }
+
+  // Alerte rouge pour les admins si l'ambassadeur s'est inscrit sans agence
+  // et/ou sans conseiller (cas typique d'une inscription libre sans code de
+  // parrainage). Une attribution manuelle est nécessaire.
+  if (user.ambassador && (!agencyId || !negotiatorId)) {
+    const missing: string[] = [];
+    if (!agencyId) missing.push("agence");
+    if (!negotiatorId) missing.push("conseiller");
+    const missingText = missing.join(" et ");
+
+    const admins = await prisma.user.findMany({
+      where: { role: "ADMIN" },
+      select: { id: true, name: true, email: true },
+    });
+
+    const ambLink = `/admin/ambassadeurs/${user.ambassador.id}`;
+    const notifTitle = "Ambassadeur à attribuer";
+    const notifMessage = `${name} s'est inscrit sans ${missingText}. Une attribution est nécessaire.`;
+    const emailSubject = "Action requise - Ambassadeur à attribuer";
+    const emailBody =
+      `${name} (${email}) vient de s'inscrire comme ambassadeur sans ${missingText}.\n\n` +
+      `Merci de procéder à l'attribution depuis la fiche ambassadeur sur la plateforme.`;
+
+    await Promise.all(
+      admins.map(async (admin) => {
+        await prisma.notification.create({
+          data: {
+            userId: admin.id,
+            title: notifTitle,
+            message: notifMessage,
+            type: "ERROR",
+            link: ambLink,
+          },
+        });
+        try {
+          await sendNotificationEmail(
+            admin.email,
+            admin.name ?? "Administrateur",
+            emailSubject,
+            emailBody,
+          );
+        } catch (e) {
+          console.error("[inscription] Failed to send admin alert email:", e);
+        }
+      }),
+    );
   }
 
   await auditLog("CREATE", "Ambassador", user.ambassador?.id, null, `Inscription ambassadeur ${name} (${email})`);

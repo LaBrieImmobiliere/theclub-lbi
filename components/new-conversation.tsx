@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Plus, Search, X, MessageSquare } from "lucide-react";
 
-interface UserResult {
+export interface UserResult {
   id: string;
   name: string | null;
   email: string;
@@ -17,7 +17,7 @@ const ROLE_LABELS: Record<string, string> = {
 };
 
 interface Props {
-  onSelect: (userId: string) => void;
+  onSelect: (user: UserResult) => void;
 }
 
 export function NewConversationButton({ onSelect }: Props) {
@@ -49,8 +49,8 @@ export function NewConversationButton({ onSelect }: Props) {
     return () => clearTimeout(timer);
   }, [query]);
 
-  const handleSelect = (userId: string) => {
-    onSelect(userId);
+  const handleSelect = (u: UserResult) => {
+    onSelect(u);
     setOpen(false);
     setQuery("");
     setResults([]);
@@ -106,7 +106,7 @@ export function NewConversationButton({ onSelect }: Props) {
             {results.map((u) => (
               <button
                 key={u.id}
-                onClick={() => handleSelect(u.id)}
+                onClick={() => handleSelect(u)}
                 className="w-full flex items-center gap-3 px-3 py-2.5 hover:bg-gray-50 text-left transition-colors"
               >
                 <div className="w-8 h-8 bg-[#030A24] text-white flex items-center justify-center text-xs font-bold flex-shrink-0">

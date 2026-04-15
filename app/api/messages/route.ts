@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { sendNotificationEmail } from "@/lib/email";
 import { sendPushToUser } from "@/lib/push";
+import { canMessage } from "@/lib/messaging-access";
 
 export async function GET() {
   const session = await auth();
@@ -104,6 +105,12 @@ export async function POST(req: NextRequest) {
 
   if (!receiverId || !content?.trim()) {
     return NextResponse.json({ error: "Données manquantes" }, { status: 400 });
+  }
+
+  // Contrôle d'accès : on ne peut envoyer qu'aux contacts autorisés selon le rôle
+  const allowed = await canMessage(userId, user.role ?? "", receiverId);
+  if (!allowed) {
+    return NextResponse.json({ error: "Destinataire non autorisé" }, { status: 403 });
   }
 
   const trimmedContent = content.trim();

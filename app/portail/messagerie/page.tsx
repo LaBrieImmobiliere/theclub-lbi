@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useSession } from "next-auth/react";
 import { MessageSquare, Send, Search } from "lucide-react";
-import { NewConversationButton } from "@/components/new-conversation";
+import { NewConversationButton, type UserResult } from "@/components/new-conversation";
 
 interface UserInfo {
   id: string;
@@ -124,6 +124,15 @@ export default function MessageriePage() {
     }
   };
 
+  // Ouvre une nouvelle conversation : injecte l'utilisateur dans la liste s'il n'y est pas
+  // encore (pas de message échangé) pour que le thread s'affiche immédiatement.
+  const handleNewConversation = (u: UserResult) => {
+    setConversations((prev) => (
+      prev.some((c) => c.user.id === u.id) ? prev : [{ user: u, lastMessage: null, unreadCount: 0 }, ...prev]
+    ));
+    setSelectedUserId(u.id);
+  };
+
   const formatTime = (dateStr: string) => {
     const date = new Date(dateStr);
     const now = new Date();
@@ -168,7 +177,7 @@ export default function MessageriePage() {
         <div className="px-4 py-3 bg-brand-deep">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-semibold text-white">Messagerie</h2>
-            <NewConversationButton onSelect={(id) => setSelectedUserId(id)} />
+            <NewConversationButton onSelect={handleNewConversation} />
           </div>
           <p className="text-xs text-brand-gold">
             {currentUser?.role === "NEGOTIATOR"
