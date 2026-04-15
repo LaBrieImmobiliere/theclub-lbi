@@ -17,6 +17,7 @@ export default function AdminMessageriePage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
+  const [isSending, setIsSending] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -38,11 +39,16 @@ export default function AdminMessageriePage() {
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
 
   const handleSend = async () => {
-    if (!newMessage.trim() || !selectedUserId) return;
+    if (!newMessage.trim() || !selectedUserId || isSending) return;
+    setIsSending(true);
+    const content = newMessage.trim();
+    setNewMessage(""); // clear immediately to avoid double-submit via Enter
     try {
-      const r = await fetch("/api/messages", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ receiverId: selectedUserId, content: newMessage.trim() }) });
-      if (r.ok) { setNewMessage(""); await fetchMessages(selectedUserId); await fetchConversations(); }
-    } catch { /* ignore */ }
+      const r = await fetch("/api/messages", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ receiverId: selectedUserId, content }) });
+      if (r.ok) { await fetchMessages(selectedUserId); await fetchConversations(); }
+      else { setNewMessage(content); /* restore on failure */ }
+    } catch { setNewMessage(content); }
+    finally { setIsSending(false); }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } };
@@ -151,9 +157,9 @@ export default function AdminMessageriePage() {
             </div>
             <div className="px-4 sm:px-6 py-3 bg-white border-t border-gray-200">
               <div className="flex items-center gap-2 sm:gap-3">
-                <input type="text" value={newMessage} onChange={(e) => setNewMessage(e.target.value)} onKeyDown={handleKeyDown}
-                  placeholder="Ecrire un message..." className="flex-1 px-3 sm:px-4 py-2.5 border border-gray-300 text-sm focus:outline-none focus:border-brand-gold" />
-                <button onClick={handleSend} disabled={!newMessage.trim()}
+                <input type="text" value={newMessage} onChange={(e) => setNewMessage(e.target.value)} onKeyDown={handleKeyDown} disabled={isSending}
+                  placeholder="Ecrire un message..." className="flex-1 px-3 sm:px-4 py-2.5 border border-gray-300 text-sm focus:outline-none focus:border-brand-gold disabled:opacity-60" />
+                <button onClick={handleSend} disabled={!newMessage.trim() || isSending}
                   className="px-3 sm:px-4 py-2.5 bg-brand-deep text-white text-sm font-medium hover:bg-brand-deep/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-colors">
                   <Send className="w-4 h-4" /><span className="hidden sm:inline">Envoyer</span>
                 </button>

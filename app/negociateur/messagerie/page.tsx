@@ -17,6 +17,7 @@ export default function NegociateurMessageriePage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
+  const [isSending, setIsSending] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -38,11 +39,16 @@ export default function NegociateurMessageriePage() {
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
 
   const handleSend = async () => {
-    if (!newMessage.trim() || !selectedUserId) return;
+    if (!newMessage.trim() || !selectedUserId || isSending) return;
+    setIsSending(true);
+    const content = newMessage.trim();
+    setNewMessage("");
     try {
-      const r = await fetch("/api/messages", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ receiverId: selectedUserId, content: newMessage.trim() }) });
-      if (r.ok) { setNewMessage(""); await fetchMessages(selectedUserId); await fetchConversations(); }
-    } catch { /* ignore */ }
+      const r = await fetch("/api/messages", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ receiverId: selectedUserId, content }) });
+      if (r.ok) { await fetchMessages(selectedUserId); await fetchConversations(); }
+      else { setNewMessage(content); }
+    } catch { setNewMessage(content); }
+    finally { setIsSending(false); }
   };
 
   const formatTime = (d: string) => {
@@ -138,10 +144,10 @@ export default function NegociateurMessageriePage() {
             </div>
             <div className="px-4 sm:px-6 py-3 bg-white border-t border-gray-200">
               <div className="flex items-center gap-2 sm:gap-3">
-                <input type="text" value={newMessage} onChange={(e) => setNewMessage(e.target.value)}
+                <input type="text" value={newMessage} onChange={(e) => setNewMessage(e.target.value)} disabled={isSending}
                   onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); } }}
-                  placeholder="Écrire un message..." className="flex-1 px-3 sm:px-4 py-2.5 border border-gray-300 text-sm focus:outline-none focus:border-[#D1B280]" />
-                <button onClick={handleSend} disabled={!newMessage.trim()}
+                  placeholder="Écrire un message..." className="flex-1 px-3 sm:px-4 py-2.5 border border-gray-300 text-sm focus:outline-none focus:border-[#D1B280] disabled:opacity-60" />
+                <button onClick={handleSend} disabled={!newMessage.trim() || isSending}
                   className="px-3 sm:px-4 py-2.5 bg-[#030A24] text-white text-sm font-medium hover:bg-[#0f1e40] disabled:opacity-50 flex items-center gap-2 transition-colors">
                   <Send className="w-4 h-4" /><span className="hidden sm:inline">Envoyer</span>
                 </button>

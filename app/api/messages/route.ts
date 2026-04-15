@@ -106,8 +106,29 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Données manquantes" }, { status: 400 });
   }
 
+  const trimmedContent = content.trim();
+
+  // Dédup: si le même user envoie le même contenu au même destinataire
+  // dans les 10 dernières secondes, on renvoie le message existant sans rien
+  // refaire (pas de nouvelle notif, pas de nouveau push, pas de nouvel email).
+  // Ça neutralise les doubles submissions (Enter tapé 2x, double-clic, replay
+  // réseau, etc.) qui provoquaient les emails en double côté destinataire.
+  const tenSecondsAgo = new Date(Date.now() - 10 * 1000);
+  const existing = await prisma.message.findFirst({
+    where: {
+      senderId: userId,
+      receiverId,
+      content: trimmedContent,
+      createdAt: { gte: tenSecondsAgo },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+  if (existing) {
+    return NextResponse.json(existing, { status: 200 });
+  }
+
   const message = await prisma.message.create({
-    data: { senderId: userId, receiverId, content: content.trim() },
+    data: { senderId: userId, receiverId, content: trimmedContent },
   });
 
   // Determine the right messagerie link based on receiver's role

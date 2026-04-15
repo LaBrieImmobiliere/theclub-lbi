@@ -43,6 +43,7 @@ export default function MessageriePage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
+  const [isSending, setIsSending] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -93,20 +94,26 @@ export default function MessageriePage() {
   }, [messages]);
 
   const handleSend = async () => {
-    if (!newMessage.trim() || !selectedUserId) return;
+    if (!newMessage.trim() || !selectedUserId || isSending) return;
+    setIsSending(true);
+    const content = newMessage.trim();
+    setNewMessage("");
     try {
       const res = await fetch("/api/messages", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ receiverId: selectedUserId, content: newMessage.trim() }),
+        body: JSON.stringify({ receiverId: selectedUserId, content }),
       });
       if (res.ok) {
-        setNewMessage("");
         await fetchMessages(selectedUserId);
         await fetchConversations();
+      } else {
+        setNewMessage(content); // restore on error
       }
     } catch {
-      // ignore
+      setNewMessage(content);
+    } finally {
+      setIsSending(false);
     }
   };
 
@@ -312,12 +319,13 @@ export default function MessageriePage() {
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
                   onKeyDown={handleKeyDown}
+                  disabled={isSending}
                   placeholder="Ecrire un message..."
-                  className="flex-1 px-3 sm:px-4 py-2.5 border border-gray-300 text-sm focus:outline-none focus:border-brand-gold"
+                  className="flex-1 px-3 sm:px-4 py-2.5 border border-gray-300 text-sm focus:outline-none focus:border-brand-gold disabled:opacity-60"
                 />
                 <button
                   onClick={handleSend}
-                  disabled={!newMessage.trim()}
+                  disabled={!newMessage.trim() || isSending}
                   className="px-3 sm:px-4 py-2.5 bg-brand-deep text-white text-sm font-medium hover:bg-brand-deep/90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transition-colors"
                 >
                   <Send className="w-4 h-4" />
