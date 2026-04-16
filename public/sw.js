@@ -1,4 +1,4 @@
-const CACHE_NAME = "theclub-v4";
+const CACHE_NAME = "theclub-v5";
 const OFFLINE_URL = "/offline.html";
 const API_CACHE = "theclub-api-v1";
 const API_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
@@ -78,22 +78,28 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // For navigation requests: network first, fallback to cache, then offline page
+  // For navigation requests: cache-first + background update (stale-while-revalidate).
+  // Le HTML est servi instantanément depuis le cache (splash inclus), puis le cache
+  // est rafraîchi en arrière-plan pour que la prochaine ouverture soit à jour.
+  // Résultat : zéro délai d'affichage quand on ouvre la PWA.
   if (request.mode === "navigate") {
     event.respondWith(
-      fetch(request)
-        .then((response) => {
-          const responseClone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(request, responseClone);
-          });
-          return response;
-        })
-        .catch(() => {
-          return caches.match(request).then((cached) => {
-            return cached || caches.match(OFFLINE_URL);
-          });
-        })
+      caches.match(request).then((cached) => {
+        // Rafraîchit le cache en arrière-plan (ne bloque pas la réponse)
+        const fetchPromise = fetch(request)
+          .then((response) => {
+            if (response.ok) {
+              const clone = response.clone();
+              caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
+            }
+            return response;
+          })
+          .catch(() => null);
+
+        // Sert depuis le cache immédiatement si disponible, sinon attend le réseau
+        if (cached) return cached;
+        return fetchPromise.then((res) => res || caches.match(OFFLINE_URL));
+      })
     );
     return;
   }
