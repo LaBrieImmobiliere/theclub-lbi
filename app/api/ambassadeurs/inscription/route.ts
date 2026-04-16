@@ -167,7 +167,9 @@ export async function POST(req: NextRequest) {
           number: contractNumber,
           commissionType: "PERCENTAGE",
           commissionValue: 5,
-          status: "BROUILLON",
+          // ENVOYE dès l'inscription : c'est un contrat cadre d'apporteur d'affaire,
+          // prêt à signer immédiatement par l'ambassadeur (pas de paramétrage admin requis).
+          status: "ENVOYE",
           notes: "Contrat d'apporteur d'affaire généré automatiquement à l'inscription. En attente de signature.",
         },
       });

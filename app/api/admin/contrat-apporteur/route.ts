@@ -49,7 +49,10 @@ export async function POST(req: NextRequest) {
       number: contractNumber,
       commissionType: "PERCENTAGE",
       commissionValue: commissionValue || 5,
-      status: "BROUILLON",
+      // ENVOYE : le bouton "Envoyer contrat" doit effectivement le rendre
+      // signable par l'ambassadeur (status === "ENVOYE" est la condition
+      // de signature côté portail).
+      status: "ENVOYE",
       notes: "Contrat d'apporteur d'affaire envoyé manuellement par l'admin.",
     },
   });

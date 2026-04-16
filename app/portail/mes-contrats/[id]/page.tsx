@@ -7,7 +7,8 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { SignaturePad } from "@/components/signature-pad";
-import { ArrowLeft, Download, CheckCircle2 } from "lucide-react";
+import { PdfPreviewModal } from "@/components/pdf-preview-modal";
+import { ArrowLeft, Download, CheckCircle2, Eye } from "lucide-react";
 import {
   formatDate,
   formatCurrency,
@@ -64,6 +65,7 @@ export default function ContratPortalDetailPage() {
   const [showSignAck, setShowSignAck] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [signed, setSigned] = useState(false);
+  const [preview, setPreview] = useState<{ url: string; title: string; name: string } | null>(null);
 
   const fetchContract = useCallback(async () => {
     const res = await fetch(`/api/contrats/${id}`);
@@ -107,6 +109,28 @@ export default function ContratPortalDetailPage() {
     generateAcknowledgmentPDF(ack, contract);
   };
 
+  // Ouvre le PDF dans un modal de prévisualisation (sans forcer le téléchargement)
+  const previewPDF = async () => {
+    if (!contract) return;
+    const { generateContractPDF } = await import("@/lib/pdf");
+    const url = generateContractPDF(contract, "blob");
+    if (typeof url === "string") {
+      setPreview({ url, title: `Contrat ${contract.number}`, name: `contrat-${contract.number}.pdf` });
+    }
+  };
+  const previewAckPDF = async (ack: HonoraryAck) => {
+    if (!contract) return;
+    const { generateAcknowledgmentPDF } = await import("@/lib/pdf");
+    const url = generateAcknowledgmentPDF(ack, contract, "blob");
+    if (typeof url === "string") {
+      setPreview({ url, title: `Reconnaissance ${ack.number}`, name: `reconnaissance-honoraires-${ack.number}.pdf` });
+    }
+  };
+  const closePreview = () => {
+    if (preview) URL.revokeObjectURL(preview.url);
+    setPreview(null);
+  };
+
   if (!contract) {
     return (
       <div className="flex items-center justify-center h-48">
@@ -133,9 +157,14 @@ export default function ContratPortalDetailPage() {
           </div>
           <p className="text-sm text-gray-500">Créé le {formatDate(contract.createdAt)}</p>
         </div>
-        <Button variant="outline" size="sm" onClick={downloadPDF}>
-          <Download className="w-4 h-4" /> PDF
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" onClick={previewPDF}>
+            <Eye className="w-4 h-4" /> Lire
+          </Button>
+          <Button variant="outline" size="sm" onClick={downloadPDF}>
+            <Download className="w-4 h-4" /> PDF
+          </Button>
+        </div>
       </div>
 
       {/* Success message */}
@@ -311,6 +340,9 @@ export default function ContratPortalDetailPage() {
                       ✍️ Signer la reconnaissance
                     </Button>
                   )}
+                  <Button variant="outline" size="sm" onClick={() => previewAckPDF(ack)}>
+                    <Eye className="w-3 h-3" /> Lire
+                  </Button>
                   <Button variant="outline" size="sm" onClick={() => downloadAckPDF(ack)}>
                     <Download className="w-3 h-3" /> PDF
                   </Button>
@@ -344,6 +376,16 @@ export default function ContratPortalDetailPage() {
             </CardContent>
           </Card>
         </div>
+      )}
+
+      {/* PDF preview modal */}
+      {preview && (
+        <PdfPreviewModal
+          url={preview.url}
+          title={preview.title}
+          downloadName={preview.name}
+          onClose={closePreview}
+        />
       )}
 
       {/* Acknowledgment signature modal */}

@@ -11,8 +11,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
 import { SignaturePad } from "@/components/signature-pad";
 import {
-  ArrowLeft, FileText, Plus, CheckCircle2, Download, Pencil,
+  ArrowLeft, FileText, Plus, CheckCircle2, Download, Pencil, Eye,
 } from "lucide-react";
+import { PdfPreviewModal } from "@/components/pdf-preview-modal";
 import {
   formatDate,
   formatCurrency,
@@ -73,6 +74,7 @@ export default function ContratDetailPage() {
   const [saving, setSaving] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [showCountersign, setShowCountersign] = useState<string | null>(null);
+  const [preview, setPreview] = useState<{ url: string; title: string; name: string } | null>(null);
   const [editForm, setEditForm] = useState({
     propertyAddress: "",
     propertyPrice: "",
@@ -196,6 +198,36 @@ export default function ContratDetailPage() {
     generateAcknowledgmentPDF(ack, contract);
   };
 
+  // Prévisualisation inline (blob URL + iframe)
+  const previewPDF = async () => {
+    if (!contract) return;
+    const { generateContractPDF } = await import("@/lib/pdf");
+    const url = generateContractPDF(contract, "blob");
+    if (typeof url === "string") {
+      setPreview({ url, title: `Contrat ${contract.number}`, name: `contrat-${contract.number}.pdf` });
+    }
+  };
+  const previewAllAcksPDF = async () => {
+    if (!contract || contract.honoraryAcknowledgments.length === 0) return;
+    const { generateAllAcknowledgmentsPDF } = await import("@/lib/pdf");
+    const url = generateAllAcknowledgmentsPDF(contract.honoraryAcknowledgments, contract, "blob");
+    if (typeof url === "string") {
+      setPreview({ url, title: `Reconnaissances ${contract.number}`, name: `reconnaissances-${contract.number}.pdf` });
+    }
+  };
+  const previewAckPDF = async (ack: HonoraryAck) => {
+    if (!contract) return;
+    const { generateAcknowledgmentPDF } = await import("@/lib/pdf");
+    const url = generateAcknowledgmentPDF(ack, contract, "blob");
+    if (typeof url === "string") {
+      setPreview({ url, title: `Reconnaissance ${ack.number}`, name: `reconnaissance-honoraires-${ack.number}.pdf` });
+    }
+  };
+  const closePreview = () => {
+    if (preview) URL.revokeObjectURL(preview.url);
+    setPreview(null);
+  };
+
   if (!contract) {
     return (
       <div className="flex items-center justify-center h-48">
@@ -221,6 +253,9 @@ export default function ContratDetailPage() {
           <p className="text-gray-500">Contrat d&apos;apporteur d&apos;affaire · Créé le {formatDate(contract.createdAt)}</p>
         </div>
         <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={previewPDF}>
+            <Eye className="w-4 h-4" /> Lire
+          </Button>
           <Button variant="outline" size="sm" onClick={downloadPDF}>
             <Download className="w-4 h-4" /> Télécharger PDF
           </Button>
@@ -521,9 +556,14 @@ export default function ContratDetailPage() {
                 <h2 className="font-semibold text-gray-900">Reconnaissances d&apos;honoraires</h2>
                 <div className="flex gap-2">
                   {contract.honoraryAcknowledgments.length > 1 && (
-                    <Button size="sm" variant="outline" onClick={downloadAllAcksPDF}>
-                      <Download className="w-3 h-3" /> Tout exporter
-                    </Button>
+                    <>
+                      <Button size="sm" variant="outline" onClick={previewAllAcksPDF}>
+                        <Eye className="w-3 h-3" /> Tout lire
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={downloadAllAcksPDF}>
+                        <Download className="w-3 h-3" /> Tout exporter
+                      </Button>
+                    </>
                   )}
                   <Button size="sm" variant="outline" onClick={() => setShowAckForm(!showAckForm)}>
                     <Plus className="w-4 h-4" /> Ajouter
@@ -574,6 +614,9 @@ export default function ContratDetailPage() {
                           <Badge className={HONORAIRE_STATUS_COLORS[ack.status]}>
                             {HONORAIRE_STATUS_LABELS[ack.status]}
                           </Badge>
+                          <Button variant="outline" size="sm" onClick={() => previewAckPDF(ack)} className="h-7">
+                            <Eye className="w-3 h-3" /> Lire
+                          </Button>
                           <Button variant="outline" size="sm" onClick={() => downloadAckPDF(ack)} className="h-7">
                             <Download className="w-3 h-3" /> PDF
                           </Button>
@@ -625,6 +668,16 @@ export default function ContratDetailPage() {
           </Card>
         </div>
       </div>
+
+      {/* PDF preview modal */}
+      {preview && (
+        <PdfPreviewModal
+          url={preview.url}
+          title={preview.title}
+          downloadName={preview.name}
+          onClose={closePreview}
+        />
+      )}
 
       {/* Signature modal */}
       {showSignature && (

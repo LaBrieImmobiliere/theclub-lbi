@@ -41,8 +41,19 @@ function addFooter(doc: jsPDF, margin: number) {
   doc.text(`Page ${pageNum}`, pageW - margin, footerY, { align: "right" });
 }
 
+// Rendu final : soit téléchargement, soit blob URL pour preview inline.
+// `action = "save"` (par défaut) → déclenche le téléchargement.
+// `action = "blob"` → retourne une blob URL (à libérer avec URL.revokeObjectURL).
+type PdfAction = "save" | "blob";
+function finalizeDoc(doc: jsPDF, filename: string, action: PdfAction): string | void {
+  if (action === "blob") {
+    return doc.output("bloburl") as unknown as string;
+  }
+  doc.save(filename);
+}
+
 // ─── CONTRACT PDF (CGU Ambassadeur style WIMMOV) ──────────────────
-export function generateContractPDF(contract: any) {
+export function generateContractPDF(contract: any, action: PdfAction = "save"): string | void {
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   const pageW = 210;
   const M = 20; // margin
@@ -530,11 +541,11 @@ export function generateContractPDF(contract: any) {
   // Footer on last page
   addFooter(doc, M);
 
-  doc.save(`contrat-${contract.number}.pdf`);
+  return finalizeDoc(doc, `contrat-${contract.number}.pdf`, action);
 }
 
 // ─── ACKNOWLEDGMENT PDF ────────────────────────────────────────────
-export function generateAcknowledgmentPDF(ack: any, contract: any) {
+export function generateAcknowledgmentPDF(ack: any, contract: any, action: PdfAction = "save"): string | void {
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   const pageW = 210;
   const M = 20;
@@ -692,13 +703,13 @@ export function generateAcknowledgmentPDF(ack: any, contract: any) {
   // Footer
   addFooter(doc, M);
 
-  doc.save(`reconnaissance-honoraires-${ack.number}.pdf`);
+  return finalizeDoc(doc, `reconnaissance-honoraires-${ack.number}.pdf`, action);
 }
 
 // ─── BATCH EXPORT: all acknowledgments for a contract ──────────────
-export function generateAllAcknowledgmentsPDF(acks: any[], contract: any) {
+export function generateAllAcknowledgmentsPDF(acks: any[], contract: any, action: PdfAction = "save"): string | void {
   if (acks.length === 0) return;
-  if (acks.length === 1) return generateAcknowledgmentPDF(acks[0], contract);
+  if (acks.length === 1) return generateAcknowledgmentPDF(acks[0], contract, action);
 
   const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
   const pageW = 210;
@@ -781,5 +792,5 @@ export function generateAllAcknowledgmentsPDF(acks: any[], contract: any) {
     addFooter(doc, M);
   });
 
-  doc.save(`reconnaissances-${contract.number}.pdf`);
+  return finalizeDoc(doc, `reconnaissances-${contract.number}.pdf`, action);
 }

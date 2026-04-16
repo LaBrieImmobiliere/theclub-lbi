@@ -4,8 +4,9 @@ import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { FolderOpen, Download, FileText, Receipt } from "lucide-react";
+import { FolderOpen, Download, FileText, Receipt, Eye } from "lucide-react";
 import { formatDate, formatCurrency, CONTRACT_STATUS_COLORS, CONTRACT_STATUS_LABELS } from "@/lib/utils";
+import { PdfPreviewModal } from "@/components/pdf-preview-modal";
 
 type HonoraryAck = {
   id: string;
@@ -37,6 +38,7 @@ type Contract = {
 export default function DocumentsPage() {
   const [contracts, setContracts] = useState<Contract[]>([]);
   const [loading, setLoading] = useState(true);
+  const [preview, setPreview] = useState<{ url: string; title: string; name: string } | null>(null);
 
   const fetchContracts = useCallback(async () => {
     const res = await fetch("/api/contrats");
@@ -56,6 +58,25 @@ export default function DocumentsPage() {
     generateAcknowledgmentPDF(ack, { ...contract, adminSignature: contract.adminSignature });
   };
 
+  const previewContract = async (contract: Contract) => {
+    const { generateContractPDF } = await import("@/lib/pdf");
+    const url = generateContractPDF(contract, "blob");
+    if (typeof url === "string") {
+      setPreview({ url, title: `Contrat ${contract.number}`, name: `contrat-${contract.number}.pdf` });
+    }
+  };
+  const previewAck = async (ack: HonoraryAck, contract: Contract) => {
+    const { generateAcknowledgmentPDF } = await import("@/lib/pdf");
+    const url = generateAcknowledgmentPDF(ack, { ...contract, adminSignature: contract.adminSignature }, "blob");
+    if (typeof url === "string") {
+      setPreview({ url, title: `Reconnaissance ${ack.number}`, name: `reconnaissance-honoraires-${ack.number}.pdf` });
+    }
+  };
+  const closePreview = () => {
+    if (preview) URL.revokeObjectURL(preview.url);
+    setPreview(null);
+  };
+
   const signedContracts = contracts.filter(c => ["SIGNE", "PAYE"].includes(c.status));
   const allAcks = contracts.flatMap(c => c.honoraryAcknowledgments.map(a => ({ ...a, contract: c })));
 
@@ -71,7 +92,7 @@ export default function DocumentsPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Mes documents</h1>
-        <p className="text-gray-500 mt-1">Téléchargez vos contrats signés et reconnaissances d'honoraires</p>
+        <p className="text-gray-500 mt-1">Téléchargez vos contrats signés et reconnaissances d&apos;honoraires</p>
       </div>
 
       {/* Stats */}
@@ -116,7 +137,7 @@ export default function DocumentsPage() {
         <CardHeader>
           <div className="flex items-center gap-2">
             <FileText className="w-4 h-4 text-gray-400" />
-            <h2 className="font-semibold text-gray-900">Contrats d'apporteur d'affaire</h2>
+            <h2 className="font-semibold text-gray-900">Contrats d&apos;apporteur d&apos;affaire</h2>
           </div>
         </CardHeader>
         <CardContent className="p-0">
@@ -172,9 +193,14 @@ export default function DocumentsPage() {
                     </td>
                     <td className="px-6 py-3 text-gray-500 text-xs">{formatDate(contract.createdAt)}</td>
                     <td className="px-6 py-3">
-                      <Button variant="ghost" size="sm" onClick={() => downloadContract(contract)}>
-                        <Download className="w-4 h-4" />
-                      </Button>
+                      <div className="flex items-center gap-1">
+                        <Button variant="ghost" size="sm" onClick={() => previewContract(contract)} title="Lire">
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => downloadContract(contract)} title="Télécharger">
+                          <Download className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -184,12 +210,21 @@ export default function DocumentsPage() {
         </CardContent>
       </Card>
 
+      {preview && (
+        <PdfPreviewModal
+          url={preview.url}
+          title={preview.title}
+          downloadName={preview.name}
+          onClose={closePreview}
+        />
+      )}
+
       {/* Reconnaissances */}
       <Card>
         <CardHeader>
           <div className="flex items-center gap-2">
             <Receipt className="w-4 h-4 text-gray-400" />
-            <h2 className="font-semibold text-gray-900">Reconnaissances d'honoraires</h2>
+            <h2 className="font-semibold text-gray-900">Reconnaissances d&apos;honoraires</h2>
           </div>
         </CardHeader>
         <CardContent className="p-0">
@@ -223,9 +258,14 @@ export default function DocumentsPage() {
                     </td>
                     <td className="px-6 py-3 text-gray-500 text-xs">{formatDate(ack.createdAt)}</td>
                     <td className="px-6 py-3">
-                      <Button variant="ghost" size="sm" onClick={() => downloadAck(ack, ack.contract)}>
-                        <Download className="w-4 h-4" />
-                      </Button>
+                      <div className="flex items-center gap-1">
+                        <Button variant="ghost" size="sm" onClick={() => previewAck(ack, ack.contract)} title="Lire">
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => downloadAck(ack, ack.contract)} title="Télécharger">
+                          <Download className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </td>
                   </tr>
                 ))}
