@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -64,7 +64,9 @@ interface AmbassadorData {
   associationObject: string;
   user: { name: string; firstName?: string; lastName?: string; email: string; phone: string };
   agency: string | null;
+  agencyId: string | null;
   negotiator: string | null;
+  negotiatorId: string | null;
   totalCommissions: number;
   paidCommissions: number;
   leadsCount: number;
@@ -99,6 +101,39 @@ export function AmbassadeurDetailClient({ data }: { data: AmbassadorData }) {
   const [associationName, setAssociationName] = useState(data.associationName);
   const [associationRna, setAssociationRna] = useState(data.associationRna);
   const [associationObject, setAssociationObject] = useState(data.associationObject);
+  // Attribution
+  const [agencyId, setAgencyId] = useState<string>(data.agencyId || "");
+  const [negotiatorId, setNegotiatorId] = useState<string>(data.negotiatorId || "");
+  const [agencies, setAgencies] = useState<{ id: string; name: string }[]>([]);
+  const [negotiators, setNegotiators] = useState<{ id: string; agencyId: string; user: { name: string | null; email: string } }[]>([]);
+
+  // Charge la liste des agences et conseillers dès qu'on entre en mode édition
+  useEffect(() => {
+    if (!editing) return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const [aRes, nRes] = await Promise.all([
+          fetch("/api/agencies"),
+          fetch("/api/negotiators"),
+        ]);
+        if (aRes.ok && !cancelled) {
+          const a = await aRes.json();
+          setAgencies(a.map((x: { id: string; name: string }) => ({ id: x.id, name: x.name })));
+        }
+        if (nRes.ok && !cancelled) {
+          const n = await nRes.json();
+          setNegotiators(n);
+        }
+      } catch { /* ignore */ }
+    })();
+    return () => { cancelled = true; };
+  }, [editing]);
+
+  // Filtre les conseillers par agence sélectionnée
+  const filteredNegotiators = agencyId
+    ? negotiators.filter((n) => n.agencyId === agencyId)
+    : negotiators;
 
   const handleSave = async () => {
     setSaving(true);
@@ -111,6 +146,8 @@ export function AmbassadeurDetailClient({ data }: { data: AmbassadorData }) {
           legalStatus, companyName, companyLegalForm, companySiret, companyTva,
           companyRcs, companyCapital, companyAddress,
           associationName, associationRna, associationObject,
+          agencyId: agencyId || null,
+          negotiatorId: negotiatorId || null,
         }),
       });
       if (res.ok) {
@@ -211,6 +248,8 @@ export function AmbassadeurDetailClient({ data }: { data: AmbassadorData }) {
                   setAssociationName(data.associationName);
                   setAssociationRna(data.associationRna);
                   setAssociationObject(data.associationObject);
+                  setAgencyId(data.agencyId || "");
+                  setNegotiatorId(data.negotiatorId || "");
                 }}
                 className="flex items-center gap-2 px-3 py-2 border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-50 transition-colors"
               >
@@ -330,6 +369,49 @@ export function AmbassadeurDetailClient({ data }: { data: AmbassadorData }) {
                     <option value="PENDING">En attente</option>
                   </select>
                 </div>
+                {/* Attribution : agence + conseiller */}
+                <div className="pt-2 border-t border-gray-100 space-y-3">
+                  <p className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Attribution</p>
+                  <div>
+                    <label className="text-xs text-gray-500 mb-1 block">Agence</label>
+                    <select
+                      value={agencyId}
+                      onChange={(e) => {
+                        const newAgency = e.target.value;
+                        setAgencyId(newAgency);
+                        // Si le conseiller actuel n'appartient pas à la nouvelle agence, on le réinitialise
+                        if (newAgency && negotiatorId) {
+                          const neg = negotiators.find((n) => n.id === negotiatorId);
+                          if (neg && neg.agencyId !== newAgency) setNegotiatorId("");
+                        }
+                        if (!newAgency) setNegotiatorId("");
+                      }}
+                      className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-blue-500"
+                    >
+                      <option value="">— Non attribuée —</option>
+                      {agencies.map((a) => (
+                        <option key={a.id} value={a.id}>{a.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="text-xs text-gray-500 mb-1 block">Conseiller (négociateur)</label>
+                    <select
+                      value={negotiatorId}
+                      onChange={(e) => setNegotiatorId(e.target.value)}
+                      disabled={!agencyId}
+                      className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-blue-500 disabled:bg-gray-50 disabled:text-gray-400"
+                    >
+                      <option value="">— Non attribué —</option>
+                      {filteredNegotiators.map((n) => (
+                        <option key={n.id} value={n.id}>{n.user.name || n.user.email}</option>
+                      ))}
+                    </select>
+                    {!agencyId && (
+                      <p className="text-[10px] text-gray-400 mt-1">Choisissez d&apos;abord une agence pour voir ses conseillers.</p>
+                    )}
+                  </div>
+                </div>
                 <div>
                   <label className="text-xs text-gray-500 mb-1 block">Notes internes</label>
                   <textarea
@@ -391,17 +473,36 @@ export function AmbassadeurDetailClient({ data }: { data: AmbassadorData }) {
                     {data.user.phone}
                   </div>
                 )}
-                {data.agency && (
+                {data.agency ? (
                   <div className="flex items-center gap-2 text-sm text-gray-700">
                     <Building2 className="w-4 h-4 text-gray-400 flex-shrink-0" />
                     {data.agency}
                   </div>
+                ) : (
+                  <div className="flex items-center gap-2 text-sm">
+                    <Building2 className="w-4 h-4 text-red-500 flex-shrink-0" />
+                    <span className="text-red-600 font-medium">Agence à attribuer</span>
+                  </div>
                 )}
-                {data.negotiator && (
+                {data.negotiator ? (
                   <div className="flex items-center gap-2 text-sm text-gray-700">
                     <UserCircle className="w-4 h-4 text-gray-400 flex-shrink-0" />
-                    N&eacute;gociateur : {data.negotiator}
+                    Conseiller : {data.negotiator}
                   </div>
+                ) : (
+                  <div className="flex items-center gap-2 text-sm">
+                    <UserCircle className="w-4 h-4 text-red-500 flex-shrink-0" />
+                    <span className="text-red-600 font-medium">Conseiller à attribuer</span>
+                  </div>
+                )}
+                {(!data.agency || !data.negotiator) && (
+                  <button
+                    onClick={() => setEditing(true)}
+                    className="mt-1 inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium bg-red-50 text-red-700 border border-red-200 rounded hover:bg-red-100 transition-colors"
+                  >
+                    <AlertTriangle className="w-3 h-3" />
+                    Attribuer maintenant
+                  </button>
                 )}
                 {/* Legal status display */}
                 <div className="pt-2 border-t border-gray-100">

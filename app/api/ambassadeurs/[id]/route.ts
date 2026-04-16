@@ -54,6 +54,35 @@ export async function PATCH(
   if (body.status !== undefined) ambassadorData.status = body.status;
   if (body.notes !== undefined) ambassadorData.notes = body.notes;
 
+  // Attribution : agence et conseiller (négociateur)
+  // "" ou null → désattribuer
+  if (body.agencyId !== undefined) {
+    const value = body.agencyId || null;
+    if (value) {
+      const exists = await prisma.agency.findUnique({ where: { id: value }, select: { id: true } });
+      if (!exists) return NextResponse.json({ error: "Agence introuvable" }, { status: 400 });
+    }
+    ambassadorData.agencyId = value;
+  }
+  if (body.negotiatorId !== undefined) {
+    const value = body.negotiatorId || null;
+    if (value) {
+      const neg = await prisma.negotiator.findUnique({ where: { id: value }, select: { id: true, agencyId: true } });
+      if (!neg) return NextResponse.json({ error: "Conseiller introuvable" }, { status: 400 });
+      // Cohérence : le négociateur doit appartenir à l'agence choisie (si une agence est fixée ici ou déjà sur la fiche)
+      const targetAgencyId = ambassadorData.agencyId !== undefined
+        ? ambassadorData.agencyId
+        : (await prisma.ambassador.findUnique({ where: { id }, select: { agencyId: true } }))?.agencyId ?? null;
+      if (targetAgencyId && neg.agencyId !== targetAgencyId) {
+        return NextResponse.json(
+          { error: "Le conseiller choisi n'appartient pas à l'agence sélectionnée" },
+          { status: 400 },
+        );
+      }
+    }
+    ambassadorData.negotiatorId = value;
+  }
+
   // Legal status fields
   const legalFields = [
     "legalStatus", "companyName", "companyLegalForm", "companySiret",
