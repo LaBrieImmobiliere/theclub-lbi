@@ -116,22 +116,24 @@ export default function RootLayout({
           (function(){
             var s=document.getElementById('splash-screen');
             if(!s)return;
-            var shown=Date.now();
-            var MIN=1200;
+            var t0=Date.now(),done=false;
             function hide(){
-              // Minimum 1.2s pour que l'animation soit lisible
-              var elapsed=Date.now()-shown;
-              var wait=Math.max(0,MIN-elapsed);
+              if(done)return;done=true;
+              // Min 1s pour voir l'animation, mais max 3s pour ne jamais bloquer
+              var wait=Math.max(0,Math.min(1000,1000-(Date.now()-t0)));
               setTimeout(function(){
                 s.classList.add('hide');
-                // Remet le body en blanc une fois le splash fondu
                 document.body.style.background='';
                 document.documentElement.style.background='';
                 setTimeout(function(){s.remove()},600);
               },wait);
             }
-            if(document.readyState==='complete'){hide()}
-            else{window.addEventListener('load',hide)}
+            // DOMContentLoaded = HTML parsé (pas besoin d'attendre images/JS)
+            if(document.readyState==='loading'){
+              document.addEventListener('DOMContentLoaded',hide);
+            }else{hide()}
+            // Filet de sécurité : 3s max quoi qu'il arrive
+            setTimeout(hide,3000);
           })();
         `}} />
         <Providers>{children}</Providers>
