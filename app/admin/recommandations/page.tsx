@@ -401,7 +401,11 @@ export default function RecommandationsPage() {
         title="Supprimer la recommandation"
         message={
           confirmDelete
-            ? `Supprimer définitivement la recommandation de ${confirmDelete.firstName} ${confirmDelete.lastName} ? Cette action est irréversible.`
+            ? `Supprimer définitivement la recommandation de ${confirmDelete.firstName} ${confirmDelete.lastName} ?${
+                confirmDelete.contract
+                  ? ` Le contrat lié (${confirmDelete.contract.number}) et ses reconnaissances d'honoraires seront également supprimés.`
+                  : ""
+              } Cette action est irréversible.`
             : ""
         }
         confirmLabel={deleting ? "Suppression…" : "Oui, supprimer"}

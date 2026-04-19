@@ -278,6 +278,44 @@ export async function DELETE(
   }
 
   const { id } = await params;
-  await prisma.lead.delete({ where: { id } });
-  return NextResponse.json({ success: true });
+  const sessionUser = session.user as { id?: string; name?: string | null };
+
+  // Récupère la reco avec son éventuel contrat pour cascader la suppression.
+  const lead = await prisma.lead.findUnique({
+    where: { id },
+    include: { contract: true },
+  });
+  if (!lead) return NextResponse.json({ error: "Recommandation introuvable" }, { status: 404 });
+
+  // Suppression en cascade manuelle (transaction atomique) :
+  //   1. Reconnaissances d'honoraires liées au contrat (pas de cascade auto)
+  //   2. Contrat lié (s'il existe)
+  //   3. Recommandation (cascade LeadStatusHistory via schema)
+  await prisma.$transaction(async (tx) => {
+    if (lead.contract) {
+      await tx.honoraryAcknowledgment.deleteMany({
+        where: { contractId: lead.contract.id },
+      });
+      await tx.contract.delete({ where: { id: lead.contract.id } });
+    }
+    await tx.lead.delete({ where: { id } });
+  });
+
+  // Audit trail
+  await prisma.auditLog.create({
+    data: {
+      userId: sessionUser.id || null,
+      action: "DELETE",
+      entity: "Lead",
+      entityId: id,
+      details: `Recommandation ${lead.firstName} ${lead.lastName} supprimée${
+        lead.contract ? ` (avec contrat ${lead.contract.number})` : ""
+      } par ${sessionUser.name || "admin"}`,
+    },
+  });
+
+  return NextResponse.json({
+    success: true,
+    deletedContract: lead.contract ? lead.contract.number : null,
+  });
 }
