@@ -1,6 +1,4 @@
 import nodemailer from "nodemailer";
-import path from "path";
-import fs from "fs";
 import { emailLayout } from "./email-template";
 
 const transporter = nodemailer.createTransport({
@@ -12,17 +10,6 @@ const transporter = nodemailer.createTransport({
     pass: process.env.EMAIL_SERVER_PASSWORD || "",
   },
 });
-
-function findFile(filename: string): string {
-  const candidates = [
-    path.resolve(process.cwd(), `public/${filename}`),
-    path.resolve(process.cwd(), `app-lbi/public/${filename}`),
-  ];
-  for (const p of candidates) {
-    try { if (fs.existsSync(p)) return p; } catch { /* skip */ }
-  }
-  return candidates[0];
-}
 
 const fromAddress = `"The Club - La Brie Immobilière" <${process.env.EMAIL_FROM || process.env.EMAIL_SERVER_USER}>`;
 

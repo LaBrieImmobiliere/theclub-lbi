@@ -2,9 +2,9 @@ import { prisma } from "@/lib/prisma";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
-  Users, ClipboardList, FileText, TrendingUp,
-  Clock, Coins, Percent, Bell, ArrowRight,
-  Download, Trophy,
+  Users, ClipboardList, FileText,
+  Percent, Bell, ArrowRight,
+  Trophy,
 } from "lucide-react";
 import {
   formatCurrency, formatDate,

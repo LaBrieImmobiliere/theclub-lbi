@@ -13,6 +13,14 @@ const eslintConfig = defineConfig([
     "build/**",
     "next-env.d.ts",
   ]),
+  {
+    rules: {
+      // Rule trop stricte sur le pattern idiomatic `useEffect(() => { fetchX(); }, [fetchX])`
+      // où fetchX est un useCallback. Génère des cascading renders en théorie mais
+      // est utilisé partout dans Next.js App Router. On downgrade en warning.
+      "react-hooks/set-state-in-effect": "warn",
+    },
+  },
 ]);
 
 export default eslintConfig;

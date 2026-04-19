@@ -338,10 +338,12 @@ export default async function PortalDashboardPage() {
   }, 0);
   const gainsPotentiels = totalCommissions;
 
-  // Days since last lead (pour greeting personnalisé)
+  // Days since last lead (pour greeting personnalisé) — Server Component, Date.now() est OK
+  // eslint-disable-next-line react-hooks/purity
+  const now = Date.now();
   const lastLead = allLeads.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
   const daysSinceLastLead = lastLead
-    ? Math.floor((Date.now() - new Date(lastLead.createdAt).getTime()) / (1000 * 60 * 60 * 24))
+    ? Math.floor((now - new Date(lastLead.createdAt).getTime()) / (1000 * 60 * 60 * 24))
     : 999;
   const totalEarned = allContracts
     .filter((c) => c.status === "PAYE")

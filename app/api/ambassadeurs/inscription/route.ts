@@ -153,8 +153,7 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Send welcome email with negotiator info and ambassador code
-  const ambCode = user.ambassador?.code || code;
+  // Send welcome email with negotiator info
   await sendWelcomeEmail(email, name, password, "AMBASSADOR", negotiatorInfo);
 
   // Auto-generate apporteur d'affaire contract for signature

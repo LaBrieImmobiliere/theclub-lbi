@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Building2, Users, ClipboardList, TrendingUp } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 

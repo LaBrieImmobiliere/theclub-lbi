@@ -19,7 +19,6 @@ import {
   commissionTTC,
   commissionTVA,
   isAssujettTVA,
-  LEGAL_STATUS_LABELS,
 } from "@/lib/utils";
 import Link from "next/link";
 
@@ -63,7 +62,7 @@ export default function ContratPortalDetailPage() {
   const [contract, setContract] = useState<Contract | null>(null);
   const [showSignContract, setShowSignContract] = useState(false);
   const [showSignAck, setShowSignAck] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
+  const [, setSaving] = useState(false);
   const [signed, setSigned] = useState(false);
   const [preview, setPreview] = useState<{ url: string; title: string; name: string } | null>(null);
 

@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Trophy, Medal, Star, TrendingUp, Users, ClipboardList } from "lucide-react";
+import { Trophy, Medal, Star, TrendingUp, ClipboardList } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";

@@ -11,7 +11,7 @@ export async function GET(req: NextRequest) {
   const from = req.nextUrl.searchParams.get("from");
   const to = req.nextUrl.searchParams.get("to");
 
-  const where: any = { status: "PAYE" };
+  const where: { status: string; paidAt?: { gte?: Date; lte?: Date } } = { status: "PAYE" };
   if (from) where.paidAt = { ...where.paidAt, gte: new Date(from) };
   if (to) where.paidAt = { ...where.paidAt, lte: new Date(to) };
 

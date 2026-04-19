@@ -10,10 +10,8 @@ export async function GET(req: NextRequest) {
   const q = req.nextUrl.searchParams.get("q")?.trim();
   if (!q || q.length < 2) return NextResponse.json({ leads: [], contracts: [], ambassadors: [] });
 
-  const search = `%${q}%`;
-
   // Search leads
-  const leadsWhere: any = {
+  const leadsWhere: Record<string, unknown> = {
     OR: [
       { firstName: { contains: q, mode: "insensitive" } },
       { lastName: { contains: q, mode: "insensitive" } },

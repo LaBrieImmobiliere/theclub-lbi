@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { randomBytes } from "crypto";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { generateCode } from "@/lib/utils";
@@ -47,7 +48,6 @@ export async function POST(req: NextRequest) {
   }
 
   // Generate cryptographically secure temporary password
-  const { randomBytes } = require("crypto");
   const tempPassword = randomBytes(6).toString("base64url").slice(0, 10);
   const hashedPassword = await bcrypt.hash(tempPassword, 10);
   const code = generateCode("AMB");

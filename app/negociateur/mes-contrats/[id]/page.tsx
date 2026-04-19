@@ -5,7 +5,7 @@ import { useParams } from "next/navigation";
 import Image from "next/image";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Download, FileText, User, MapPin, Banknote } from "lucide-react";
+import { ArrowLeft, FileText, User, MapPin, Banknote } from "lucide-react";
 import {
   formatDate,
   formatCurrency,

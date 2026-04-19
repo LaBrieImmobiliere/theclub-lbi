@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import Image from "next/image";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
 import { SignaturePad } from "@/components/signature-pad";
 import {
-  ArrowLeft, FileText, Plus, CheckCircle2, Download, Pencil, Eye,
+  ArrowLeft, Plus, CheckCircle2, Download, Pencil, Eye,
 } from "lucide-react";
 import { PdfPreviewModal } from "@/components/pdf-preview-modal";
 import {
@@ -65,7 +65,6 @@ type Contract = {
 
 export default function ContratDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const router = useRouter();
   const [contract, setContract] = useState<Contract | null>(null);
   const [showSignature, setShowSignature] = useState(false);
   const [showAckForm, setShowAckForm] = useState(false);

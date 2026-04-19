@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Phone, Mail, MapPin, Euro, Home, Building, Key, ArrowLeft, Plus, ClipboardList } from "lucide-react";
+import { MapPin, Euro, Home, Building, Key, ArrowLeft, Plus, ClipboardList } from "lucide-react";
 import { formatDate, LEAD_STATUS_LABELS, LEAD_TYPE_LABELS } from "@/lib/utils";
 import { LeadTimeline } from "@/components/lead-timeline";
 import Link from "next/link";

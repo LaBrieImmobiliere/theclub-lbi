@@ -83,7 +83,7 @@ export default async function StatsPage() {
     <div className="space-y-8">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Statistiques</h1>
-        <p className="text-gray-500 mt-1">Vue analytique de votre réseau d'ambassadeurs</p>
+        <p className="text-gray-500 mt-1">Vue analytique de votre réseau d&apos;ambassadeurs</p>
       </div>
 
       {/* KPIs */}

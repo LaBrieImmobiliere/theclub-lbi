@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import Link from "next/link";
 import Image from "next/image";
-import { Gift, Users, TrendingUp, Shield, ArrowRight, CheckCircle2 } from "lucide-react";
+import { Gift, Users, Shield, ArrowRight, CheckCircle2 } from "lucide-react";
 
 export default async function HomePage() {
   const session = await auth();

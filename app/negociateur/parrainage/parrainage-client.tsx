@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Copy, Check, Users, Link2, QrCode, Share2, Smartphone, FileImage, FileText, MessageSquare, Download, ContactRound } from "lucide-react";
+import { Copy, Check, Users, Link2, QrCode, Share2, Smartphone, FileImage, FileText, MessageSquare, ContactRound } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import QRCodeLib from "qrcode";
 import { ShareButton } from "@/components/share-button";

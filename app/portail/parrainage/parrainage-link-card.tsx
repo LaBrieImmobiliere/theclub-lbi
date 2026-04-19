@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Copy, Check, Share2, Link2, ExternalLink, MessageSquare, Smartphone, Download, FileImage, FileText, QrCode } from "lucide-react";
+import { Copy, Check, Share2, Link2, ExternalLink, MessageSquare, Smartphone, FileImage, FileText, QrCode } from "lucide-react";
 import QRCodeLib from "qrcode";
 import { ShareButton } from "@/components/share-button";
 

@@ -3,7 +3,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Check, Phone, Mail, MapPin, Euro, Home, Building, Key, ArrowLeft, ChevronRight } from "lucide-react";
 import { formatDate, LEAD_TYPE_LABELS } from "@/lib/utils";
-import { LeadTimeline } from "@/components/lead-timeline";
 import { ConfirmModal } from "@/components/confirm-modal";
 import { PullToRefresh } from "@/components/pull-to-refresh";
 

@@ -82,13 +82,6 @@ export default async function CommissionsPage() {
     ANNULE: "Annulé",
   };
 
-  const STATUS_CLASS: Record<string, string> = {
-    BROUILLON: "bg-gray-100 text-gray-600",
-    ENVOYE: "bg-yellow-50 text-yellow-700 border border-yellow-200",
-    SIGNE: "bg-blue-50 text-blue-700 border border-blue-200",
-    PAYE: "bg-green-50 text-green-700 border border-green-200",
-    ANNULE: "bg-red-50 text-red-600",
-  };
 
   return (
     <div className="space-y-6">

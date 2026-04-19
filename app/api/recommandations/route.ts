@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { sendNewLeadEmail, sendNotificationEmail } from "@/lib/email";
+import { sendNotificationEmail } from "@/lib/email";
 import { sendPushToUser } from "@/lib/push";
 import { createLeadSchema } from "@/lib/validations";
 import { rateLimit } from "@/lib/rate-limit";

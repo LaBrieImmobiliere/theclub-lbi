@@ -26,7 +26,6 @@ export function CagnotteGauge({ gainsAcquis, gainsPotentiels }: CagnotteGaugePro
   // Semi-circle: from 180deg to 0deg (left to right, going up)
   const startAngle = Math.PI; // 180deg
   const endAngle = 0; // 0deg
-  const totalArc = Math.PI; // 180deg
 
   // Calculate arc percentages
   const acquisPercent = total > 0 ? gainsAcquis / total : 0;
