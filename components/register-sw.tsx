@@ -2,50 +2,79 @@
 
 import { useEffect } from "react";
 
+// Version tag côté client. Bumper pour forcer un reset propre du SW chez
+// tous les utilisateurs ayant la version précédente.
+const SW_VERSION_TAG = "v8-clean";
+
 /**
- * Enregistre le service worker et gère les mises à jour automatiques.
+ * Enregistre le service worker et guérit les installations corrompues.
  *
- * Quand un nouveau SW est détecté :
- *   1. On attend qu'il soit `installed` (téléchargé et prêt).
- *   2. On lui envoie `SKIP_WAITING` pour qu'il prenne le contrôle
- *      sans attendre que toutes les pages ferment.
- *   3. Dès qu'il devient contrôleur (événement `controllerchange`),
- *      on recharge la page pour qu'elle utilise le nouveau SW.
+ * Les anciens SW (<= v7) cachaient leur propre fichier /sw.js via le pattern
+ * `.js$`, ce qui empêchait le navigateur de les mettre à jour : chaque check
+ * retournait la vieille version depuis le cache, bloquant l'app dans un état
+ * cassé après chaque déploiement Vercel.
  *
- * Ça élimine le scénario "SW corrompu coincé après un déploiement".
+ * Solution :
+ *   1. Au premier chargement avec cette version, on désinscrit TOUS les SW
+ *      existants et on vide TOUS les caches.
+ *   2. Un flag localStorage garantit que ce cleanup ne s'exécute qu'une fois.
+ *   3. Puis on enregistre le SW v8 (pass-through minimal, sans self-caching).
+ *   4. On écoute les mises à jour futures et on recharge auto.
  */
 export function RegisterSW() {
   useEffect(() => {
     if (!("serviceWorker" in navigator)) return;
 
-    let reloading = false;
-    navigator.serviceWorker.addEventListener("controllerchange", () => {
-      if (reloading) return;
-      reloading = true;
-      window.location.reload();
-    });
+    const alreadyCleaned = localStorage.getItem("sw_version") === SW_VERSION_TAG;
 
-    navigator.serviceWorker.register("/sw.js").then((reg) => {
-      // Si un worker est déjà en attente au démarrage → on l'active
-      if (reg.waiting && navigator.serviceWorker.controller) {
-        reg.waiting.postMessage({ type: "SKIP_WAITING" });
-      }
-
-      reg.addEventListener("updatefound", () => {
-        const newWorker = reg.installing;
-        if (!newWorker) return;
-        newWorker.addEventListener("statechange", () => {
-          if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
-            // Nouveau SW prêt + ancien SW encore actif → on bascule
-            newWorker.postMessage({ type: "SKIP_WAITING" });
-          }
-        });
+    const register = () => {
+      let reloading = false;
+      navigator.serviceWorker.addEventListener("controllerchange", () => {
+        if (reloading) return;
+        reloading = true;
+        window.location.reload();
       });
 
-      // Check périodique (toutes les 60s) pour détecter les mises à jour
-      // sans attendre la visite suivante de l'utilisateur.
-      setInterval(() => reg.update().catch(() => {}), 60_000);
-    }).catch(() => { /* ignore */ });
+      navigator.serviceWorker.register("/sw.js").then((reg) => {
+        if (reg.waiting && navigator.serviceWorker.controller) {
+          reg.waiting.postMessage({ type: "SKIP_WAITING" });
+        }
+        reg.addEventListener("updatefound", () => {
+          const newWorker = reg.installing;
+          if (!newWorker) return;
+          newWorker.addEventListener("statechange", () => {
+            if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
+              newWorker.postMessage({ type: "SKIP_WAITING" });
+            }
+          });
+        });
+        setInterval(() => reg.update().catch(() => {}), 60_000);
+      }).catch(() => { /* ignore */ });
+    };
+
+    if (alreadyCleaned) {
+      register();
+      return;
+    }
+
+    // Premier passage avec v8 : on nettoie tout l'existant avant de continuer.
+    (async () => {
+      try {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(regs.map((r) => r.unregister()));
+        if ("caches" in window) {
+          const keys = await caches.keys();
+          await Promise.all(keys.map((k) => caches.delete(k)));
+        }
+        localStorage.setItem("sw_version", SW_VERSION_TAG);
+        // Un seul reload suffit : au prochain chargement le SW v8 s'enregistre.
+        window.location.reload();
+      } catch {
+        // Si le cleanup échoue, on tente quand même l'enregistrement
+        localStorage.setItem("sw_version", SW_VERSION_TAG);
+        register();
+      }
+    })();
   }, []);
 
   return null;
