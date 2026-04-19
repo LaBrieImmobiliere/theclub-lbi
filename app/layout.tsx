@@ -55,74 +55,74 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="fr" className="h-full antialiased" style={{ background: "#030A24" }}>
+    <html lang="fr" className="h-full antialiased">
       <head>
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        {/* Splash inline — visible immédiatement avant tout JS, zéro flash
-            blanc. Masqué dès DOMContentLoaded (filet de sécurité 3s max). */}
+        {/* Splash inline. Créé et géré entièrement via un script qui tourne
+            avant React (pas de JSX, pas de mutation du DOM contrôlé par
+            React → aucun risque de mismatch d'hydratation). */}
         <style dangerouslySetInnerHTML={{ __html: `
-          html,body{background:#030A24}
-          #splash-screen{
+          #lbi-splash{
             position:fixed;inset:0;z-index:9999;
             background:#030A24;
             display:flex;flex-direction:column;
             align-items:center;justify-content:center;
             transition:opacity .5s ease,visibility .5s ease;
           }
-          #splash-screen.hide{opacity:0;visibility:hidden;pointer-events:none}
-          #splash-screen img{
+          #lbi-splash.lbi-hide{opacity:0;visibility:hidden;pointer-events:none}
+          #lbi-splash img{
             width:120px;height:120px;
-            animation:splashPulse 1.8s ease-in-out infinite;
+            animation:lbiSplashPulse 1.8s ease-in-out infinite;
           }
-          #splash-screen .splash-text{
+          #lbi-splash .lbi-splash-text{
             margin-top:24px;
             font-family:'Fira Sans',system-ui,sans-serif;
             font-size:14px;font-weight:500;
             letter-spacing:3px;text-transform:uppercase;
             color:#D1B280;opacity:0;
-            animation:splashFadeIn .6s ease .2s forwards;
+            animation:lbiSplashFadeIn .6s ease .2s forwards;
           }
-          #splash-screen .splash-bar{
+          #lbi-splash .lbi-splash-bar{
             margin-top:32px;width:48px;height:3px;
             background:rgba(209,178,128,.2);border-radius:2px;
             overflow:hidden;opacity:0;
-            animation:splashFadeIn .6s ease .4s forwards;
+            animation:lbiSplashFadeIn .6s ease .4s forwards;
           }
-          #splash-screen .splash-bar::after{
+          #lbi-splash .lbi-splash-bar::after{
             content:'';display:block;width:50%;height:100%;
             background:#D1B280;border-radius:2px;
-            animation:splashSlide 1s ease-in-out infinite;
+            animation:lbiSplashSlide 1s ease-in-out infinite;
           }
-          @keyframes splashPulse{
+          @keyframes lbiSplashPulse{
             0%,100%{transform:scale(1);opacity:.9}
             50%{transform:scale(1.06);opacity:1}
           }
-          @keyframes splashFadeIn{to{opacity:1}}
-          @keyframes splashSlide{0%{transform:translateX(-100%)}100%{transform:translateX(200%)}}
+          @keyframes lbiSplashFadeIn{to{opacity:1}}
+          @keyframes lbiSplashSlide{0%{transform:translateX(-100%)}100%{transform:translateX(200%)}}
         `}} />
-      </head>
-      <body className="min-h-full flex flex-col" style={{ background: "#030A24" }}>
-        <div id="splash-screen">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo-white.png" alt="" width={120} height={120} />
-          <div className="splash-text">The Club</div>
-          <div className="splash-bar" />
-        </div>
         <script dangerouslySetInnerHTML={{ __html: `
           (function(){
-            var s=document.getElementById('splash-screen');
-            if(!s)return;
+            // Injecte le splash en tout premier dans <body>, AVANT React.
+            // React ne voit jamais cet élément → aucune interférence avec
+            // l'hydratation ni avec la navigation SPA.
+            if(document.getElementById('lbi-splash'))return;
+            var d=document.createElement('div');
+            d.id='lbi-splash';
+            d.innerHTML='<img src="/logo-white.png" alt="" width="120" height="120"><div class="lbi-splash-text">The Club</div><div class="lbi-splash-bar"></div>';
+            function insert(){
+              if(!document.body)return setTimeout(insert,10);
+              document.body.insertBefore(d,document.body.firstChild);
+            }
+            insert();
             var t0=Date.now(),done=false;
             function hide(){
               if(done)return;done=true;
               var wait=Math.max(0,Math.min(1000,1000-(Date.now()-t0)));
               setTimeout(function(){
-                s.classList.add('hide');
-                document.body.style.background='';
-                document.documentElement.style.background='';
-                setTimeout(function(){s.remove()},600);
+                d.classList.add('lbi-hide');
+                setTimeout(function(){d.remove()},600);
               },wait);
             }
             if(document.readyState==='loading'){
@@ -131,6 +131,8 @@ export default function RootLayout({
             setTimeout(hide,3000);
           })();
         `}} />
+      </head>
+      <body className="bg-white min-h-full flex flex-col">
         <Providers>{children}</Providers>
         <RegisterSW />
         <PwaInstallPrompt />
