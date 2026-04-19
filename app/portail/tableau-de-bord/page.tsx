@@ -340,10 +340,10 @@ export default async function PortalDashboardPage() {
 
   // Days since last lead (pour greeting personnalisé) — Server Component, Date.now() est OK
   // eslint-disable-next-line react-hooks/purity
-  const now = Date.now();
+  const nowMs = Date.now();
   const lastLead = allLeads.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())[0];
   const daysSinceLastLead = lastLead
-    ? Math.floor((now - new Date(lastLead.createdAt).getTime()) / (1000 * 60 * 60 * 24))
+    ? Math.floor((nowMs - new Date(lastLead.createdAt).getTime()) / (1000 * 60 * 60 * 24))
     : 999;
   const totalEarned = allContracts
     .filter((c) => c.status === "PAYE")
