@@ -24,12 +24,14 @@ jobs:
       - name: Generate Prisma client
         run: npx prisma generate
 
-      - name: Run unit tests (vitest)
-        run: npx vitest run
-
       - name: Type check
         run: npx tsc --noEmit
-        continue-on-error: true
+
+      - name: Lint
+        run: npx eslint app/ components/ lib/
+
+      - name: Run unit tests (vitest)
+        run: npx vitest run
 
       - name: Build
         env:

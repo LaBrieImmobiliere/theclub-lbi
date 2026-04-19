@@ -50,3 +50,6 @@ cookies.txt
 # claude code local prefs
 .claude/
 
+# husky internals (geres par husky, pas a versionner)
+.husky/_/
+
