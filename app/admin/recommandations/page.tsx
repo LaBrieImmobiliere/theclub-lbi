@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select } from "@/components/ui/select";
-import { ClipboardList, Search, Plus, X, FileText, Check } from "lucide-react";
+import { ClipboardList, Search, Plus, X, FileText, Check, Trash2 } from "lucide-react";
 import { CsvExport } from "@/components/admin/csv-export";
 import { ConfirmModal } from "@/components/confirm-modal";
 import { PullToRefresh } from "@/components/pull-to-refresh";
@@ -69,6 +69,8 @@ export default function RecommandationsPage() {
   const [selected, setSelected] = useState<Lead | null>(null);
   const [updatingStatus, setUpdatingStatus] = useState("");
   const [confirmAction, setConfirmAction] = useState<{ id: string; status: string; label: string } | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<Lead | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   const fetchLeads = useCallback(async () => {
     const res = await fetch(`/api/recommandations${statusFilter ? `?status=${statusFilter}` : ""}`);
@@ -104,6 +106,23 @@ export default function RecommandationsPage() {
     setUpdatingStatus("");
     fetchLeads();
     if (selected?.id === id) setSelected({ ...selected, status });
+  };
+
+  const deleteLead = async (lead: Lead) => {
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/recommandations/${lead.id}`, { method: "DELETE" });
+      if (res.ok) {
+        setConfirmDelete(null);
+        if (selected?.id === lead.id) setSelected(null);
+        fetchLeads();
+      } else {
+        const body = await res.json().catch(() => ({}));
+        alert(body.error || "Erreur lors de la suppression");
+      }
+    } finally {
+      setDeleting(false);
+    }
   };
 
   return (
@@ -348,6 +367,17 @@ export default function RecommandationsPage() {
                   </Button>
                 </Link>
               )}
+
+              {/* Bouton Supprimer - admin only, pour recos test ou erreurs */}
+              <div className="pt-3 border-t border-gray-100 dark:border-white/10">
+                <button
+                  onClick={() => setConfirmDelete(selected)}
+                  className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium text-red-600 border border-red-200 dark:border-red-900 bg-red-50/50 dark:bg-red-950/20 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-lg transition-colors"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  Supprimer cette recommandation
+                </button>
+              </div>
             </CardContent>
           </Card>
         )}
@@ -363,6 +393,22 @@ export default function RecommandationsPage() {
         variant={confirmAction?.status === "PERDU" ? "danger" : "default"}
         onConfirm={() => confirmAction && updateStatus(confirmAction.id, confirmAction.status)}
         onCancel={() => setConfirmAction(null)}
+      />
+
+      {/* Confirm delete modal */}
+      <ConfirmModal
+        open={!!confirmDelete}
+        title="Supprimer la recommandation"
+        message={
+          confirmDelete
+            ? `Supprimer définitivement la recommandation de ${confirmDelete.firstName} ${confirmDelete.lastName} ? Cette action est irréversible.`
+            : ""
+        }
+        confirmLabel={deleting ? "Suppression…" : "Oui, supprimer"}
+        cancelLabel="Annuler"
+        variant="danger"
+        onConfirm={() => confirmDelete && deleteLead(confirmDelete)}
+        onCancel={() => !deleting && setConfirmDelete(null)}
       />
     </div>
     </PullToRefresh>
