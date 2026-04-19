@@ -1,80 +1,41 @@
-# Migrations Prisma — état et procédure de correction
+# Migrations Prisma
 
-## ⚠️ Problème connu
+## État
 
-La migration `20260401185141_init/migration.sql` est écrite en **SQLite**
-(types `DATETIME`, `REAL`, `CONSTRAINT … FOREIGN KEY`), alors que
-`schema.prisma` et la DB de production sont en **PostgreSQL**.
+Une seule migration : `20260419210000_baseline_postgres` — baseline PostgreSQL
+complète (19 tables, 404 lignes SQL) générée à partir du `schema.prisma`
+actuel, marquée comme déjà appliquée sur la base de production Neon.
 
-Elle n'a donc **jamais été appliquée en production** : la base prod a été
-créée directement via `prisma db push` (pas via `migrate`).
+`provider = "postgresql"` dans `migration_lock.toml`.
 
-Conséquences :
+## Pour les prochaines modifications de schéma
 
-- `prisma migrate status` renvoie un état incohérent
-- `prisma migrate deploy` sur un nouvel environnement **échouera**
-  (les tables ne se créeront pas, types incompatibles)
-- Il manque aussi **10 modèles** dans cette migration par rapport au schema
-  actuel (`Agency`, `AuditLog`, `Badge`, `Broadcast`, `LeadStatusHistory`,
-  `Message`, `Negotiator`, `PushSubscription`, `Review`, `UserDocument`)
-
-## ✅ Procédure de correction (à faire une fois)
-
-Prérequis : la variable `DATABASE_URL` dans `.env` doit pointer vers la
-base Postgres de production (ou une base de staging identique).
-
-### Étape 1 — Repartir sur une base propre de migrations
+Workflow standard :
 
 ```bash
-cd app-lbi
-
-# 1. Archiver / supprimer l'ancienne migration SQLite obsolète
-rm -rf prisma/migrations/20260401185141_init
+# 1. Modifier prisma/schema.prisma
+# 2. Générer + appliquer la migration en local (crée le fichier dans prisma/migrations/)
+npx prisma migrate dev --name description_du_changement
+# 3. Commit + push → Vercel/prod applique automatiquement la migration
+#    via "prisma migrate deploy" dans le build.
 ```
 
-### Étape 2 — Générer une nouvelle migration baseline
+Éviter `prisma db push` en production (court-circuite les migrations).
 
-```bash
-# Générer le SQL qui reflète l'état ACTUEL du schema.prisma,
-# sans l'exécuter (--create-only).
-npx prisma migrate dev --create-only --name baseline_postgres
-```
+## Historique — pourquoi ce baseline ?
 
-Prisma va créer `prisma/migrations/<timestamp>_baseline_postgres/migration.sql`
-avec le DDL PostgreSQL complet pour les 19 modèles.
+L'ancienne migration `20260401185141_init` était en **SQLite** (types
+`DATETIME`, `REAL`) alors que la DB prod tourne en **PostgreSQL**. Elle
+n'avait donc jamais été appliquée. En plus, il manquait 10 modèles
+(`Agency`, `AuditLog`, `Badge`, `Broadcast`, `LeadStatusHistory`,
+`Message`, `Negotiator`, `PushSubscription`, `Review`, `UserDocument`)
+qui avaient été ajoutés au schema puis synchronisés via `prisma db push`
+sans générer de migration.
 
-### Étape 3 — Marquer la migration comme déjà appliquée sur prod
+Correctif appliqué le 19 avril 2026 :
 
-La base prod contient déjà toutes ces tables (via `db push`), il faut juste
-lui dire « cette migration est déjà appliquée chez moi » :
-
-```bash
-npx prisma migrate resolve --applied <timestamp>_baseline_postgres
-```
-
-Vérification :
-
-```bash
-npx prisma migrate status
-# → "Database schema is up to date!"
-```
-
-### Étape 4 — Commit
-
-```bash
-git add prisma/migrations
-git commit -m "fix: baseline migration PostgreSQL cohérente avec le schema"
-git push
-```
-
-## 🔮 Pour les prochaines modifications de schéma
-
-À partir de maintenant, **toujours** utiliser le workflow migrations :
-
-```bash
-# après avoir modifié schema.prisma
-npx prisma migrate dev --name nom_explicite
-```
-
-Éviter `prisma db push` en production (court-circuite les migrations et
-recrée ce problème).
+1. `rm -rf prisma/migrations/20260401185141_init`
+2. `npx prisma migrate diff --from-empty --to-schema prisma/schema.prisma --script > prisma/migrations/20260419210000_baseline_postgres/migration.sql`
+3. `migration_lock.toml` : `sqlite` → `postgresql`
+4. `npx prisma migrate resolve --applied 20260419210000_baseline_postgres`
+5. `npx prisma migrate status` → "Database schema is up to date!"
