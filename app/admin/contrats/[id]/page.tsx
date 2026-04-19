@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { ConfirmModal } from "@/components/confirm-modal";
 import Image from "next/image";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select } from "@/components/ui/select";
 import { SignaturePad } from "@/components/signature-pad";
 import {
-  ArrowLeft, Plus, CheckCircle2, Download, Pencil, Eye,
+  ArrowLeft, Plus, CheckCircle2, Download, Pencil, Eye, Trash2,
 } from "lucide-react";
 import { PdfPreviewModal } from "@/components/pdf-preview-modal";
 import {
@@ -74,6 +75,9 @@ export default function ContratDetailPage() {
   const [editMode, setEditMode] = useState(false);
   const [showCountersign, setShowCountersign] = useState<string | null>(null);
   const [preview, setPreview] = useState<{ url: string; title: string; name: string } | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const router = useRouter();
   const [editForm, setEditForm] = useState({
     propertyAddress: "",
     propertyPrice: "",
@@ -185,6 +189,23 @@ export default function ContratDetailPage() {
     generateContractPDF(contract);
   };
 
+  const deleteContract = async () => {
+    if (!contract) return;
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/contrats/${contract.id}`, { method: "DELETE" });
+      if (res.ok) {
+        setConfirmDelete(false);
+        router.push("/admin/contrats");
+      } else {
+        const body = await res.json().catch(() => ({}));
+        alert(body.error || "Erreur lors de la suppression");
+      }
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   const downloadAllAcksPDF = async () => {
     if (!contract || contract.honoraryAcknowledgments.length === 0) return;
     const { generateAllAcknowledgmentsPDF } = await import("@/lib/pdf");
@@ -263,6 +284,14 @@ export default function ContratDetailPage() {
               <CheckCircle2 className="w-4 h-4" /> Signer & Envoyer
             </Button>
           )}
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setConfirmDelete(true)}
+            className="!border-red-300 !text-red-600 hover:!bg-red-50"
+          >
+            <Trash2 className="w-4 h-4" /> Supprimer
+          </Button>
         </div>
       </div>
 
@@ -677,6 +706,22 @@ export default function ContratDetailPage() {
           onClose={closePreview}
         />
       )}
+
+      {/* Confirm delete modal */}
+      <ConfirmModal
+        open={confirmDelete}
+        title="Supprimer le contrat"
+        message={`Supprimer définitivement le contrat ${contract.number} ? ${
+          contract.honoraryAcknowledgments.length > 0
+            ? `Les ${contract.honoraryAcknowledgments.length} reconnaissance${contract.honoraryAcknowledgments.length > 1 ? "s" : ""} d'honoraires seront aussi supprimée${contract.honoraryAcknowledgments.length > 1 ? "s" : ""}. `
+            : ""
+        }Cette action est irréversible.`}
+        confirmLabel={deleting ? "Suppression…" : "Oui, supprimer"}
+        cancelLabel="Annuler"
+        variant="danger"
+        onConfirm={deleteContract}
+        onCancel={() => !deleting && setConfirmDelete(false)}
+      />
 
       {/* Signature modal */}
       {showSignature && (
