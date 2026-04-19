@@ -55,13 +55,82 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="fr" className="h-full antialiased">
+    <html lang="fr" className="h-full antialiased" style={{ background: "#030A24" }}>
       <head>
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        {/* Splash inline — visible immédiatement avant tout JS, zéro flash
+            blanc. Masqué dès DOMContentLoaded (filet de sécurité 3s max). */}
+        <style dangerouslySetInnerHTML={{ __html: `
+          html,body{background:#030A24}
+          #splash-screen{
+            position:fixed;inset:0;z-index:9999;
+            background:#030A24;
+            display:flex;flex-direction:column;
+            align-items:center;justify-content:center;
+            transition:opacity .5s ease,visibility .5s ease;
+          }
+          #splash-screen.hide{opacity:0;visibility:hidden;pointer-events:none}
+          #splash-screen img{
+            width:120px;height:120px;
+            animation:splashPulse 1.8s ease-in-out infinite;
+          }
+          #splash-screen .splash-text{
+            margin-top:24px;
+            font-family:'Fira Sans',system-ui,sans-serif;
+            font-size:14px;font-weight:500;
+            letter-spacing:3px;text-transform:uppercase;
+            color:#D1B280;opacity:0;
+            animation:splashFadeIn .6s ease .2s forwards;
+          }
+          #splash-screen .splash-bar{
+            margin-top:32px;width:48px;height:3px;
+            background:rgba(209,178,128,.2);border-radius:2px;
+            overflow:hidden;opacity:0;
+            animation:splashFadeIn .6s ease .4s forwards;
+          }
+          #splash-screen .splash-bar::after{
+            content:'';display:block;width:50%;height:100%;
+            background:#D1B280;border-radius:2px;
+            animation:splashSlide 1s ease-in-out infinite;
+          }
+          @keyframes splashPulse{
+            0%,100%{transform:scale(1);opacity:.9}
+            50%{transform:scale(1.06);opacity:1}
+          }
+          @keyframes splashFadeIn{to{opacity:1}}
+          @keyframes splashSlide{0%{transform:translateX(-100%)}100%{transform:translateX(200%)}}
+        `}} />
       </head>
-      <body className="bg-white min-h-full flex flex-col">
+      <body className="min-h-full flex flex-col" style={{ background: "#030A24" }}>
+        <div id="splash-screen">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo-white.png" alt="" width={120} height={120} />
+          <div className="splash-text">The Club</div>
+          <div className="splash-bar" />
+        </div>
+        <script dangerouslySetInnerHTML={{ __html: `
+          (function(){
+            var s=document.getElementById('splash-screen');
+            if(!s)return;
+            var t0=Date.now(),done=false;
+            function hide(){
+              if(done)return;done=true;
+              var wait=Math.max(0,Math.min(1000,1000-(Date.now()-t0)));
+              setTimeout(function(){
+                s.classList.add('hide');
+                document.body.style.background='';
+                document.documentElement.style.background='';
+                setTimeout(function(){s.remove()},600);
+              },wait);
+            }
+            if(document.readyState==='loading'){
+              document.addEventListener('DOMContentLoaded',hide);
+            }else{hide()}
+            setTimeout(hide,3000);
+          })();
+        `}} />
         <Providers>{children}</Providers>
         <RegisterSW />
         <PwaInstallPrompt />
