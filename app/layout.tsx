@@ -55,87 +55,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="fr" className="h-full antialiased" style={{ background: "#030A24" }}>
+    <html lang="fr" className="h-full antialiased">
       <head>
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-        {/* Splash — CSS inline, premier truc parsé par le navigateur.
-            html/body démarrent en #030A24 (même couleur que le manifest)
-            pour éviter tout flash blanc. Le body repasse en blanc quand
-            le splash se cache. */}
-        <style dangerouslySetInnerHTML={{ __html: `
-          html,body{background:#030A24}
-          #splash-screen{
-            position:fixed;inset:0;z-index:9999;
-            background:#030A24;
-            display:flex;flex-direction:column;
-            align-items:center;justify-content:center;
-            transition:opacity .5s ease,visibility .5s ease;
-          }
-          #splash-screen.hide{opacity:0;visibility:hidden;pointer-events:none}
-          #splash-screen img{
-            width:120px;height:120px;
-            animation:splashPulse 1.8s ease-in-out infinite;
-          }
-          #splash-screen .splash-text{
-            margin-top:24px;
-            font-family:'Fira Sans',system-ui,sans-serif;
-            font-size:14px;font-weight:500;
-            letter-spacing:3px;text-transform:uppercase;
-            color:#D1B280;opacity:0;
-            animation:splashFadeIn .6s ease .2s forwards;
-          }
-          #splash-screen .splash-bar{
-            margin-top:32px;width:48px;height:3px;
-            background:rgba(209,178,128,.2);border-radius:2px;
-            overflow:hidden;opacity:0;
-            animation:splashFadeIn .6s ease .4s forwards;
-          }
-          #splash-screen .splash-bar::after{
-            content:'';display:block;width:50%;height:100%;
-            background:#D1B280;border-radius:2px;
-            animation:splashSlide 1s ease-in-out infinite;
-          }
-          @keyframes splashPulse{
-            0%,100%{transform:scale(1);opacity:.9}
-            50%{transform:scale(1.06);opacity:1}
-          }
-          @keyframes splashFadeIn{to{opacity:1}}
-          @keyframes splashSlide{0%{transform:translateX(-100%)}100%{transform:translateX(200%)}}
-        `}} />
       </head>
-      <body className="min-h-full flex flex-col" style={{ background: "#030A24" }}>
-        {/* Splash — affiché immédiatement dans le HTML initial, avant tout JS */}
-        <div id="splash-screen">
-          <img src="/logo-white.png" alt="" width={120} height={120} />
-          <div className="splash-text">The Club</div>
-          <div className="splash-bar" />
-        </div>
-        <script dangerouslySetInnerHTML={{ __html: `
-          (function(){
-            var s=document.getElementById('splash-screen');
-            if(!s)return;
-            var t0=Date.now(),done=false;
-            function hide(){
-              if(done)return;done=true;
-              // Min 1s pour voir l'animation, mais max 3s pour ne jamais bloquer
-              var wait=Math.max(0,Math.min(1000,1000-(Date.now()-t0)));
-              setTimeout(function(){
-                s.classList.add('hide');
-                document.body.style.background='';
-                document.documentElement.style.background='';
-                setTimeout(function(){s.remove()},600);
-              },wait);
-            }
-            // DOMContentLoaded = HTML parsé (pas besoin d'attendre images/JS)
-            if(document.readyState==='loading'){
-              document.addEventListener('DOMContentLoaded',hide);
-            }else{hide()}
-            // Filet de sécurité : 3s max quoi qu'il arrive
-            setTimeout(hide,3000);
-          })();
-        `}} />
+      <body className="bg-white min-h-full flex flex-col">
         <Providers>{children}</Providers>
         <RegisterSW />
         <PwaInstallPrompt />
