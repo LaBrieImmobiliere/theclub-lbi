@@ -1,13 +1,15 @@
-const CACHE_NAME = "theclub-v4";
+// v5 : on NE précache plus le HTML de "/" (pas d'"app shell") car il contient
+// le script du splash + des chunks hashés Next.js qui changent à chaque deploy.
+// Cela évite qu'une ancienne version du HTML (sans splash, ou avec d'anciens
+// hashes de chunks) reste coincée dans le cache après un deploy.
+const CACHE_NAME = "theclub-v5";
 const OFFLINE_URL = "/offline.html";
 const API_CACHE = "theclub-api-v1";
 const API_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 const QUEUE_STORE = "offline-actions-queue";
 
-// Assets to pre-cache
+// Assets statiques uniquement (pas de HTML).
 const PRECACHE_ASSETS = [
-  "/",
-  "/auth/connexion",
   "/offline.html",
   "/logo.png",
   "/logo-white.png",
@@ -78,22 +80,13 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // For navigation requests: network first, fallback to cache, then offline page
+  // For navigation requests: network first, fallback direct sur offline.html.
+  // On NE met plus le HTML en cache : le HTML contient des références à des
+  // chunks Next.js hashés, donc un HTML périmé = "This page couldn't load"
+  // après un deploy.
   if (request.mode === "navigate") {
     event.respondWith(
-      fetch(request)
-        .then((response) => {
-          const responseClone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(request, responseClone);
-          });
-          return response;
-        })
-        .catch(() => {
-          return caches.match(request).then((cached) => {
-            return cached || caches.match(OFFLINE_URL);
-          });
-        })
+      fetch(request).catch(() => caches.match(OFFLINE_URL))
     );
     return;
   }
