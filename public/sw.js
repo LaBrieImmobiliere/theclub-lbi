@@ -1,13 +1,13 @@
-const CACHE_NAME = "theclub-v6";
+const CACHE_NAME = "theclub-v7";
 const OFFLINE_URL = "/offline.html";
 const API_CACHE = "theclub-api-v1";
 const API_CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 const QUEUE_STORE = "offline-actions-queue";
 
-// Assets to pre-cache
+// Assets à pré-cacher (logo, offline page, manifest).
+// PAS de HTML ici : les routes Next.js ont des chunks hashés qui changent
+// à chaque déploiement, donc cacher le HTML = risque de chunks orphelins.
 const PRECACHE_ASSETS = [
-  "/",
-  "/auth/connexion",
   "/offline.html",
   "/logo.png",
   "/logo-white.png",
@@ -25,7 +25,7 @@ self.addEventListener("install", (event) => {
   self.skipWaiting();
 });
 
-// Activate: clean up old caches
+// Activate: purge TOUS les anciens caches (corrompus après deploy)
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((cacheNames) => {
@@ -34,27 +34,30 @@ self.addEventListener("activate", (event) => {
           .filter((name) => name !== CACHE_NAME && name !== API_CACHE)
           .map((name) => caches.delete(name))
       );
-    })
+    }).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
-// Fetch: network-first for navigation, stale-while-revalidate for assets
+// Fetch: SW minimal — ne touche PAS aux navigations ni aux chunks Next.js.
+// Cette approche élimine toute possibilité de servir un HTML/chunk obsolète
+// après un déploiement Vercel. Le navigateur gère navigation + chunks
+// directement. Le SW ne s'occupe que de :
+//   1. GET /api/...  → network-first avec fallback cache (offline)
+//   2. Fallback offline.html si navigation totalement hors ligne
 self.addEventListener("fetch", (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Skip non-GET requests
+  // Skip tout ce qui n'est pas GET
   if (request.method !== "GET") return;
 
-  // Auth routes → always network
-  if (url.pathname.startsWith("/auth/")) {
-    return;
-  }
+  // Skip auth, push, HMR, chunks Next.js — passe directement au navigateur
+  if (url.pathname.startsWith("/auth/")) return;
+  if (url.pathname.includes("webpack-hmr")) return;
+  if (url.pathname.startsWith("/_next/")) return;
 
-  // API GET routes → network-first with cache fallback for offline
-  if (url.pathname.startsWith("/api/") && request.method === "GET") {
-    // Skip push/auth APIs
+  // API GET : network-first avec cache fallback (pour hors ligne)
+  if (url.pathname.startsWith("/api/")) {
     if (url.pathname.includes("/push") || url.pathname.includes("/auth")) return;
     event.respondWith(
       fetch(request)
@@ -70,69 +73,28 @@ self.addEventListener("fetch", (event) => {
     return;
   }
 
-  // Skip non-GET API routes
-  if (url.pathname.startsWith("/api/")) return;
-
-  // Skip _next/webpack-hmr for dev
-  if (url.pathname.includes("webpack-hmr") || url.pathname.includes("_next/static/development")) {
-    return;
-  }
-
-  // For navigation requests: network-first avec timeout 2s.
-  // Next.js injecte des hashes dans les chunks JS, donc un HTML en cache
-  // après un déploiement référence des chunks qui n'existent plus → page
-  // cassée. On reste network-first : le HTML frais contient toujours les
-  // bons chunks. Le splash est rendu dès DOMContentLoaded, pas besoin de
-  // cache pour qu'il apparaisse vite.
+  // Navigation : on laisse le navigateur faire. Seulement si la requête échoue
+  // complètement (vraiment hors ligne), on sert la page offline.html.
   if (request.mode === "navigate") {
     event.respondWith(
-      new Promise((resolve) => {
-        let settled = false;
-        const timer = setTimeout(() => {
-          if (settled) return;
-          caches.match(request).then((cached) => {
-            if (!settled && cached) {
-              settled = true;
-              resolve(cached);
-            }
-          });
-        }, 2000);
-
-        fetch(request)
-          .then((response) => {
-            if (settled) return;
-            settled = true;
-            clearTimeout(timer);
-            if (response.ok) {
-              const clone = response.clone();
-              caches.open(CACHE_NAME).then((cache) => cache.put(request, clone));
-            }
-            resolve(response);
-          })
-          .catch(() => {
-            if (settled) return;
-            settled = true;
-            clearTimeout(timer);
-            caches.match(request).then((cached) => {
-              resolve(cached || caches.match(OFFLINE_URL));
-            });
-          });
-      })
+      fetch(request).catch(() => caches.match(OFFLINE_URL))
     );
     return;
   }
 
-  // For static assets: stale-while-revalidate
+  // Assets statiques (logo, etc.) — stale-while-revalidate
   if (
-    url.pathname.match(/\.(js|css|png|jpg|jpeg|svg|gif|woff|woff2|ttf|eot|ico)$/)
+    url.pathname.match(/\.(png|jpg|jpeg|svg|gif|woff|woff2|ttf|eot|ico)$/)
   ) {
     event.respondWith(
       caches.match(request).then((cached) => {
         const fetchPromise = fetch(request).then((response) => {
-          const responseClone = response.clone();
-          caches.open(CACHE_NAME).then((cache) => {
-            cache.put(request, responseClone);
-          });
+          if (response.ok) {
+            const responseClone = response.clone();
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(request, responseClone);
+            });
+          }
           return response;
         }).catch(() => cached);
 
