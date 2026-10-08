@@ -11,7 +11,7 @@ import { PwaInstallButton } from "@/components/pwa-install-button";
 function ConnexionForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [tab, setTab] = useState<"password" | "magic">("password");
+  const [tab, setTab] = useState<"password" | "magic">("magic");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -57,8 +57,17 @@ function ConnexionForm() {
 
   return (
     <div className="bg-white overflow-hidden shadow-2xl">
-      {/* Tabs */}
+      {/* Tabs — magic link mis en avant (plus simple, pas de mot de passe) */}
       <div className="flex border-b border-gray-100">
+        <button
+          onClick={() => { setTab("magic"); setError(""); setMagicSent(false); }}
+          className={`flex-1 flex items-center justify-center gap-2 py-3.5 text-xs font-medium tracking-wide uppercase transition-colors ${
+            tab === "magic" ? "text-[#030A24] border-b-2 border-[#D1B280] bg-[#f9f6f1]/30" : "text-gray-400 hover:text-gray-600"
+          }`}
+        >
+          <Mail className="w-3.5 h-3.5" />
+          Lien par email
+        </button>
         <button
           onClick={() => { setTab("password"); setError(""); setMagicSent(false); }}
           className={`flex-1 flex items-center justify-center gap-2 py-3.5 text-xs font-medium tracking-wide uppercase transition-colors ${
@@ -67,15 +76,6 @@ function ConnexionForm() {
         >
           <KeyRound className="w-3.5 h-3.5" />
           Mot de passe
-        </button>
-        <button
-          onClick={() => { setTab("magic"); setError(""); setMagicSent(false); }}
-          className={`flex-1 flex items-center justify-center gap-2 py-3.5 text-xs font-medium tracking-wide uppercase transition-colors ${
-            tab === "magic" ? "text-[#030A24] border-b-2 border-[#D1B280] bg-[#f9f6f1]/30" : "text-gray-400 hover:text-gray-600"
-          }`}
-        >
-          <Mail className="w-3.5 h-3.5" />
-          Lien magique
         </button>
       </div>
 
@@ -142,9 +142,14 @@ function ConnexionForm() {
               </div>
             ) : (
               <form onSubmit={handleMagicLink} className="space-y-4">
-                <p className="text-sm text-gray-500 mb-2">
-                  Recevez un lien par email pour vous connecter sans mot de passe.
-                </p>
+                <div className="bg-[#f9f6f1] border-l-2 border-[#D1B280] px-3 py-2 mb-2">
+                  <p className="text-xs text-[#030A24] font-medium">
+                    Le plus simple : recevez un lien de connexion par email.
+                  </p>
+                  <p className="text-[11px] text-gray-500 mt-0.5">
+                    Pas besoin de mot de passe à retenir. Une fois connecté, vous le restez 90 jours.
+                  </p>
+                </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1.5">Email</label>
                   <input

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { MapPin, Euro, Home, Building, Key, ArrowLeft, Plus, ClipboardList } from "lucide-react";
 import { formatDate, LEAD_STATUS_LABELS, LEAD_TYPE_LABELS } from "@/lib/utils";
 import { LeadTimeline } from "@/components/lead-timeline";
+import { LeadMoneyProgress } from "@/components/lead-money-progress";
 import Link from "next/link";
 import { PullToRefresh } from "@/components/pull-to-refresh";
 
@@ -149,9 +150,15 @@ export default function MesRecommandationsPage() {
           </div>
         )}
 
-        {/* Timeline */}
+        {/* Money progress — "où en est mon argent" */}
+        <div className="bg-white border border-gray-200 rounded-xl p-5">
+          <p className="text-xs text-gray-500 mb-4 font-semibold uppercase tracking-wide">Où en est votre gain</p>
+          <LeadMoneyProgress status={selected.status} />
+        </div>
+
+        {/* Timeline détaillée */}
         <div className="bg-white/5 border border-white/10 rounded-xl p-4">
-          <p className="text-xs text-gray-400 mb-3 font-medium uppercase tracking-wide">Suivi du dossier</p>
+          <p className="text-xs text-gray-400 mb-3 font-medium uppercase tracking-wide">Détail du suivi</p>
           <LeadTimeline status={selected.status} history={selected.statusHistory} />
         </div>
 
@@ -205,7 +212,6 @@ export default function MesRecommandationsPage() {
         ) : (
           <div className="space-y-3">
             {searchFiltered.map((lead) => {
-              const statusIdx = STEPS.indexOf(lead.status);
               const TypeIcon = TYPE_ICON[lead.type] || Home;
               return (
                 <button
@@ -213,11 +219,9 @@ export default function MesRecommandationsPage() {
                   onClick={() => setSelected(lead)}
                   className="w-full text-left bg-white/5 border border-white/10 rounded-xl overflow-hidden transition-all hover:bg-white/[0.07] active:scale-[0.99]"
                 >
-                  {/* Segmented progress */}
-                  <div className="flex gap-[2px] px-3 pt-3">
-                    {STEPS.map((_, i) => (
-                      <div key={i} className={`h-[3px] flex-1 rounded-full ${i <= statusIdx ? "bg-[#D1B280]" : "bg-white/10"}`} />
-                    ))}
+                  {/* Money progress — 5 jalons grand public */}
+                  <div className="px-3 pt-3">
+                    <LeadMoneyProgress status={lead.status} compact />
                   </div>
                   <div className="px-3 pb-3 pt-2.5 space-y-2">
                     <div className="flex items-center justify-between">

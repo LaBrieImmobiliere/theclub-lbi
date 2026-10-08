@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { FolderOpen, Download, FileText, Receipt, Eye } from "lucide-react";
+import { FolderOpen, Download, FileText, Receipt, Eye, FileSpreadsheet } from "lucide-react";
 import { formatDate, formatCurrency, CONTRACT_STATUS_COLORS, CONTRACT_STATUS_LABELS } from "@/lib/utils";
 import { PdfPreviewModal } from "@/components/pdf-preview-modal";
 
@@ -39,6 +39,8 @@ export default function DocumentsPage() {
   const [contracts, setContracts] = useState<Contract[]>([]);
   const [loading, setLoading] = useState(true);
   const [preview, setPreview] = useState<{ url: string; title: string; name: string } | null>(null);
+  const [fiscalYear, setFiscalYear] = useState<number>(new Date().getFullYear());
+  const [generatingRecap, setGeneratingRecap] = useState(false);
 
   const fetchContracts = useCallback(async () => {
     const res = await fetch("/api/contrats");
@@ -75,6 +77,46 @@ export default function DocumentsPage() {
   const closePreview = () => {
     if (preview) URL.revokeObjectURL(preview.url);
     setPreview(null);
+  };
+
+  const downloadFiscalRecap = async () => {
+    setGeneratingRecap(true);
+    try {
+      // Récupère les infos ambassadeur
+      const meRes = await fetch("/api/me");
+      if (!meRes.ok) throw new Error("Profil introuvable");
+      const me = await meRes.json();
+      const amb = me?.ambassador ?? {};
+
+      // Agrège les montants versés sur l'année choisie
+      const entries = contracts
+        .filter((c) => c.status === "PAYE")
+        .filter((c) => new Date(c.createdAt).getFullYear() === fiscalYear)
+        .map((c) => ({
+          date: c.createdAt,
+          contractNumber: c.number,
+          leadName: c.lead ? `${c.lead.firstName} ${c.lead.lastName}` : (c.propertyAddress || "—"),
+          amount: c.commissionAmount ?? 0,
+        }));
+
+      const { generateFiscalRecapPDF } = await import("@/lib/pdf");
+      generateFiscalRecapPDF({
+        ambassador: {
+          name: me?.name ?? [me?.firstName, me?.lastName].filter(Boolean).join(" ") ?? "Ambassadeur",
+          email: me?.email ?? "",
+          address: amb.companyAddress ?? null,
+          legalStatus: amb.legalStatus ?? "PARTICULIER",
+          companyName: amb.companyName ?? null,
+          companySiret: amb.companySiret ?? null,
+          associationName: amb.associationName ?? null,
+          associationRna: amb.associationRna ?? null,
+        },
+        year: fiscalYear,
+        entries,
+      });
+    } finally {
+      setGeneratingRecap(false);
+    }
   };
 
   const signedContracts = contracts.filter(c => ["SIGNE", "PAYE"].includes(c.status));
@@ -131,6 +173,45 @@ export default function DocumentsPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Récap fiscal annuel */}
+      <Card className="border-[#D1B280]/40 bg-gradient-to-br from-[#f9f6f1] to-white">
+        <CardContent className="py-5">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+            <div className="flex items-start gap-3 flex-1 min-w-0">
+              <div className="w-10 h-10 bg-[#D1B280]/15 rounded-xl flex items-center justify-center flex-shrink-0">
+                <FileSpreadsheet className="w-5 h-5 text-[#D1B280]" />
+              </div>
+              <div className="min-w-0">
+                <h3 className="font-semibold text-[#030A24] text-sm">Récap fiscal annuel</h3>
+                <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">
+                  Un PDF qui liste toutes vos commissions versées — à joindre à votre déclaration BNC.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <select
+                value={fiscalYear}
+                onChange={(e) => setFiscalYear(Number(e.target.value))}
+                className="px-3 py-2 border border-gray-200 rounded text-sm bg-white focus:outline-none focus:border-[#D1B280]"
+              >
+                {Array.from({ length: 4 }).map((_, i) => {
+                  const y = new Date().getFullYear() - i;
+                  return <option key={y} value={y}>{y}</option>;
+                })}
+              </select>
+              <Button
+                onClick={downloadFiscalRecap}
+                loading={generatingRecap}
+                className="whitespace-nowrap"
+              >
+                <Download className="w-4 h-4 mr-1.5" />
+                Télécharger
+              </Button>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Contracts */}
       <Card>

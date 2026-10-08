@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import DashboardChart from "@/components/portal/dashboard-chart";
 import { CagnotteGauge } from "@/components/portal/cagnotte-gauge";
+import { GamificationCard } from "@/components/gamification-card";
 import {
   ClipboardList,
   FileText,
@@ -370,6 +371,15 @@ export default async function PortalDashboardPage() {
         </p>
       </div>
 
+      {/* Niveau + badges */}
+      <GamificationCard
+        totalLeads={totalLeads}
+        totalContracts={totalContracts}
+        totalCommissions={totalCommissions}
+        rank={myRank}
+        totalRanked={totalActiveAmbassadors}
+      />
+
       {/* Cagnotte Gauge */}
       <Card>
         <CardContent className="py-6">
@@ -517,7 +527,7 @@ export default async function PortalDashboardPage() {
       {pendingAcks > 0 && (
         <div className="flex items-center justify-between bg-blue-50 border border-blue-200 rounded-lg px-4 py-3">
           <p className="text-sm text-blue-800">
-            <strong>{pendingAcks} reconnaissance{pendingAcks > 1 ? "s" : ""} d&apos;honoraires</strong> en attente de votre action.
+            <strong>{pendingAcks} attestation{pendingAcks > 1 ? "s" : ""} de gain</strong> en attente de votre signature.
           </p>
           <Link href="/portail/mes-contrats" className="text-sm text-blue-600 font-medium hover:underline flex items-center gap-1">
             Voir <ArrowRight className="w-3.5 h-3.5" />

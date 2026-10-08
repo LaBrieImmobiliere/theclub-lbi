@@ -147,7 +147,7 @@ export default function MessageriePage() {
   const roleLabel = (role: string) => {
     switch (role) {
       case "NEGOTIATOR":
-        return "Negociateur";
+        return "Conseiller";
       case "AMBASSADOR":
         return "Ambassadeur";
       case "ADMIN":
@@ -182,7 +182,7 @@ export default function MessageriePage() {
           <p className="text-xs text-brand-gold">
             {currentUser?.role === "NEGOTIATOR"
               ? "Vos ambassadeurs"
-              : "Votre negociateur"}
+              : "Votre conseiller"}
           </p>
         </div>
 

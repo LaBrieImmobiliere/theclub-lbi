@@ -11,7 +11,7 @@ const FAQ_SECTIONS = [
     questions: [
       {
         q: "Comment recommander un contact ?",
-        a: "Rendez-vous dans l'onglet \u00ab Recommander \u00bb du menu. Remplissez le formulaire avec les coordonn\u00e9es de votre contact et son type de projet (achat, vente, investissement). Votre recommandation sera automatiquement transmise \u00e0 votre n\u00e9gociateur.",
+        a: "Rendez-vous dans l'onglet \u00ab Recommander \u00bb du menu. Remplissez les 3 champs (nom, t\u00e9l\u00e9phone, type de projet). Votre recommandation sera automatiquement transmise \u00e0 votre conseiller.",
       },
       {
         q: "Comment suivre mes recommandations ?",
@@ -19,33 +19,33 @@ const FAQ_SECTIONS = [
       },
       {
         q: "Que se passe-t-il apr\u00e8s ma recommandation ?",
-        a: "Votre n\u00e9gociateur re\u00e7oit une alerte et contacte le prospect dans les 48 heures. Vous \u00eates inform\u00e9 \u00e0 chaque \u00e9tape via notification et par email.",
+        a: "Votre conseiller re\u00e7oit une alerte et contacte votre recommandation dans les 48 heures. Vous \u00eates inform\u00e9 \u00e0 chaque \u00e9tape via notification et par email.",
       },
       {
         q: "Puis-je recommander plusieurs contacts en m\u00eame temps ?",
-        a: "Oui, chaque recommandation est ind\u00e9pendante. Vous pouvez en soumettre autant que vous le souhaitez, sans limite. Plus vous recommandez, plus vos chances de toucher des commissions augmentent !",
+        a: "Oui, chaque recommandation est ind\u00e9pendante. Vous pouvez en transmettre autant que vous le souhaitez, sans limite. Plus vous recommandez, plus vous augmentez vos gains !",
       },
     ],
   },
   {
     icon: Coins,
-    title: "Commissions",
+    title: "Vos gains",
     questions: [
       {
-        q: "Quand est-ce que je touche ma commission ?",
-        a: "Votre commission est vers\u00e9e apr\u00e8s la signature d\u00e9finitive de l'acte de vente chez le notaire et le r\u00e8glement des honoraires. Le d\u00e9lai d\u00e9pend du type de transaction (g\u00e9n\u00e9ralement 2 \u00e0 4 mois apr\u00e8s la mise en relation).",
+        q: "Quand est-ce que je touche mon gain ?",
+        a: "Votre gain est vers\u00e9 apr\u00e8s la signature d\u00e9finitive de la vente chez le notaire. Le d\u00e9lai est g\u00e9n\u00e9ralement de 2 \u00e0 4 mois apr\u00e8s la mise en relation.",
       },
       {
-        q: "Quel est le montant de la commission ?",
-        a: "Le taux de commission est d\u00e9fini dans votre contrat ambassadeur. G\u00e9n\u00e9ralement, il s'agit de 5% des honoraires d'agence sur chaque transaction aboutie. Par exemple, pour des honoraires de 10 000 \u20ac, vous percevez 500 \u20ac.",
+        q: "Combien je gagne par recommandation ?",
+        a: "Le montant est d\u00e9fini dans votre contrat ambassadeur. En g\u00e9n\u00e9ral, c'est 5% des frais d'agence sur chaque vente conclue. Exemple : pour des frais d'agence de 10 000 \u20ac, vous gagnez 500 \u20ac.",
       },
       {
-        q: "O\u00f9 voir mes commissions ?",
-        a: "Rendez-vous dans \u00ab Mes commissions \u00bb pour voir le d\u00e9tail de chaque commission (pay\u00e9e, en attente, montant). La jauge sur votre tableau de bord vous donne un aper\u00e7u rapide de vos gains acquis et potentiels.",
+        q: "O\u00f9 voir mes gains ?",
+        a: "Rendez-vous dans \u00ab Mes gains \u00bb pour voir le d\u00e9tail de chaque versement (pay\u00e9, en attente, montant). La jauge sur votre tableau de bord r\u00e9sume en un coup d'\u0153il vos gains acquis et potentiels.",
       },
       {
-        q: "Comment recevoir le paiement de ma commission ?",
-        a: "Assurez-vous d'avoir renseign\u00e9 votre RIB (IBAN) dans votre profil. Sans coordonn\u00e9es bancaires, nous ne pouvons pas proc\u00e9der au versement. Rendez-vous dans \u00ab Mon profil \u00bb pour l'ajouter.",
+        q: "Comment recevoir mon paiement ?",
+        a: "Renseignez votre RIB (IBAN) dans votre profil. Sans coordonn\u00e9es bancaires, nous ne pouvons pas vous payer. Rendez-vous dans \u00ab Mon profil \u00bb pour l'ajouter.",
       },
     ],
   },
@@ -58,8 +58,8 @@ const FAQ_SECTIONS = [
         a: "Allez dans \u00ab Mes contrats \u00bb. Cliquez sur le contrat en attente de signature, puis apposez votre signature \u00e9lectronique directement dans l'app. C'est l\u00e9galement valide.",
       },
       {
-        q: "Qu'est-ce que la reconnaissance d'honoraires ?",
-        a: "C'est un document qui confirme votre droit \u00e0 la commission sur une transaction donn\u00e9e. Elle pr\u00e9cise le montant exact et doit \u00eatre sign\u00e9e par les deux parties avant le versement.",
+        q: "Qu'est-ce qu'une attestation de gain ?",
+        a: "C'est un document qui confirme votre gain sur une vente conclue. Il pr\u00e9cise le montant exact et doit \u00eatre sign\u00e9 par vous et l'agence avant le versement.",
       },
       {
         q: "Qu'est-ce que le contrat d'apporteur d'affaires ?",
@@ -91,7 +91,7 @@ const FAQ_SECTIONS = [
     questions: [
       {
         q: "\u00c0 qui puis-je envoyer des messages ?",
-        a: "Vous pouvez communiquer avec votre n\u00e9gociateur attribu\u00e9 et les administrateurs de La Brie Immobili\u00e8re directement depuis la messagerie int\u00e9gr\u00e9e.",
+        a: "Vous pouvez communiquer avec votre conseiller attitr\u00e9 et avec l'\u00e9quipe La Brie Immobili\u00e8re directement depuis la messagerie int\u00e9gr\u00e9e.",
       },
       {
         q: "Suis-je notifi\u00e9 des nouveaux messages ?",

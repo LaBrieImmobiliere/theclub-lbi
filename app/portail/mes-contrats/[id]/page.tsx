@@ -122,7 +122,7 @@ export default function ContratPortalDetailPage() {
     const { generateAcknowledgmentPDF } = await import("@/lib/pdf");
     const url = generateAcknowledgmentPDF(ack, contract, "blob");
     if (typeof url === "string") {
-      setPreview({ url, title: `Reconnaissance ${ack.number}`, name: `reconnaissance-honoraires-${ack.number}.pdf` });
+      setPreview({ url, title: `Attestation ${ack.number}`, name: `attestation-gain-${ack.number}.pdf` });
     }
   };
   const closePreview = () => {
@@ -302,7 +302,7 @@ export default function ContratPortalDetailPage() {
       {/* Honorary Acknowledgments */}
       {contract.honoraryAcknowledgments.length > 0 && (
         <Card>
-          <CardHeader><h2 className="font-semibold text-gray-900">Reconnaissances d&apos;honoraires</h2></CardHeader>
+          <CardHeader><h2 className="font-semibold text-gray-900">Attestations de gain</h2></CardHeader>
           <CardContent className="space-y-3">
             {contract.honoraryAcknowledgments.map((ack) => (
               <div key={ack.id} className="p-4 border border-gray-100 rounded-xl space-y-3">
@@ -393,7 +393,7 @@ export default function ContratPortalDetailPage() {
           <Card className="w-full max-w-2xl">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <h2 className="font-semibold text-gray-900">Signer la reconnaissance d&apos;honoraires</h2>
+                <h2 className="font-semibold text-gray-900">Signer l&apos;attestation de gain</h2>
                 <button onClick={() => setShowSignAck(null)} className="text-gray-400 hover:text-gray-600">✕</button>
               </div>
             </CardHeader>

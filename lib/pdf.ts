@@ -794,3 +794,190 @@ export function generateAllAcknowledgmentsPDF(acks: any[], contract: any, action
 
   return finalizeDoc(doc, `reconnaissances-${contract.number}.pdf`, action);
 }
+
+// ─── RÉCAP FISCAL ANNUEL AMBASSADEUR (BNC) ────────────────────────
+// Génère un PDF 1-page récapitulant toutes les commissions encaissées
+// sur une année civile, prêt à joindre à la déclaration fiscale BNC.
+export interface FiscalRecapEntry {
+  date: string | Date;          // date de versement
+  contractNumber: string;
+  leadName: string;
+  amount: number;               // montant TTC perçu
+}
+
+export interface FiscalRecapInput {
+  ambassador: {
+    name: string;
+    email: string;
+    address?: string | null;
+    legalStatus?: string | null; // PARTICULIER / SOCIETE / ASSOCIATION
+    companyName?: string | null;
+    companySiret?: string | null;
+    associationName?: string | null;
+    associationRna?: string | null;
+  };
+  year: number;
+  entries: FiscalRecapEntry[];
+}
+
+export function generateFiscalRecapPDF(data: FiscalRecapInput, action: PdfAction = "save"): string | void {
+  const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+  const pageW = 210;
+  const M = 20;
+  const W = pageW - M * 2;
+  const amb = data.ambassador;
+  const total = data.entries.reduce((s, e) => s + e.amount, 0);
+
+  // ─── HEADER ───
+  doc.setFillColor(3, 10, 36);
+  doc.rect(0, 0, pageW, 28, "F");
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(14);
+  doc.setFont("helvetica", "bold");
+  doc.text(agency.name, M, 13);
+  doc.setFontSize(8);
+  doc.setFont("helvetica", "normal");
+  doc.text(`${agency.address}, ${agency.postalCode} ${agency.city}`, M, 19);
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(209, 178, 128);
+  doc.text("THE CLUB", pageW - M, 13, { align: "right" });
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(8);
+  doc.setFont("helvetica", "normal");
+  doc.text("Programme ambassadeurs", pageW - M, 19, { align: "right" });
+
+  // Titre
+  let y = 42;
+  doc.setTextColor(3, 10, 36);
+  doc.setFontSize(18);
+  doc.setFont("helvetica", "bold");
+  doc.text(`Récapitulatif fiscal ${data.year}`, M, y);
+  y += 7;
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(100, 116, 139);
+  doc.text("Commissions perçues en qualité d'ambassadeur (apporteur d'affaires)", M, y);
+  y += 10;
+
+  // ─── BLOC BÉNÉFICIAIRE ───
+  doc.setDrawColor(226, 232, 240);
+  doc.setLineWidth(0.3);
+  doc.rect(M, y, W, 28);
+  doc.setFontSize(8);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(100, 116, 139);
+  doc.text("BÉNÉFICIAIRE", M + 3, y + 5);
+  doc.setFontSize(11);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(3, 10, 36);
+  doc.text(amb.name, M + 3, y + 11);
+  doc.setFontSize(9);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(71, 85, 105);
+  const lines: string[] = [];
+  if (amb.email) lines.push(amb.email);
+  if (amb.address) lines.push(amb.address);
+  if (amb.legalStatus === "SOCIETE" && amb.companyName) {
+    lines.push(`${amb.companyName}${amb.companySiret ? ` — SIRET ${amb.companySiret}` : ""}`);
+  }
+  if (amb.legalStatus === "ASSOCIATION" && amb.associationName) {
+    lines.push(`${amb.associationName}${amb.associationRna ? ` — RNA ${amb.associationRna}` : ""}`);
+  }
+  let bl = y + 16;
+  for (const line of lines.slice(0, 3)) {
+    doc.text(line, M + 3, bl);
+    bl += 4;
+  }
+  y += 34;
+
+  // ─── TABLEAU DES COMMISSIONS ───
+  doc.setFontSize(9);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(3, 10, 36);
+  doc.text(`Détail des commissions versées en ${data.year}`, M, y);
+  y += 5;
+
+  // Entête du tableau
+  const headerY = y;
+  doc.setFillColor(249, 246, 241);
+  doc.rect(M, headerY, W, 7, "F");
+  doc.setFontSize(8);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(100, 116, 139);
+  doc.text("Date", M + 3, headerY + 4.8);
+  doc.text("Référence", M + 32, headerY + 4.8);
+  doc.text("Dossier (recommandation)", M + 70, headerY + 4.8);
+  doc.text("Montant TTC", pageW - M - 3, headerY + 4.8, { align: "right" });
+  y = headerY + 10;
+
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(31, 41, 55);
+
+  if (data.entries.length === 0) {
+    doc.setFontSize(9);
+    doc.setTextColor(148, 163, 184);
+    doc.text(`Aucune commission n'a été versée au cours de l'année ${data.year}.`, M + 3, y + 3);
+    y += 10;
+  } else {
+    for (const entry of data.entries) {
+      if (y > 240) {
+        addFooter(doc, M);
+        doc.addPage();
+        y = M;
+      }
+      doc.setDrawColor(241, 245, 249);
+      doc.line(M, y + 5, pageW - M, y + 5);
+      doc.setFontSize(9);
+      doc.text(fmtDate(entry.date), M + 3, y + 2);
+      doc.text(entry.contractNumber, M + 32, y + 2);
+      // Troncature nom si trop long
+      const name = entry.leadName.length > 38 ? entry.leadName.slice(0, 36) + "…" : entry.leadName;
+      doc.text(name, M + 70, y + 2);
+      doc.setFont("helvetica", "bold");
+      doc.text(fmt(entry.amount), pageW - M - 3, y + 2, { align: "right" });
+      doc.setFont("helvetica", "normal");
+      y += 7;
+    }
+  }
+
+  // ─── TOTAL ───
+  y += 2;
+  doc.setFillColor(3, 10, 36);
+  doc.rect(M, y, W, 10, "F");
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(209, 178, 128);
+  doc.text("TOTAL PERÇU", M + 3, y + 6.3);
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(12);
+  doc.text(fmt(total), pageW - M - 3, y + 6.5, { align: "right" });
+  y += 16;
+
+  // ─── NOTE FISCALE ───
+  doc.setFontSize(8);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(100, 116, 139);
+  doc.text("À DÉCLARER", M, y);
+  y += 4;
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8);
+  doc.setTextColor(71, 85, 105);
+  const noteText =
+    amb.legalStatus === "SOCIETE"
+      ? "Ces revenus doivent être intégrés à la comptabilité de votre société et déclarés selon son régime d'imposition (IS ou IR). Conservez ce document avec vos pièces justificatives."
+      : amb.legalStatus === "ASSOCIATION"
+      ? "Ces revenus doivent être intégrés aux comptes de votre association. Conservez ce document avec vos pièces justificatives."
+      : "En tant que particulier, ces revenus doivent être déclarés dans la catégorie BNC non professionnels (formulaire 2042-C-PRO, case 5KU ou 5LU). Conservez ce document avec votre déclaration de revenus.";
+  y = writeBlock(doc, noteText, M, y, W, 4, M);
+  y += 4;
+  doc.setFontSize(7);
+  doc.setTextColor(148, 163, 184);
+  doc.text(
+    `Document établi le ${fmtDate(new Date())} par ${agency.name}. Ce récapitulatif a valeur informative et doit être conservé.`,
+    M, y,
+  );
+
+  addFooter(doc, M);
+  return finalizeDoc(doc, `recap-fiscal-${data.year}-${amb.name.replace(/\s+/g, "-").toLowerCase()}.pdf`, action);
+}

@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { ContactShareCard } from "./contact-share-card";
+import { PersonalLinkCard } from "./personal-link-card";
 import { ClipboardList, CheckCircle2, Clock } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -17,6 +18,7 @@ export default async function ParrainagePage() {
   const ambassador = await prisma.ambassador.findUnique({
     where: { userId: user.id },
     include: {
+      user: { select: { name: true } },
       negotiator: {
         include: {
           user: { select: { name: true, email: true, phone: true, image: true } },
@@ -109,6 +111,12 @@ export default async function ParrainagePage() {
           </CardContent>
         </Card>
       </div>
+
+      <PersonalLinkCard
+        code={ambassador.code}
+        firstName={ambassador.user?.name?.split(" ")[0] ?? null}
+        baseUrl={process.env.NEXTAUTH_URL ?? "https://theclub.labrieimmobiliere.fr"}
+      />
 
       <ContactShareCard contact={contactInfo} />
     </div>
