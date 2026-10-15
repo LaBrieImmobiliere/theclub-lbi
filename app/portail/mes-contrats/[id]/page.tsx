@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { SignaturePad } from "@/components/signature-pad";
 import { PdfPreviewModal } from "@/components/pdf-preview-modal";
+import { InAppContractSignModal } from "@/components/in-app-contract-sign-modal";
 import { ArrowLeft, Download, CheckCircle2, Eye } from "lucide-react";
 import {
   formatDate,
@@ -357,24 +358,14 @@ export default function ContratPortalDetailPage() {
         </Card>
       )}
 
-      {/* Contract signature modal */}
+      {/* Contract signature modal — tout in-app, lecture + signature en 1 écran */}
       {showSignContract && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4">
-          <Card className="w-full max-w-2xl">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="font-semibold text-gray-900">Signer le contrat {contract.number}</h2>
-                  <p className="text-sm text-gray-500 mt-1">En signant, vous acceptez les termes de ce contrat d&apos;apporteur d&apos;affaire.</p>
-                </div>
-                <button onClick={() => setShowSignContract(false)} className="text-gray-400 hover:text-gray-600">✕</button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <SignaturePad onSave={signContract} />
-            </CardContent>
-          </Card>
-        </div>
+        <InAppContractSignModal
+          contract={contract}
+          onCancel={() => setShowSignContract(false)}
+          onSign={signContract}
+          onReadFull={previewPDF}
+        />
       )}
 
       {/* PDF preview modal */}

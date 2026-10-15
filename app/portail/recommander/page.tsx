@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { CheckCircle2, ArrowLeft, Sparkles, ChevronDown, Home, Tag } from "lucide-react";
 import Link from "next/link";
+import { BusinessCardScanner } from "@/components/business-card-scanner";
 
 type ProjectType = "ACHAT" | "VENTE" | "LOCATION" | "INVESTISSEMENT" | "AUTRE" | "";
 
@@ -115,6 +116,23 @@ export default function RecommandationPage() {
 
       <Card>
         <CardContent className="pt-6">
+          {/* Scanner carte de visite — pré-remplissage automatique */}
+          <div className="mb-5">
+            <BusinessCardScanner
+              onScan={(card) => {
+                const name = [card.firstName, card.lastName].filter(Boolean).join(" ");
+                setForm((f) => ({
+                  ...f,
+                  fullName: name || f.fullName,
+                  phone: card.phone || f.phone,
+                  email: card.email || f.email,
+                }));
+                // Ouvre la section "plus d'infos" si on a récupéré un email
+                if (card.email) setShowMore(true);
+              }}
+            />
+          </div>
+
           <form onSubmit={handleSubmit} className="space-y-5">
             {/* 1. Nom complet */}
             <Input
