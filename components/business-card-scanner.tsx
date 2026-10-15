@@ -2,9 +2,9 @@
 
 /**
  * Scanner carte de visite — bouton photo qui ouvre la caméra (mobile),
- * envoie l'image au backend pour OCR Claude Vision, pré-remplit le formulaire.
- * Si l'OCR échoue ou n'est pas configuré, la photo reste affichée à côté du
- * formulaire pour saisie manuelle rapide.
+ * OCR 100% client-side via Tesseract.js (pas de clé API, gratuit, offline).
+ * Pré-remplit le formulaire avec nom/téléphone/email extraits par regex.
+ * Si l'OCR échoue, la photo reste affichée pour saisie manuelle.
  */
 
 import { useRef, useState } from "react";
@@ -15,17 +15,60 @@ interface ScannedCard {
   lastName: string | null;
   phone: string | null;
   email: string | null;
-  company: string | null;
 }
 
 interface Props {
   onScan: (card: ScannedCard) => void;
 }
 
+// Regex utiles pour extraire les données d'une carte de visite
+const EMAIL_RE = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
+const PHONE_RE = /(?:\+33|0033|0)\s?[1-9](?:[\s.\-/]?\d{2}){4}/;
+
+function extractFromText(raw: string): ScannedCard {
+  const text = raw.replace(/\r/g, "");
+
+  const emailMatch = text.match(EMAIL_RE);
+  const phoneMatch = text.match(PHONE_RE);
+
+  // Nom : première ligne qui ressemble à "Prénom Nom" (2+ mots capitalisés),
+  // qui n'est ni un email, ni un téléphone, ni une URL
+  let firstName: string | null = null;
+  let lastName: string | null = null;
+
+  const lines = text
+    .split("\n")
+    .map((l) => l.trim())
+    .filter((l) => l.length >= 3);
+
+  for (const line of lines) {
+    if (EMAIL_RE.test(line)) continue;
+    if (PHONE_RE.test(line)) continue;
+    if (/https?:\/\/|www\./i.test(line)) continue;
+    if (line.length > 40) continue;
+
+    // Match "Prénom Nom" ou "Prénom NOM" (au moins 2 mots, lettres uniquement)
+    const nameMatch = line.match(/^([A-ZÀ-ÿ][a-zà-ÿ'-]+)\s+([A-ZÀ-ÿ][A-ZÀ-ÿa-zà-ÿ'-]+)(?:\s+[A-ZÀ-ÿ][A-ZÀ-ÿa-zà-ÿ'-]+)?$/);
+    if (nameMatch) {
+      firstName = nameMatch[1];
+      lastName = nameMatch[2];
+      break;
+    }
+  }
+
+  return {
+    firstName,
+    lastName,
+    phone: phoneMatch?.[0]?.replace(/\s+/g, " ").trim() ?? null,
+    email: emailMatch?.[0] ?? null,
+  };
+}
+
 export function BusinessCardScanner({ onScan }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState<number>(0);
   const [error, setError] = useState<string | null>(null);
 
   const openCamera = () => inputRef.current?.click();
@@ -36,43 +79,38 @@ export function BusinessCardScanner({ onScan }: Props) {
 
     setError(null);
     setLoading(true);
+    setProgress(0);
 
     // Preview immédiat
     const previewUrl = URL.createObjectURL(file);
     setImagePreview(previewUrl);
 
-    // Conversion en base64
-    const reader = new FileReader();
-    reader.onload = async () => {
-      const result = reader.result as string;
-      // dataURL = "data:image/jpeg;base64,XXXX"
-      const [header, base64] = result.split(",");
-      const mediaTypeMatch = header.match(/data:(.*);base64/);
-      const mediaType = mediaTypeMatch?.[1] || "image/jpeg";
+    try {
+      // Lazy load tesseract pour ne pas gonfler le bundle principal
+      const Tesseract = (await import("tesseract.js")).default;
 
-      try {
-        const res = await fetch("/api/ai/ocr-business-card", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ imageBase64: base64, mediaType }),
-        });
+      const { data } = await Tesseract.recognize(file, "fra+eng", {
+        logger: (m) => {
+          if (m.status === "recognizing text") {
+            setProgress(Math.round(m.progress * 100));
+          }
+        },
+      });
 
-        if (res.status === 503) {
-          setError("Scan auto indisponible — recopiez les infos depuis la photo.");
-        } else if (!res.ok) {
-          setError("La lecture a échoué — recopiez à la main depuis la photo.");
-        } else {
-          const data: ScannedCard = await res.json();
-          onScan(data);
-          // Pas d'erreur = feedback positif implicite via champs remplis
-        }
-      } catch {
-        setError("Problème réseau — recopiez à la main depuis la photo.");
-      } finally {
-        setLoading(false);
+      const extracted = extractFromText(data.text || "");
+
+      // Au moins un champ trouvé = succès
+      if (extracted.phone || extracted.email || extracted.firstName) {
+        onScan(extracted);
+      } else {
+        setError("Rien de lisible — recopiez à la main depuis la photo.");
       }
-    };
-    reader.readAsDataURL(file);
+    } catch {
+      setError("Lecture échouée — recopiez à la main depuis la photo.");
+    } finally {
+      setLoading(false);
+      setProgress(0);
+    }
 
     // Reset input pour permettre re-sélection même fichier
     e.target.value = "";
@@ -122,11 +160,17 @@ export function BusinessCardScanner({ onScan }: Props) {
             <X className="w-4 h-4" />
           </button>
           {loading && (
-            <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-              <div className="flex items-center gap-2 text-white text-sm font-medium">
-                <Loader2 className="w-5 h-5 animate-spin" />
-                Lecture de la carte…
-              </div>
+            <div className="absolute inset-0 bg-black/70 flex flex-col items-center justify-center gap-2">
+              <Loader2 className="w-6 h-6 animate-spin text-[#D1B280]" />
+              <p className="text-white text-sm font-medium">Lecture de la carte…</p>
+              {progress > 0 && (
+                <div className="w-32 h-1 bg-white/20 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-[#D1B280] transition-all"
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+              )}
             </div>
           )}
         </div>
