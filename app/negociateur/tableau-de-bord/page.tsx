@@ -118,52 +118,60 @@ export default async function NegociateurDashboardPage() {
         )}
       </div>
 
-      {/* Stats */}
+      {/* Stats — chaque carte navigue vers le détail */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="flex items-center gap-4 py-5">
-            <div className="w-9 h-9 sm:w-11 sm:h-11 bg-purple-50 rounded-xl flex items-center justify-center flex-shrink-0">
-              <ClipboardList className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
-            </div>
-            <div>
-              <p className="text-xl sm:text-2xl font-bold text-gray-900">{totalLeads}</p>
-              <p className="text-xs text-gray-500">Recommandations</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="flex items-center gap-4 py-5">
-            <div className="w-9 h-9 sm:w-11 sm:h-11 bg-amber-50 rounded-xl flex items-center justify-center flex-shrink-0">
-              <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-amber-500" />
-            </div>
-            <div>
-              <p className="text-xl sm:text-2xl font-bold text-gray-900">{newLeads}</p>
-              <p className="text-xs text-gray-500">En attente</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="flex items-center gap-4 py-5">
-            <div className="w-9 h-9 sm:w-11 sm:h-11 bg-blue-50 rounded-xl flex items-center justify-center flex-shrink-0">
-              <Users className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
-            </div>
-            <div>
-              <p className="text-xl sm:text-2xl font-bold text-gray-900">{totalAmbassadors}</p>
-              <p className="text-xs text-gray-500">Ambassadeurs</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="flex items-center gap-4 py-5">
-            <div className="w-9 h-9 sm:w-11 sm:h-11 bg-green-50 rounded-xl flex items-center justify-center flex-shrink-0">
-              <Percent className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
-            </div>
-            <div>
-              <p className="text-xl sm:text-2xl font-bold text-gray-900">{conversionRate}%</p>
-              <p className="text-xs text-gray-500">Conversion</p>
-            </div>
-          </CardContent>
-        </Card>
+        <Link href="/negociateur/mes-recommandations" className="block transition-transform hover:scale-[1.02] active:scale-[0.98]">
+          <Card className="h-full hover:border-purple-200 transition-colors">
+            <CardContent className="flex items-center gap-4 py-5">
+              <div className="w-9 h-9 sm:w-11 sm:h-11 bg-purple-50 rounded-xl flex items-center justify-center flex-shrink-0">
+                <ClipboardList className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
+              </div>
+              <div>
+                <p className="text-xl sm:text-2xl font-bold text-gray-900">{totalLeads}</p>
+                <p className="text-xs text-gray-500">Recommandations</p>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+        <Link href="/negociateur/mes-recommandations?status=NOUVEAU" className="block transition-transform hover:scale-[1.02] active:scale-[0.98]">
+          <Card className="h-full hover:border-amber-200 transition-colors">
+            <CardContent className="flex items-center gap-4 py-5">
+              <div className="w-9 h-9 sm:w-11 sm:h-11 bg-amber-50 rounded-xl flex items-center justify-center flex-shrink-0">
+                <Clock className="w-4 h-4 sm:w-5 sm:h-5 text-amber-500" />
+              </div>
+              <div>
+                <p className="text-xl sm:text-2xl font-bold text-gray-900">{newLeads}</p>
+                <p className="text-xs text-gray-500">En attente</p>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+        <Link href="/negociateur/mes-ambassadeurs" className="block transition-transform hover:scale-[1.02] active:scale-[0.98]">
+          <Card className="h-full hover:border-blue-200 transition-colors">
+            <CardContent className="flex items-center gap-4 py-5">
+              <div className="w-9 h-9 sm:w-11 sm:h-11 bg-blue-50 rounded-xl flex items-center justify-center flex-shrink-0">
+                <Users className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+              </div>
+              <div>
+                <p className="text-xl sm:text-2xl font-bold text-gray-900">{totalAmbassadors}</p>
+                <p className="text-xs text-gray-500">Ambassadeurs</p>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
+        <Link href="/negociateur/mes-recommandations" className="block transition-transform hover:scale-[1.02] active:scale-[0.98]">
+          <Card className="h-full hover:border-green-200 transition-colors">
+            <CardContent className="flex items-center gap-4 py-5">
+              <div className="w-9 h-9 sm:w-11 sm:h-11 bg-green-50 rounded-xl flex items-center justify-center flex-shrink-0">
+                <Percent className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
+              </div>
+              <div>
+                <p className="text-xl sm:text-2xl font-bold text-gray-900">{conversionRate}%</p>
+                <p className="text-xs text-gray-500">Conversion</p>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
       </div>
 
       {/* Jauges CA */}
