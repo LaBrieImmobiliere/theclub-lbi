@@ -140,9 +140,9 @@ export default function NegociateurMessageriePage() {
                 const isMine = msg.senderId === currentUser?.id;
                 return (
                   <div key={msg.id} className={`flex ${isMine ? "justify-end" : "justify-start"}`}>
-                    <div className={`max-w-[80%] sm:max-w-[70%] px-4 py-2.5 ${isMine ? "bg-[#030A24] text-white" : "bg-[#f9f6f1] text-gray-900"}`}>
-                      <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
-                      <p className={`text-[10px] mt-1 ${isMine ? "text-white/60" : "text-gray-400"}`}>
+                    <div className={`max-w-[80%] sm:max-w-[70%] px-4 py-2.5 ${isMine ? "bg-[#030A24] text-white" : "bg-[#f9f6f1] text-[#030A24]"}`}>
+                      <p className="text-sm whitespace-pre-wrap" style={isMine ? undefined : { color: "#030A24" }}>{msg.content}</p>
+                      <p className={`text-[10px] mt-1 ${isMine ? "text-white/60" : ""}`} style={isMine ? undefined : { color: "#6b7280" }}>
                         {new Date(msg.createdAt).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
                       </p>
                     </div>

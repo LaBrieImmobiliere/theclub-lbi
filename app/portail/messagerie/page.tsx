@@ -299,14 +299,20 @@ export default function MessageriePage() {
                       className={`max-w-[80%] sm:max-w-[70%] px-4 py-2.5 ${
                         isMine
                           ? "bg-brand-deep text-white"
-                          : "bg-brand-cream text-gray-900"
+                          : "bg-brand-cream text-[#030A24]"
                       }`}
                     >
-                      <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                      <p
+                        className="text-sm whitespace-pre-wrap"
+                        style={isMine ? undefined : { color: "#030A24" }}
+                      >
+                        {msg.content}
+                      </p>
                       <p
                         className={`text-[10px] mt-1 ${
-                          isMine ? "text-white/60" : "text-gray-400"
+                          isMine ? "text-white/60" : ""
                         }`}
+                        style={isMine ? undefined : { color: "#6b7280" }}
                       >
                         {new Date(msg.createdAt).toLocaleTimeString("fr-FR", {
                           hour: "2-digit",
