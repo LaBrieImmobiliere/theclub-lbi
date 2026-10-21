@@ -308,10 +308,10 @@ export function NegociateurParrainagePage({ code, inscriptionUrl, negotiatorName
       </div>
 
       {/* QR Code */}
-      <div className="bg-[#030A24] text-white overflow-hidden">
-        <div className="px-4 sm:px-6 py-4 border-b border-white/10 flex items-center gap-2">
+      <div className="bg-[#030A24] text-white overflow-hidden rounded-xl border border-[#D1B280]/20 shadow-sm">
+        <div className="px-4 sm:px-6 py-4 border-b border-white/10 flex items-center justify-center gap-2">
           <QrCode className="w-4 h-4 text-[#D1B280]" />
-          <h2 className="font-semibold text-white text-sm sm:text-base">Votre QR Code de recrutement</h2>
+          <h2 className="font-semibold text-white text-sm sm:text-base text-center">Votre QR Code de recrutement</h2>
         </div>
         <div className="p-4 sm:p-6 flex flex-col items-center gap-4 sm:gap-6">
           {/* QR mode toggle */}
