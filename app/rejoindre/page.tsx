@@ -17,6 +17,8 @@ interface Agency {
 function RegisterForm() {
   const searchParams = useSearchParams();
   const code = searchParams.get("ref") || searchParams.get("code") || "";
+  // Lien des emails Modelo : ?conseiller=prenom.nom@labrieimmobiliere.fr
+  const conseiller = (searchParams.get("conseiller") || "").trim().toLowerCase();
 
   const [done, setDone] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -62,7 +64,7 @@ function RegisterForm() {
       const res = await fetch("/api/ambassadeurs/inscription", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, name: `${form.firstName} ${form.lastName}`, referralCode: code }),
+        body: JSON.stringify({ ...form, name: `${form.firstName} ${form.lastName}`, referralCode: code, conseillerEmail: conseiller || undefined }),
       });
 
       const data = await res.json();
@@ -299,7 +301,7 @@ function RegisterForm() {
       </div>
 
       {/* Choix agence */}
-      {!code && agencies.length > 0 && (
+      {!code && !conseiller && agencies.length > 0 && (
         <div className="pt-2 border-t border-gray-100">
           <div className="flex items-center gap-2 mb-3">
             <Building2 className="w-4 h-4 text-[#D1B280]" />
