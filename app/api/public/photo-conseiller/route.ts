@@ -20,19 +20,15 @@ const NEGOCIATEURS: Record<string, string> = {
   "lea.gaucher@labrieimmobiliere.fr": "159",
 };
 
-// PNG transparent 1x1 : jamais d'image cassée si le conseiller n'est pas (encore) listé
-const PIXEL = Buffer.from(
-  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=",
-  "base64"
-);
-
 export async function GET(request: NextRequest) {
   const email = (request.nextUrl.searchParams.get("email") ?? "").trim().toLowerCase();
   const id = NEGOCIATEURS[email];
 
+  // Conseiller pas (encore) listé : pastille La Brie Immobilière plutôt qu'une image cassée
   if (!id) {
-    return new NextResponse(PIXEL, {
-      headers: { "Content-Type": "image/png", "Cache-Control": "public, max-age=3600" },
+    return NextResponse.redirect(new URL("/icons/icon-192x192.png", request.nextUrl.origin), {
+      status: 302,
+      headers: { "Cache-Control": "public, max-age=3600" },
     });
   }
 
