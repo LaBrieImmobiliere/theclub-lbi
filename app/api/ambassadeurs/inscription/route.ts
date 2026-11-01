@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
   const body = await req.json();
   const {
     name, firstName, lastName, email, phone, password,
-    referralCode, selectedAgencyId, selectedNegotiatorId,
+    referralCode, conseillerEmail, selectedAgencyId, selectedNegotiatorId,
     address, postalCode, city,
     // Statut juridique
     legalStatus,
@@ -76,6 +76,17 @@ export async function POST(req: NextRequest) {
         agencyId = ambassador.agencyId;
         negotiatorId = ambassador.negotiatorId;
       }
+    }
+  }
+
+  // Priority 1b: conseiller email (liens des emails Modelo, ex. ?conseiller=prenom.nom@labrieimmobiliere.fr)
+  if (!negotiatorId && typeof conseillerEmail === "string" && /@labrieimmobiliere\.fr$/i.test(conseillerEmail.trim())) {
+    const negotiator = await prisma.negotiator.findFirst({
+      where: { status: "ACTIVE", user: { email: conseillerEmail.trim().toLowerCase() } },
+    });
+    if (negotiator) {
+      negotiatorId = negotiator.id;
+      agencyId = negotiator.agencyId;
     }
   }
 
