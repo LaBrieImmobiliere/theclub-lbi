@@ -11,8 +11,8 @@ const NETTY_PHOTOS = "https://img.netty.immo/company57704yhu/assets/nego/";
 export async function GET(request: NextRequest) {
   const conseiller = conseillerModelo(request.nextUrl.searchParams.get("email"));
 
-  // Conseiller pas (encore) listé : pastille La Brie Immobilière plutôt qu'une image cassée
-  if (!conseiller) {
+  // Conseiller pas (encore) listé ou sans photo Netty : pastille La Brie Immobilière plutôt qu'une image cassée
+  if (!conseiller?.netty) {
     return NextResponse.redirect(new URL("/icons/icon-192x192.png", request.nextUrl.origin), {
       status: 302,
       headers: { "Cache-Control": "public, max-age=3600" },

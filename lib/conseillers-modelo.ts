@@ -5,7 +5,7 @@
 
 export type AgenceLBI = "villecresnes" | "brie-comte-robert" | "marolles";
 
-export const CONSEILLERS_MODELO: Record<string, { netty: string; agence: AgenceLBI }> = {
+export const CONSEILLERS_MODELO: Record<string, { netty?: string; agence: AgenceLBI }> = {
   "alexandre.brites@labrieimmobiliere.fr": { netty: "001", agence: "brie-comte-robert" },
   "luis.brites@labrieimmobiliere.fr": { netty: "108", agence: "villecresnes" },
   "maria.brites@labrieimmobiliere.fr": { netty: "112", agence: "villecresnes" },
@@ -15,6 +15,8 @@ export const CONSEILLERS_MODELO: Record<string, { netty: string; agence: AgenceL
   "baptiste.diponio@labrieimmobiliere.fr": { netty: "156", agence: "villecresnes" },
   "elisa.savart@labrieimmobiliere.fr": { netty: "158", agence: "villecresnes" },
   "lea.gaucher@labrieimmobiliere.fr": { netty: "159", agence: "brie-comte-robert" },
+  // Arrivée le 01/12/2026 — numéro Netty à renseigner une fois son compte créé
+  "edgar.karapetyan@labrieimmobiliere.fr": { agence: "marolles" },
 };
 
 // Fiches Google Business Profile (place_id) de chaque agence
