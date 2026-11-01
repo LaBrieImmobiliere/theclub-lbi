@@ -3,7 +3,7 @@
 // photo de la signature (numéro de négociateur Netty) et lien d'avis Google
 // de l'agence du conseiller.
 
-export type AgenceLBI = "villecresnes" | "brie-comte-robert";
+export type AgenceLBI = "villecresnes" | "brie-comte-robert" | "marolles";
 
 export const CONSEILLERS_MODELO: Record<string, { netty: string; agence: AgenceLBI }> = {
   "alexandre.brites@labrieimmobiliere.fr": { netty: "001", agence: "brie-comte-robert" },
@@ -23,6 +23,8 @@ export const AVIS_GOOGLE: Record<AgenceLBI, string> = {
   villecresnes: "ChIJacT35SsK5kcRGK7290f7dz8",
   // 19 rue du Général Leclerc, Brie-Comte-Robert
   "brie-comte-robert": "ChIJO_YbBSwJ5kcR_qd5WcU9bFo",
+  // Marolles-en-Brie
+  marolles: "ChIJsb3LiMQJ5kcRPn9keoXVGVM",
 };
 
 export function conseillerModelo(email: string | null | undefined) {
